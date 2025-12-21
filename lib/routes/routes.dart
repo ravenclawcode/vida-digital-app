@@ -1,0 +1,125 @@
+import 'package:flutter/material.dart';
+import 'package:mindfullshelter/screens/auth/forgot_password_confirm_screen.dart';
+import 'package:mindfullshelter/screens/auth/forgot_password_input_email_screen.dart';
+import 'package:mindfullshelter/screens/auth/forgot_password_input_new_password_screen.dart';
+import 'package:mindfullshelter/screens/auth/forgot_password_input_otp_screen.dart';
+import 'package:mindfullshelter/screens/auth/multi_signin_screen.dart';
+import 'package:mindfullshelter/screens/auth/signin_screen.dart';
+import 'package:mindfullshelter/screens/auth/signup_screen.dart';
+import 'package:mindfullshelter/screens/audio/audio_mindfulness_screen.dart';
+import 'package:mindfullshelter/screens/education/detail_article_screen.dart';
+import 'package:mindfullshelter/screens/education/detail_video_screen.dart';
+import 'package:mindfullshelter/screens/home/chatbot_screen.dart';
+import 'package:mindfullshelter/screens/education/education_screen.dart';
+import 'package:mindfullshelter/screens/home/anonymous_comunity_screen.dart';
+import 'package:mindfullshelter/screens/home/mood_tracker_screen.dart';
+import 'package:mindfullshelter/screens/home/main_screen.dart';
+import 'package:mindfullshelter/screens/onboarding/get_started_screen.dart';
+import 'package:mindfullshelter/screens/onboarding/splash_screen.dart';
+import 'package:mindfullshelter/screens/home/home_screen.dart';
+import 'package:mindfullshelter/screens/onboarding/introduction_screen.dart';
+import 'package:mindfullshelter/screens/profile/profile_screen.dart';
+import 'package:mindfullshelter/screens/terms%20&%20conditions/terms_and_conditions_screen.dart';
+import 'package:mindfullshelter/utils/app_theme.dart';
+
+class Routes {
+  static const String main = '/';
+  static const String splash = '/splash';
+  static const String introduction = '/introduction';
+  static const String multiSignIn = '/multisign-in';
+  static const String signIn = '/sign-in';
+  static const String signUp = '/sign-up';
+  static const String termsAndConditions = '/termsandconditions';
+  static const String getStarted = '/getstarted';
+  static const String forgotPasswordInputEmail = '/forgotpassword-inputemail';
+  static const String forgotPasswordInputOtp = '/forgotpassword-inputotp';
+  static const String forgotPasswordInputConfirm = '/forgotpassword-confirm';
+  static const String forgotPasswordInputNewPassword =
+      '/forgotpassword-inputnewpassword';
+  static const String home = '/home';
+  static const String profile = '/profile';
+  static const String moodTracker = '/moodtracker';
+  static const String audioMindfulness = '/audiomindfulness';
+  static const String anonymousComunity = '/anonymouscomunity';
+  static const String chatbot = '/chatbot';
+  static const String education = '/education';
+  static const String detailVideo = '/detailvideo';
+  static const String detailArticle = '/detailarticle';
+}
+
+Route<dynamic> generateRoute(RouteSettings settings) {
+  switch (settings.name) {
+    case Routes.splash:
+      return MaterialPageRoute(builder: (_) => const SplashScreen());
+    case Routes.main:
+      return MaterialPageRoute(builder: (_) => const MainScreen());
+    case Routes.introduction:
+      return MaterialPageRoute(builder: (_) => const IntroductionScreen());
+    case Routes.multiSignIn:
+      return MaterialPageRoute(builder: (_) => const MultiSigninScreen());
+    case Routes.signIn:
+      return MaterialPageRoute(builder: (_) => const SignInScreen());
+    case Routes.signUp:
+      return MaterialPageRoute(builder: (_) => const SignUpScreen());
+    case Routes.termsAndConditions:
+      final tabIndex = settings.arguments as int? ?? 0;
+      return MaterialPageRoute(
+        builder: (_) => TermsAndConditionsScreen(tabIndex: tabIndex),
+      );
+    case Routes.getStarted:
+      return MaterialPageRoute(builder: (_) => const GetStartedScreen());
+    case Routes.forgotPasswordInputEmail:
+      return MaterialPageRoute(
+        builder: (_) => const ForgotPasswordInputEmailScreen(),
+      );
+    case Routes.forgotPasswordInputOtp:
+      return MaterialPageRoute(
+        builder: (_) => const ForgorPasswordInputOtpScreen(),
+      );
+    case Routes.forgotPasswordInputConfirm:
+      return MaterialPageRoute(
+        builder: (_) => const ForgotPasswordConfirmScreen(),
+      );
+    case Routes.forgotPasswordInputNewPassword:
+      return MaterialPageRoute(
+        builder: (_) => const ForgotPasswordInputNewPasswordScreen(),
+      );
+    case Routes.home:
+      return MaterialPageRoute(builder: (_) => const HomeScreen());
+    case Routes.profile:
+      return MaterialPageRoute(builder: (_) => const ProfileScreen());
+    case Routes.moodTracker:
+      return MaterialPageRoute(builder: (_) => const MoodTrackerScreen());
+    case Routes.audioMindfulness:
+      return MaterialPageRoute(builder: (_) => const AudioMindfulnessScreen());
+    case Routes.anonymousComunity:
+      return MaterialPageRoute(builder: (_) => const AnonymousComunityScreen());
+    case Routes.chatbot:
+      return MaterialPageRoute(builder: (_) => const ChatbotScreen());
+    case Routes.education:
+      return MaterialPageRoute(
+        builder: (_) => const EducationScreen(tabIndex: 0),
+      );
+    case Routes.detailVideo:
+      final videoId = settings.arguments as String;
+      return MaterialPageRoute(
+        builder: (_) => DetailVideoScreen(videoId: videoId),
+      );
+    case Routes.detailArticle:
+      final articleId = settings.arguments as String;
+      return MaterialPageRoute(
+        builder: (_) => DetailArticleScreen(articleId: articleId),
+      );
+    default:
+      return MaterialPageRoute(
+        builder: (_) => Scaffold(
+          body: Center(
+            child: Text(
+              'No route defined for ${settings.name}',
+              style: AppTextStyles.bodyLarge,
+            ),
+          ),
+        ),
+      );
+  }
+}
