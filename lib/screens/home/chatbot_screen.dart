@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:mindfullshelter/providers/chat_provider.dart';
 import 'package:mindfullshelter/utils/app_assets.dart';
 import 'package:mindfullshelter/utils/custom_button6.dart';
 import 'package:mindfullshelter/utils/custom_button7.dart';
+import 'package:provider/provider.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_theme.dart';
-import '../../data/dummy_data.dart';
-import '../../models/chat.dart';
+import '../../models/chat_model.dart';
 import 'package:intl/intl.dart';
 
 class ChatbotScreen extends StatefulWidget {
@@ -17,21 +18,42 @@ class ChatbotScreen extends StatefulWidget {
 
 class _ChatbotScreenState extends State<ChatbotScreen> {
   final TextEditingController _messageController = TextEditingController();
-  final List<Chat> _messages = List.from(DummyData.chatMessages);
+
   final ScrollController _scrollController = ScrollController();
   bool _hasText = false;
 
   @override
   void initState() {
     super.initState();
-
+    Future.microtask(() async {
+      await context.read<ChatProvider>().loadHistory();
+      _scrollToBottom();
+    });
     _messageController.addListener(() {
-      final hasText = _messageController.text.trim().isNotEmpty;
-      if (hasText != _hasText) {
-        setState(() {
-          _hasText = hasText;
-        });
-      }
+      setState(() => _hasText = _messageController.text.trim().isNotEmpty);
+    });
+  }
+
+  void _scrollToBottom() {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
+  }
+
+  void _sendMessage() {
+    final text = _messageController.text.trim();
+    if (text.isEmpty) return;
+
+    _messageController.clear();
+    context.read<ChatProvider>().sendChat(text).then((_) {
+      Future.delayed(
+        const Duration(milliseconds: 100),
+        () => _scrollToBottom(),
+      );
     });
   }
 
@@ -135,19 +157,24 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
   }
 
   Widget _buildMessagesList() {
-    return ListView.builder(
-      controller: _scrollController,
-      padding: EdgeInsets.zero,
-      itemCount: _messages.length + 1,
-      itemBuilder: (context, index) {
-        if (index == 0) {
-          return Column(children: [_buildWelcomeCard(), SizedBox(height: 20)]);
-        }
-
-        final message = _messages[index - 1];
-        return Padding(
-          padding: EdgeInsets.symmetric(horizontal: 25),
-          child: _buildMessageBubble(message),
+    return Consumer<ChatProvider>(
+      builder: (context, chatProvider, _) {
+        final messages = chatProvider.messages;
+        return ListView.builder(
+          controller: _scrollController,
+          itemCount: messages.length + 1,
+          itemBuilder: (context, index) {
+            if (index == 0) {
+              return Padding(
+                padding: EdgeInsets.only(bottom: 25),
+                child: _buildWelcomeCard(),
+              );
+            }
+            return Padding(
+              padding: EdgeInsets.symmetric(horizontal: 25),
+              child: _buildMessageBubble(messages[index - 1]),
+            );
+          },
         );
       },
     );
@@ -240,66 +267,6 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
               : CustomButton7(icon: icSendMessage),
         ],
       ),
-    );
-  }
-
-  void _sendMessage() {
-    if (_messageController.text.trim().isEmpty) return;
-
-    final userMessage = Chat(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      message: _messageController.text.trim(),
-      isUser: true,
-      timestamp: DateTime.now(),
-    );
-
-    setState(() {
-      _messages.add(userMessage);
-    });
-
-    _messageController.clear();
-
-    Future.delayed(Duration(seconds: 1), () {
-      final botResponse = _generateBotResponse(userMessage.message);
-      setState(() {
-        _messages.add(botResponse);
-      });
-
-      Future.delayed(Duration(milliseconds: 100), () {
-        _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent,
-          duration: Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
-      });
-    });
-  }
-
-  Chat _generateBotResponse(String userMessage) {
-    final lowerMessage = userMessage.toLowerCase();
-    List<String> responses = DummyData.botResponses['default']!;
-
-    if (lowerMessage.contains('sedih') || lowerMessage.contains('bete')) {
-      responses = DummyData.botResponses['sedih']!;
-    } else if (lowerMessage.contains('senang') ||
-        lowerMessage.contains('bahagia')) {
-      responses = DummyData.botResponses['senang']!;
-    } else if (lowerMessage.contains('takut') ||
-        lowerMessage.contains('khawatir')) {
-      responses = DummyData.botResponses['takut']!;
-    } else if (lowerMessage.contains('marah') ||
-        lowerMessage.contains('kesal')) {
-      responses = DummyData.botResponses['marah']!;
-    }
-
-    final randomResponse =
-        responses[DateTime.now().millisecond % responses.length];
-
-    return Chat(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      message: randomResponse,
-      isUser: false,
-      timestamp: DateTime.now(),
     );
   }
 }

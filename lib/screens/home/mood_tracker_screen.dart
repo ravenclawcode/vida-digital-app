@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mindfullshelter/data/dummy_data.dart';
-import 'package:mindfullshelter/models/mood.dart';
-import 'package:mindfullshelter/provider/mood_provider.dart';
+import 'package:mindfullshelter/models/mood_model.dart';
+import 'package:mindfullshelter/providers/mood_provider.dart';
 import 'package:mindfullshelter/utils/app_assets.dart';
 import 'package:mindfullshelter/utils/app_colors.dart';
 import 'package:mindfullshelter/utils/app_theme.dart';
@@ -19,6 +19,43 @@ class MoodTrackerScreen extends StatefulWidget {
 
 class _MoodTrackerScreenState extends State<MoodTrackerScreen> {
   Mood? selectedMood;
+
+  void _handleDeleteMood(String id) async {
+    try {
+      await context.read<MoodProvider>().deleteMood(id);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Riwayat mood berhasil dihapus')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Gagal menghapus mood')));
+      }
+    }
+  }
+
+  void _handleSaveMood() async {
+    if (selectedMood == null) return;
+
+    try {
+      await context.read<MoodProvider>().saveMood(selectedMood!);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Mood berhasil disimpan!')),
+        );
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Gagal menyimpan mood')));
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -140,7 +177,7 @@ class _MoodTrackerScreenState extends State<MoodTrackerScreen> {
                       borderRadius: BorderRadius.circular(15),
                       border: Border.all(
                         color: isSelected
-                            ? AppColors.primary
+                            ? AppColors.textPink
                             : Colors.transparent,
                         width: 1.5,
                       ),
@@ -162,15 +199,7 @@ class _MoodTrackerScreenState extends State<MoodTrackerScreen> {
             ),
             SizedBox(height: 20),
             selectedMood != null
-                ? CustomButton1(
-                    label: 'Simpan Mood',
-                    onTap: () {
-                      context.read<MoodProvider>().saveMood(
-                        mood: selectedMood!,
-                      );
-                      Navigator.pop(context);
-                    },
-                  )
+                ? CustomButton1(label: 'Simpan Mood', onTap: _handleSaveMood)
                 : CustomButton4(
                     label: Text('Simpan Mood', style: AppTextStyles.button1),
                   ),
@@ -183,10 +212,6 @@ class _MoodTrackerScreenState extends State<MoodTrackerScreen> {
   Widget _buildWeaklyMoodCheck(BuildContext context) {
     final moodProvider = context.watch<MoodProvider>();
     final now = DateTime.now();
-    final startOfWeek = DateTime.now().subtract(
-      Duration(days: DateTime.now().weekday - 1),
-    );
-    final weeklyMood = moodProvider.weeklyMood(startOfWeek);
     final days = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
 
     return Padding(
@@ -220,7 +245,7 @@ class _MoodTrackerScreenState extends State<MoodTrackerScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: List.generate(7, (index) {
-                  final entry = weeklyMood[index];
+                  final entry = moodProvider.getMoodForDay(index);
                   final bool isToday = (index + 1) == now.weekday;
 
                   return Stack(
@@ -274,7 +299,7 @@ class _MoodTrackerScreenState extends State<MoodTrackerScreen> {
                           top: -3,
                           right: -4,
                           child: GestureDetector(
-                            onTap: () => moodProvider.deleteMood(entry.id),
+                            onTap: () => _handleDeleteMood(entry.id),
                             child: Image.asset(icRemove, height: 12),
                           ),
                         ),

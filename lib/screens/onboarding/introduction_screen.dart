@@ -1,12 +1,12 @@
-import 'dart:async';
+// import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:mindfullshelter/utils/app_assets.dart';
-import 'package:mindfullshelter/utils/app_colors.dart';
-import 'package:mindfullshelter/utils/app_theme.dart';
+// import 'package:mindfullshelter/utils/app_assets.dart';
+// import 'package:mindfullshelter/utils/app_colors.dart';
+// import 'package:mindfullshelter/utils/app_theme.dart';
 import 'package:mindfullshelter/utils/custom_button1.dart';
-import 'package:mindfullshelter/utils/custom_button2.dart';
-import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:mindfullshelter/utils/custom_button11.dart';
+// import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class IntroductionScreen extends StatefulWidget {
   const IntroductionScreen({super.key});
@@ -18,129 +18,156 @@ class IntroductionScreen extends StatefulWidget {
 class _IntroductionScreenState extends State<IntroductionScreen> {
   final PageController _controller = PageController();
 
-  @override
-  void initState() {
-    super.initState();
+  // @override
+  // void initState() {
+  //   super.initState();
 
-    Timer.periodic(Duration(seconds: 3), (timer) {
-      if (_controller.hasClients) {
-        int nextPage = _controller.page!.round() + 1;
-        if (nextPage == 5) {
-          nextPage = 0;
-        }
-        _controller.animateToPage(
-          nextPage,
-          duration: Duration(milliseconds: 500),
-          curve: Curves.easeInOut,
-        );
-      }
-    });
-  }
+  //   Timer.periodic(Duration(seconds: 3), (timer) {
+  //     if (_controller.hasClients) {
+  //       int nextPage = _controller.page!.round() + 1;
+  //       if (nextPage == 5) {
+  //         nextPage = 0;
+  //       }
+  //       _controller.animateToPage(
+  //         nextPage,
+  //         duration: Duration(milliseconds: 500),
+  //         curve: Curves.easeInOut,
+  //       );
+  //     }
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            Expanded(child: _buildCarousel()),
-            SizedBox(height: 3),
+            // _buildHeaderWelcome(),
+            // SizedBox(height: 50),
+            // _buildCarousel(),
+            // SizedBox(height: 3),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 25),
-              child: CustomButton1(
-                onTap: () =>
-                    Navigator.pushReplacementNamed(context, '/multisign-in'),
-                label: 'Buat Akun',
-              ),
-            ),
-            SizedBox(height: 5),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 25),
-              child: CustomButton2(
+              child: CustomButton11(
                 onTap: () => Navigator.pushNamed(context, '/sign-in'),
                 label: 'Masuk',
               ),
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 10),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 25),
+              child: CustomButton1(
+                onTap: () =>
+                    Navigator.pushNamed(context, '/activationaccountscreen'),
+                label: 'Aktivasi Akun',
+              ),
+            ),
+            SizedBox(height: 60),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildCarousel() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        SizedBox(
-          height: 270,
-          child: PageView(
-            controller: _controller,
-            children: [
-              CarouselContent(
-                image: illustration1,
-                label: 'Jaga Kesehatan Mentalmu',
-              ),
-              CarouselContent(
-                image: illustration2,
-                label: 'Tenangkan Pikiran Lewat Suara',
-              ),
-              CarouselContent(
-                image: illustration3,
-                label: 'Bercerita Aman Tanpa Identitas',
-              ),
-              CarouselContent(
-                image: illustration4,
-                label: 'Teman Bicara Kapan Saja',
-              ),
-              CarouselContent(
-                image: illustration5,
-                label: 'Edukasi HIV/AIDS Lewat Video',
-              ),
-            ],
-          ),
-        ),
-        SizedBox(height: 7.5),
-        Image.asset(vector1, height: 5, width: 184),
-        SizedBox(height: 20),
-        SmoothPageIndicator(
-          controller: _controller,
-          count: 5,
-          effect: ExpandingDotsEffect(
-            dotHeight: 6,
-            dotWidth: 6,
-            activeDotColor: AppColors.primary,
-            dotColor: AppColors.accent,
-            expansionFactor: 3,
-          ),
-        ),
-        SizedBox(height: 180),
-      ],
-    );
-  }
-}
+  //   Widget _buildHeaderWelcome() {
+  //     return Column(
+  //       children: [
+  //         Row(
+  //           mainAxisAlignment: MainAxisAlignment.center,
+  //           children: [
+  //             Image.asset(icLogo, height: 28),
+  //             SizedBox(width: 10),
+  //             Text('VIDA', style: AppTextStyles.headingIntroduction),
+  //           ],
+  //         ),
+  //         SizedBox(height: 20),
+  //         Text('Selamat Datang', style: AppTextStyles.subHeadingIntroduction),
+  //         SizedBox(height: 11),
+  //         Text.rich(
+  //           TextSpan(
+  //             children: [
+  //               TextSpan(
+  //                 text: 'Yuk, masuk dan temukan ',
+  //                 style: AppTextStyles.descIntroduction.copyWith(
+  //                   color: AppColors.textSecondary,
+  //                 ),
+  //               ),
+  //               TextSpan(
+  //                 text: 'dukungan mental\ndan edukasi ',
+  //                 style: AppTextStyles.descIntroduction.copyWith(
+  //                   fontWeight: FontWeight.w600,
+  //                 ),
+  //               ),
+  //               TextSpan(
+  //                 text: 'bagi penyintas ',
+  //                 style: AppTextStyles.descIntroduction.copyWith(
+  //                   color: AppColors.textSecondary,
+  //                 ),
+  //               ),
+  //               TextSpan(
+  //                 text: 'HIV/AIDS.',
+  //                 style: AppTextStyles.descIntroduction.copyWith(
+  //                   color: AppColors.primary,
+  //                   fontWeight: FontWeight.w600,
+  //                 ),
+  //               ),
+  //             ],
+  //           ),
+  //           textAlign: TextAlign.center,
+  //         ),
+  //       ],
+  //     );
+  //   }
 
-class CarouselContent extends StatelessWidget {
-  final String image;
-  final String label;
+  //   Widget _buildCarousel() {
+  //     return Column(
+  //       mainAxisAlignment: MainAxisAlignment.end,
+  //       children: [
+  //         SizedBox(
+  //           height: 270,
+  //           child: PageView(
+  //             controller: _controller,
+  //             children: [
+  //               CarouselContent(image: illustration8),
+  //               CarouselContent(image: illustration1),
+  //               CarouselContent(image: illustration2),
+  //               CarouselContent(image: illustration3),
+  //               CarouselContent(image: illustration4),
+  //               CarouselContent(image: illustration5),
+  //             ],
+  //           ),
+  //         ),
+  //         SizedBox(height: 35),
+  //         SmoothPageIndicator(
+  //           controller: _controller,
+  //           count: 6,
+  //           effect: ExpandingDotsEffect(
+  //             dotHeight: 8,
+  //             dotWidth: 8,
+  //             activeDotColor: AppColors.primary,
+  //             dotColor: AppColors.accent,
+  //             expansionFactor: 3,
+  //           ),
+  //         ),
+  //         SizedBox(height: 60),
+  //       ],
+  //     );
+  //   }
+  // }
 
-  const CarouselContent({super.key, required this.image, required this.label});
+  // class CarouselContent extends StatelessWidget {
+  //   final String image;
 
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(child: Image.asset(image, height: 230)),
-        SizedBox(height: 15),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 25),
-          child: Text(
-            label,
-            textAlign: TextAlign.center,
-            style: AppTextStyles.heading3Bold,
-          ),
-        ),
-      ],
-    );
-  }
+  //   const CarouselContent({super.key, required this.image});
+
+  //   @override
+  //   Widget build(BuildContext context) {
+  //     return Padding(
+  //       padding: EdgeInsets.symmetric(horizontal: 25),
+  //       child: Image.asset(image, height: 230),
+  //     );
+  //   }
+  // }
 }

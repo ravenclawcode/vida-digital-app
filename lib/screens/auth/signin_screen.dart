@@ -1,11 +1,10 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:mindfullshelter/provider/auth_provider.dart';
+import 'package:mindfullshelter/providers/auth_provider.dart';
 import 'package:mindfullshelter/utils/app_assets.dart';
 import 'package:mindfullshelter/utils/app_colors.dart';
 import 'package:mindfullshelter/utils/app_theme.dart';
 import 'package:mindfullshelter/utils/custom_button1.dart';
-import 'package:mindfullshelter/utils/custom_button3.dart';
 import 'package:mindfullshelter/utils/custom_button4.dart';
 import 'package:mindfullshelter/utils/custom_input_form_email.dart';
 import 'package:mindfullshelter/utils/custom_input_form_password.dart';
@@ -22,8 +21,9 @@ class _SignInScreenState extends State<SignInScreen> {
   final _formKey = GlobalKey<FormState>();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+
   bool get isFormFilled =>
-      emailController.text.trim().isNotEmpty ||
+      emailController.text.trim().isNotEmpty &&
       passwordController.text.trim().isNotEmpty;
 
   @override
@@ -39,21 +39,24 @@ class _SignInScreenState extends State<SignInScreen> {
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
 
-    final auth = Provider.of<AuthProvider>(context, listen: false);
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
-    final success = await auth.signIn(email, password);
+    final success = await authProvider.login(email, password);
 
     if (!mounted) return;
 
     if (success) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Login Berhasil!')));
       Navigator.pushNamedAndRemoveUntil(
         context,
-        '/getstarted',
+        '/home',
         (route) => false,
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Email atau password salah')),
+        const SnackBar(content: Text('Email atau password salah')),
       );
     }
   }
@@ -75,7 +78,10 @@ class _SignInScreenState extends State<SignInScreen> {
           child: Column(
             children: [
               SizedBox(height: 20),
-              _buildHeader(icon: icBackLeft1, onTap: () => Navigator.pop(context)),
+              _buildHeader(
+                icon: icBackLeft1,
+                onTap: () => Navigator.pop(context),
+              ),
               SizedBox(height: 25),
               _buildActionForm(),
               SizedBox(height: 35),
@@ -101,7 +107,7 @@ class _SignInScreenState extends State<SignInScreen> {
             child: Image(image: AssetImage(icon), width: 18),
           ),
         ),
-        SizedBox(height: 20),
+        SizedBox(height: 30),
         Align(
           alignment: AlignmentGeometry.topLeft,
           child: Text('Masuk', style: AppTextStyles.heading2),
@@ -118,7 +124,23 @@ class _SignInScreenState extends State<SignInScreen> {
           CustomInputFormEmail(controller: emailController),
           SizedBox(height: 15),
           CustomInputFormPassword(controller: passwordController),
-          SizedBox(height: 15),
+          SizedBox(height: 10),
+          Align(
+            alignment: AlignmentGeometry.topRight,
+            child: InkWell(
+              focusColor: Colors.transparent,
+              hoverColor: Colors.transparent,
+              highlightColor: Colors.transparent,
+              overlayColor: WidgetStateProperty.all(Colors.transparent),
+              onTap: () =>
+                  Navigator.pushNamed(context, '/forgotpassword-inputemail'),
+              child: Text(
+                'Lupa Kata Sandi?',
+                style: AppTextStyles.bodyMediumColors.copyWith(fontSize: 13),
+              ),
+            ),
+          ),
+          SizedBox(height: 28),
           Consumer<AuthProvider>(
             builder: (context, auth, child) {
               final disabled = !isFormFilled || auth.isLoading;
@@ -139,22 +161,6 @@ class _SignInScreenState extends State<SignInScreen> {
               return CustomButton1(onTap: _handleSignIn, label: 'Masuk');
             },
           ),
-          SizedBox(height: 15),
-          Align(
-            alignment: AlignmentGeometry.topRight,
-            child: InkWell(
-              focusColor: Colors.transparent,
-              hoverColor: Colors.transparent,
-              highlightColor: Colors.transparent,
-              overlayColor: WidgetStateProperty.all(Colors.transparent),
-              onTap: () =>
-                  Navigator.pushNamed(context, '/forgotpassword-inputemail'),
-              child: Text(
-                'Lupa Kata Sandi?',
-                style: AppTextStyles.bodyMediumColors,
-              ),
-            ),
-          ),
         ],
       ),
     );
@@ -163,39 +169,19 @@ class _SignInScreenState extends State<SignInScreen> {
   Widget _buildAnotherAction() {
     return Column(
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: Divider(color: AppColors.borderColor, thickness: 0.8),
-            ),
-            SizedBox(width: 2),
-            Text('ATAU', style: AppTextStyles.heading4),
-            SizedBox(width: 2),
-            Expanded(
-              child: Divider(color: AppColors.borderColor, thickness: 0.8),
-            ),
-          ],
-        ),
-        SizedBox(height: 35),
-        CustomButton3(
-          onTap: () {},
-          icon: icGoogle,
-          label: 'Masuk dengan Google',
-        ),
-        SizedBox(height: 35),
         Text.rich(
           TextSpan(
             children: [
               TextSpan(
-                text: 'Belum punya akun? ',
+                text: 'Belum memiliki akun? ',
                 style: AppTextStyles.bodyMedium,
               ),
               TextSpan(
-                text: 'Daftar',
+                text: 'Aktivasi akun',
                 style: AppTextStyles.bodyMediumBold,
                 recognizer: TapGestureRecognizer()
                   ..onTap = () {
-                    Navigator.pushNamed(context, '/sign-up');
+                    Navigator.pushNamed(context, '/activationaccountscreen');
                   },
               ),
             ],

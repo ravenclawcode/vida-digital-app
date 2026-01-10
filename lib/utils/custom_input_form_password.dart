@@ -35,7 +35,7 @@ class _CustomInputFormPasswordState extends State<CustomInputFormPassword> {
       cursorErrorColor: AppColors.textPrimary,
       decoration: InputDecoration(
         filled: true,
-        fillColor: AppColors.backgroundForm,
+        fillColor: AppColors.backgroundList,
         hintText: widget.isConfirm ? 'Konfirmasi Kata Sandi' : 'Kata Sandi',
         hintStyle: AppTextStyles.hintForm,
         suffixIcon: IconButton(
@@ -51,11 +51,11 @@ class _CustomInputFormPasswordState extends State<CustomInputFormPassword> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(8)),
-          borderSide: BorderSide(color: AppColors.backgroundForm),
+          borderSide: BorderSide(color: AppColors.backgroundList),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(8)),
-          borderSide: BorderSide(color: AppColors.backgroundForm),
+          borderSide: BorderSide(color: AppColors.backgroundList),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(8)),
@@ -73,8 +73,8 @@ class _CustomInputFormPasswordState extends State<CustomInputFormPassword> {
               ? 'Konfirmasi kata sandi harus diisi'
               : 'Kata Sandi harus diisi';
         }
-        if (!widget.isConfirm && value.length < 6) {
-          return 'Password minimal 6 karakter';
+        if (!widget.isConfirm && value.length < 8) {
+          return 'Password minimal 8 karakter';
         }
         if (widget.isConfirm &&
             (widget.passwordController?.text.trim() ?? '') != value.trim()) {

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:mindfullshelter/providers/audio_provider.dart';
 import 'package:mindfullshelter/screens/audio/audio_player_sheet.dart';
 import 'package:mindfullshelter/utils/app_assets.dart';
+import 'package:provider/provider.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_theme.dart';
-import '../../data/dummy_data.dart';
-import '../../models/audio.dart';
+import '../../models/audio_model.dart';
 
 class AudioMindfulnessScreen extends StatefulWidget {
   const AudioMindfulnessScreen({super.key});
@@ -16,6 +17,21 @@ class AudioMindfulnessScreen extends StatefulWidget {
 class _AudioMindfulnessScreenState extends State<AudioMindfulnessScreen> {
   String selectedCategory = 'Semua';
   final List<String> categories = ['Semua', 'Relaksasi', 'Meditasi', 'Tidur'];
+
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(
+      () => context.read<AudioProvider>().getAudios(category: selectedCategory),
+    );
+  }
+
+  void _onCategorySelected(String category) {
+    setState(() {
+      selectedCategory = category;
+    });
+    context.read<AudioProvider>().getAudios(category: category);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,11 +89,7 @@ class _AudioMindfulnessScreenState extends State<AudioMindfulnessScreen> {
           final category = categories[index];
           final isSelected = selectedCategory == category;
           return GestureDetector(
-            onTap: () {
-              setState(() {
-                selectedCategory = category;
-              });
-            },
+            onTap: () => _onCategorySelected(category),
             child: Container(
               margin: EdgeInsets.only(right: 12),
               padding: EdgeInsets.symmetric(horizontal: 15),
@@ -109,18 +121,24 @@ class _AudioMindfulnessScreenState extends State<AudioMindfulnessScreen> {
   }
 
   Widget _buildAudioList() {
-    final filteredAudios = selectedCategory == 'Semua'
-        ? DummyData.audioMindfulness
-        : DummyData.audioMindfulness
-              .where((audio) => audio.category == selectedCategory)
-              .toList();
+    return Consumer<AudioProvider>(
+      builder: (context, provider, _) {
+        if (provider.isLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-    return ListView.builder(
-      padding: EdgeInsets.symmetric(horizontal: 25, vertical: 20),
-      itemCount: filteredAudios.length,
-      itemBuilder: (context, index) {
-        final audio = filteredAudios[index];
-        return _buildAudioCard(audio);
+        if (provider.audios.isEmpty) {
+          return const Center(child: Text("Tidak ada audio tersedia"));
+        }
+
+        return ListView.builder(
+          padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
+          itemCount: provider.audios.length,
+          itemBuilder: (context, index) {
+            final audio = provider.audios[index];
+            return _buildAudioCard(audio);
+          },
+        );
       },
     );
   }
@@ -132,41 +150,49 @@ class _AudioMindfulnessScreenState extends State<AudioMindfulnessScreen> {
         borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
-            offset: Offset(3, 3),
+            offset: const Offset(3, 3),
             blurRadius: 10,
             spreadRadius: 1,
             color: AppColors.shadow.withValues(alpha: 0.10),
           ),
         ],
       ),
-      margin: EdgeInsets.only(bottom: 15),
+      margin: const EdgeInsets.only(bottom: 15),
       child: InkWell(
-        focusColor: Colors.transparent,
-        hoverColor: Colors.transparent,
-        highlightColor: Colors.transparent,
-        overlayColor: WidgetStateProperty.all(Colors.transparent),
-        onTap: () {
-          _showAudioPlayer(audio);
-        },
+        onTap: () => _showAudioPlayer(audio),
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
           child: Row(
             children: [
               Container(
                 width: 75,
                 height: 75,
                 decoration: BoxDecoration(
-                  color: Color(0xFFF5F5F5),
+                  color: const Color(0xFFF5F5F5),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Center(
-                  child: Text(
-                    audio.thumbnailUrl,
-                    style: TextStyle(fontSize: 35),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Image.network(
+                    audio.coverUrl,
+                    fit: BoxFit.cover,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return const Center(
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      );
+                    },
+                    errorBuilder: (context, error, stackTrace) {
+                      return const Icon(
+                        Icons.music_note,
+                        size: 30,
+                        color: Colors.grey,
+                      );
+                    },
                   ),
                 ),
               ),
-              SizedBox(width: 14),
+              const SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -177,18 +203,18 @@ class _AudioMindfulnessScreenState extends State<AudioMindfulnessScreen> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    SizedBox(height: 2),
+                    const SizedBox(height: 2),
                     Text(
                       audio.description,
                       style: AppTextStyles.descAudio,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    SizedBox(height: 6),
+                    const SizedBox(height: 6),
                     Row(
                       children: [
                         Container(
-                          padding: EdgeInsets.symmetric(
+                          padding: const EdgeInsets.symmetric(
                             horizontal: 8,
                             vertical: 4,
                           ),
@@ -201,9 +227,9 @@ class _AudioMindfulnessScreenState extends State<AudioMindfulnessScreen> {
                             style: AppTextStyles.categoryAudio,
                           ),
                         ),
-                        SizedBox(width: 10),
+                        const SizedBox(width: 10),
                         Image.asset(icTime, height: 11),
-                        SizedBox(width: 4),
+                        const SizedBox(width: 4),
                         Text(
                           audio.durationFormatted,
                           style: AppTextStyles.bodySmall,

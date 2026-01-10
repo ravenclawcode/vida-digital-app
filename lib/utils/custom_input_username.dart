@@ -23,21 +23,18 @@ class _CustomInputFormUsernameState extends State<CustomInputFormUsername> {
       cursorColor: AppColors.textPrimary,
       cursorErrorColor: AppColors.textPrimary,
       decoration: InputDecoration(
-        contentPadding: EdgeInsets.symmetric(
-          horizontal: 15,
-          vertical: 15,
-        ),
+        contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
         filled: true,
-        fillColor: AppColors.backgroundForm,
+        fillColor: AppColors.backgroundList,
         hintText: 'Nama Pengguna',
         hintStyle: AppTextStyles.hintForm,
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(8)),
-          borderSide: BorderSide(color: AppColors.backgroundForm),
+          borderSide: BorderSide(color: AppColors.backgroundList),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(8)),
-          borderSide: BorderSide(color: AppColors.backgroundForm),
+          borderSide: BorderSide(color: AppColors.backgroundList),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(8)),

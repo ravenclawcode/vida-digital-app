@@ -21,11 +21,11 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen>
   @override
   void initState() {
     tabController = TabController(
-  length: 2,
-  vsync: this,
-  initialIndex: widget.tabIndex,
-);
-super.initState();
+      length: 2,
+      vsync: this,
+      initialIndex: widget.tabIndex,
+    );
+    super.initState();
   }
 
   @override

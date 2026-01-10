@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:mindfullshelter/providers/education_provider.dart';
 import 'package:mindfullshelter/screens/education/article.dart';
 import 'package:mindfullshelter/screens/education/video.dart';
 import 'package:mindfullshelter/utils/app_assets.dart';
 import 'package:mindfullshelter/utils/app_colors.dart';
 import 'package:mindfullshelter/utils/app_theme.dart';
+import 'package:provider/provider.dart';
 
 class EducationScreen extends StatefulWidget {
   final int tabIndex;
@@ -19,12 +21,16 @@ class _EducationScreenState extends State<EducationScreen>
 
   @override
   void initState() {
+    super.initState();
     tabController = TabController(
       length: 2,
       vsync: this,
       initialIndex: widget.tabIndex,
     );
-    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<EducationProvider>(context, listen: false).initEducation();
+    });
   }
 
   @override

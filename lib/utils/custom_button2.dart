@@ -22,7 +22,10 @@ class CustomButton2 extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
         ),
         alignment: Alignment.center,
-        child: Text(label, style: AppTextStyles.button1.copyWith(color: AppColors.textPrimary)),
+        child: Text(
+          label,
+          style: AppTextStyles.button1.copyWith(color: AppColors.textPrimary),
+        ),
       ),
     );
   }

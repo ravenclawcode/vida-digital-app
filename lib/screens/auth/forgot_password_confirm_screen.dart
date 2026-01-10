@@ -20,7 +20,6 @@ class ForgotPasswordConfirmScreen extends StatelessWidget {
                 icon: icBackLeft1,
                 onTap: () => Navigator.pop(context),
               ),
-              SizedBox(height: 15),
             ],
           ),
         ),
@@ -44,14 +43,14 @@ class ForgotPasswordConfirmScreen extends StatelessWidget {
           onTap: onTap,
           child: Image(image: AssetImage(icon), width: 18),
         ),
-        SizedBox(height: 20),
+        SizedBox(height: 30),
         Text('Reset Kata Sandi', style: AppTextStyles.heading2),
         SizedBox(height: 20),
         Text(
           'Kata sandi Anda berhasil diatur ulang. Klik\nkonfirmasi untuk membuat kata sandi baru.',
           style: AppTextStyles.bodyMedium,
         ),
-        SizedBox(height: 15),
+        SizedBox(height: 35),
         CustomButton1(
           onTap: () =>
               Navigator.pushNamed(context, '/forgotpassword-inputnewpassword'),

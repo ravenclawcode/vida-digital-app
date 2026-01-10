@@ -114,7 +114,7 @@ class AppTextStyles {
 
   static TextStyle get bodyMediumBold => GoogleFonts.poppins(
     fontSize: 14,
-    fontWeight: FontWeight.w700,
+    fontWeight: FontWeight.w600,
     color: AppColors.primary,
   );
 
@@ -125,7 +125,7 @@ class AppTextStyles {
   );
   static TextStyle get bodyMediumBoldColors => GoogleFonts.poppins(
     fontSize: 14,
-    fontWeight: FontWeight.w600,
+    fontWeight: FontWeight.w500,
     color: AppColors.textPrimary,
   );
 
@@ -149,7 +149,7 @@ class AppTextStyles {
 
   static TextStyle get bodyExtraSmallBoldColors => GoogleFonts.poppins(
     fontSize: 11,
-    fontWeight: FontWeight.bold,
+    fontWeight: FontWeight.w500,
     color: AppColors.primary,
   );
 
@@ -186,7 +186,7 @@ class AppTextStyles {
   static TextStyle get hintForm => GoogleFonts.poppins(
     fontSize: 15,
     fontWeight: FontWeight.normal,
-    color: AppColors.textLight,
+    color: AppColors.textHint,
   );
 
   static TextStyle get button1 => GoogleFonts.poppins(
@@ -237,6 +237,31 @@ class AppTextStyles {
     fontSize: 12,
     fontWeight: FontWeight.w500,
     color: AppColors.textWhite,
+  );
+
+  //Font Quick Mood Check
+  static TextStyle get headingMedication => GoogleFonts.poppins(
+    fontSize: 16,
+    fontWeight: FontWeight.w600,
+    color: AppColors.textPrimary,
+  );
+
+  static TextStyle get titleMedication => GoogleFonts.poppins(
+    fontSize: 11,
+    fontWeight: FontWeight.w600,
+    color: AppColors.textPrimary,
+  );
+
+  static TextStyle get dateMedication => GoogleFonts.poppins(
+    fontSize: 9,
+    fontWeight: FontWeight.w500,
+    color: AppColors.textLight,
+  );
+
+  static TextStyle get actionMedication => GoogleFonts.poppins(
+    fontSize: 11,
+    fontWeight: FontWeight.w500,
+    color: AppColors.textPink,
   );
 
   //Font Quick Mood Check
@@ -391,6 +416,12 @@ class AppTextStyles {
     color: AppColors.textLight,
   );
 
+  static TextStyle get actionButton => GoogleFonts.poppins(
+    fontSize: 11,
+    fontWeight: FontWeight.w600,
+    color: AppColors.textPrimary,
+  );
+
   //Font Anonymous Comunity
   static TextStyle get namePost => GoogleFonts.poppins(
     fontSize: 15,
@@ -416,8 +447,8 @@ class AppTextStyles {
     color: AppColors.textPrimary,
   );
 
-  static TextStyle get actionPost => GoogleFonts.poppins(
-    fontSize: 13,
+  static TextStyle get dropMenuPost => GoogleFonts.poppins(
+    fontSize: 11,
     fontWeight: FontWeight.w500,
     color: AppColors.textPrimary,
   );
@@ -458,6 +489,12 @@ class AppTextStyles {
     color: AppColors.textSecondary,
   );
 
+  static TextStyle get actionPost => GoogleFonts.poppins(
+    fontSize: 11,
+    fontWeight: FontWeight.w400,
+    color: AppColors.textSecondary,
+  );
+
   static TextStyle get bodyPost => GoogleFonts.poppins(
     fontSize: 12,
     fontWeight: FontWeight.w600,
@@ -470,10 +507,8 @@ class AppTextStyles {
     color: AppColors.textPrimary,
   );
 
-  static TextStyle get tabbarCategory => GoogleFonts.poppins(
-    fontSize: 11,
-    fontWeight: FontWeight.w400,
-  );
+  static TextStyle get tabbarCategory =>
+      GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w400);
 
   static TextStyle get titleGuidline => GoogleFonts.poppins(
     fontSize: 15,
@@ -487,4 +522,71 @@ class AppTextStyles {
     color: AppColors.textSecondary,
   );
 
+  //Font Profile
+  static TextStyle get usernameProfile => GoogleFonts.poppins(
+    fontSize: 16,
+    fontWeight: FontWeight.w600,
+    color: AppColors.textPrimary,
+  );
+
+  static TextStyle get emailProfile => GoogleFonts.poppins(
+    fontSize: 14,
+    fontWeight: FontWeight.w400,
+    color: AppColors.textSecondary,
+  );
+
+  static TextStyle get actionProfile => GoogleFonts.poppins(
+    fontSize: 11,
+    fontWeight: FontWeight.w500,
+    color: AppColors.textPrimary,
+  );
+
+  static TextStyle get titleMenu => GoogleFonts.poppins(
+    fontSize: 13,
+    fontWeight: FontWeight.w500,
+    color: AppColors.textPrimary,
+  );
+  static TextStyle get subtitleMenu => GoogleFonts.poppins(
+    fontSize: 11,
+    fontWeight: FontWeight.w400,
+    color: AppColors.textSecondary,
+  );
+
+  static TextStyle get versionApp => GoogleFonts.poppins(
+    fontSize: 11,
+    fontWeight: FontWeight.w400,
+    color: AppColors.textLight,
+  );
+
+  static TextStyle get instructionsAddImage => GoogleFonts.poppins(
+    fontSize: 12,
+    fontWeight: FontWeight.w400,
+    color: AppColors.textSecondary,
+  );
+
+  static TextStyle get headingProfile => GoogleFonts.poppins(
+    fontSize: 16,
+    fontWeight: FontWeight.w500,
+    color: AppColors.textPrimary,
+  );
+
+  //Introdution Profile
+  static TextStyle get headingIntroduction => GoogleFonts.poppins(
+    fontSize: 24,
+    fontWeight: FontWeight.w900,
+    color: AppColors.textPrimary,
+  );
+
+  static TextStyle get subHeadingIntroduction => GoogleFonts.poppins(
+    fontSize: 22,
+    fontWeight: FontWeight.w700,
+    color: AppColors.textPrimary,
+  );
+
+  static TextStyle get descIntroduction => GoogleFonts.poppins(
+    fontSize: 13,
+    fontWeight: FontWeight.w400,
+    color: AppColors.textPrimary,
+    height: 1.7,
+  );
 }

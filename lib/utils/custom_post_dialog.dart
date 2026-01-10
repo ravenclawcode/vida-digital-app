@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:mindfullshelter/provider/anonymouse_provider.dart';
+import 'package:mindfullshelter/providers/anonymouse_provider.dart';
 import 'package:mindfullshelter/utils/custom_button1.dart';
 import 'package:mindfullshelter/utils/custom_button2.dart';
 import 'package:mindfullshelter/utils/custom_button4.dart';
 import 'package:provider/provider.dart';
 import 'package:mindfullshelter/utils/app_colors.dart';
 import 'package:mindfullshelter/utils/app_theme.dart';
-import 'package:mindfullshelter/models/anonymous.dart';
+import 'package:mindfullshelter/models/anonymous_model.dart';
 
 class CustomPostDialog extends StatefulWidget {
   const CustomPostDialog({super.key});
@@ -37,14 +37,31 @@ class _CustomPostDialogState extends State<CustomPostDialog> {
     super.dispose();
   }
 
-  void _submit() {
-    final content = _controller.text.trim();
-    if (content.isEmpty) return;
-
-    context.read<AnonymousProvider>().addPost(content, selectedCategory);
-
-    Navigator.pop(context);
+  Future<void> _submit() async {
+  final content = _controller.text.trim();
+  if (content.length < 5) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Cerita minimal 5 karakter')),
+    );
+    return;
   }
+
+  final provider = context.read<AnonymousProvider>();
+  
+  Navigator.pop(context);
+  
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(content: Text('Sedang mengunggah...')),
+  );
+
+  try {
+    await provider.addPost(selectedCategory.label, content);
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Gagal mengunggah postingan')),
+    );
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -84,7 +101,7 @@ class _CustomPostDialogState extends State<CustomPostDialog> {
                       runSpacing: 8,
                       children: Category.values.map((cat) {
                         final isSelected = selectedCategory == cat;
-          
+
                         return GestureDetector(
                           onTap: () {
                             setState(() {

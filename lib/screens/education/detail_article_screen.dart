@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mindfullshelter/provider/education_provider.dart';
+import 'package:mindfullshelter/providers/education_provider.dart';
 import 'package:mindfullshelter/routes/routes.dart';
 import 'package:mindfullshelter/utils/app_assets.dart';
 import 'package:mindfullshelter/utils/app_colors.dart';
@@ -85,7 +85,13 @@ Widget _buildContentArticle(
   String articleId,
   dynamic article,
 ) {
-  List<String> paragraphs = article.description.split('\n');
+  List<String> paragraphs = (article.description ?? '')
+      .toString()
+      .split('\n')
+      .map((text) => text.trim())
+      .where((text) => text.isNotEmpty)
+      .toList();
+
   return Padding(
     padding: EdgeInsets.symmetric(horizontal: 25),
     child: Column(
@@ -95,19 +101,43 @@ Widget _buildContentArticle(
           children: [
             Image.asset(icTime, height: 12),
             SizedBox(width: 6),
-            Text(
-              '${article.durationFormatted} menit',
-              style: AppTextStyles.durationDescVideo,
-            ),
+            Text('${article.duration}', style: AppTextStyles.durationDescVideo),
             SizedBox(width: 8),
             Text('•', style: AppTextStyles.durationDescVideo),
             SizedBox(width: 8),
-            Text(article.formattedTime, style: AppTextStyles.durationDescVideo),
+            Text(
+              article.publishedAt ?? '',
+              style: AppTextStyles.durationDescVideo,
+            ),
+            SizedBox(width: 12),
+            InkWell(
+              focusColor: Colors.transparent,
+              hoverColor: Colors.transparent,
+              highlightColor: Colors.transparent,
+              overlayColor: WidgetStateProperty.all(Colors.transparent),
+              onTap: () {},
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Color(0xFFF5F5F5),
+                  borderRadius: BorderRadius.circular(25),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  child: Row(
+                    children: [
+                      Image.asset(icShare, height: 10),
+                      SizedBox(width: 6),
+                      Text('bagikan', style: AppTextStyles.actionButton),
+                    ],
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
-        SizedBox(height: 8),
+        SizedBox(height: 12),
         Text(
-          article.title,
+          article.title ?? '',
           style: AppTextStyles.durationDescVideo.copyWith(
             color: AppColors.textPrimary,
           ),
@@ -115,7 +145,8 @@ Widget _buildContentArticle(
         SizedBox(height: 12),
         ...paragraphs.take(3).map((text) => _buildParagraph(text)),
 
-        if (article.importantNote != null)
+        if (article.importantNote != null &&
+            article.importantNote.toString().isNotEmpty)
           Container(
             width: double.infinity,
             margin: EdgeInsets.fromLTRB(0, 6, 0, 16),
@@ -135,22 +166,20 @@ Widget _buildContentArticle(
                 ),
                 Padding(
                   padding: EdgeInsets.fromLTRB(18, 13, 15, 13),
-                  child: Expanded(
-                    child: RichText(
-                      text: TextSpan(
-                        style: AppTextStyles.durationDescVideo.copyWith(
-                          color: AppColors.textPrimary,
-                        ),
-                        children: [
-                          TextSpan(
-                            text: 'Catatan Penting: ',
-                            style: AppTextStyles.durationDescVideo.copyWith(
-                              color: AppColors.primary,
-                            ),
-                          ),
-                          TextSpan(text: article.importantNote),
-                        ],
+                  child: RichText(
+                    text: TextSpan(
+                      style: AppTextStyles.durationDescVideo.copyWith(
+                        color: AppColors.textPrimary,
                       ),
+                      children: [
+                        TextSpan(
+                          text: 'Catatan Penting: ',
+                          style: AppTextStyles.durationDescVideo.copyWith(
+                            color: AppColors.primary,
+                          ),
+                        ),
+                        TextSpan(text: article.importantNote),
+                      ],
                     ),
                   ),
                 ),
@@ -170,10 +199,19 @@ Widget _buildRelateArticle(BuildContext context, String currentArticleId) {
       .toList();
 
   if (relatedArticles.isEmpty) {
-    return Center(child: Text('Tidak ada article terkait lainnya'));
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Text(
+          'Tidak ada artikel terkait lainnya',
+          style: AppTextStyles.descVideo,
+        ),
+      ),
+    );
   }
+
   return ListView.builder(
-    padding: EdgeInsets.all(0),
+    padding: EdgeInsets.zero,
     shrinkWrap: true,
     physics: NeverScrollableScrollPhysics(),
     itemCount: relatedArticles.length,
@@ -181,10 +219,6 @@ Widget _buildRelateArticle(BuildContext context, String currentArticleId) {
       final item = relatedArticles[index];
 
       return InkWell(
-        focusColor: Colors.transparent,
-        hoverColor: Colors.transparent,
-        highlightColor: Colors.transparent,
-        overlayColor: WidgetStateProperty.all(Colors.transparent),
         onTap: () {
           Navigator.pushReplacementNamed(
             context,
@@ -203,24 +237,19 @@ Widget _buildRelateArticle(BuildContext context, String currentArticleId) {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: AppColors.accentLight,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      item.category,
-                      style: AppTextStyles.categoryVideo.copyWith(
-                        color: AppColors.textPink,
-                        fontSize: 10,
-                      ),
-                    ),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: AppColors.accentLight,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  item.category,
+                  style: AppTextStyles.categoryVideo.copyWith(
+                    color: AppColors.textPink,
+                    fontSize: 10,
                   ),
-                ],
+                ),
               ),
               SizedBox(height: 8),
               Text(
@@ -234,10 +263,7 @@ Widget _buildRelateArticle(BuildContext context, String currentArticleId) {
                 children: [
                   Image.asset(icTime, height: 11),
                   SizedBox(width: 5),
-                  Text(
-                    '${item.durationFormatted} menit',
-                    style: AppTextStyles.durationDescVideo,
-                  ),
+                  Text(item.duration, style: AppTextStyles.durationDescVideo),
                 ],
               ),
             ],

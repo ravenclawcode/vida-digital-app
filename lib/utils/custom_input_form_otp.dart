@@ -73,7 +73,7 @@ class _CustomInputFormOtpState extends State<CustomInputFormOtp> {
                 decoration: InputDecoration(
                   counterText: '',
                   filled: true,
-                  fillColor: AppColors.backgroundForm,
+                  fillColor: AppColors.backgroundList,
                   contentPadding: EdgeInsets.symmetric(
                     horizontal: 20,
                     vertical: 16,
@@ -84,7 +84,7 @@ class _CustomInputFormOtpState extends State<CustomInputFormOtp> {
                       width: 2,
                       color: widget.hasError
                           ? AppColors.borderErrorColor
-                          : AppColors.backgroundForm,
+                          : AppColors.backgroundList,
                     ),
                   ),
                   enabledBorder: OutlineInputBorder(
@@ -93,7 +93,7 @@ class _CustomInputFormOtpState extends State<CustomInputFormOtp> {
                       width: 2,
                       color: widget.hasError
                           ? AppColors.borderErrorColor
-                          : AppColors.backgroundForm,
+                          : AppColors.backgroundList,
                     ),
                   ),
                 ),
@@ -104,6 +104,10 @@ class _CustomInputFormOtpState extends State<CustomInputFormOtp> {
                     FocusScope.of(context).requestFocus(focusNodes[index - 1]);
                   }
                   _updateOtp();
+
+                  if (widget.controller.text.length == 5) {
+                    FocusScope.of(context).unfocus();
+                  }
                 },
               ),
             );
@@ -114,10 +118,7 @@ class _CustomInputFormOtpState extends State<CustomInputFormOtp> {
             padding: EdgeInsets.only(top: 8),
             child: Text(
               widget.errorMessage!,
-              style: TextStyle(
-                color: AppColors.borderErrorColor,
-                fontSize: 13,
-              ),
+              style: TextStyle(color: AppColors.borderErrorColor, fontSize: 13),
             ),
           ),
       ],

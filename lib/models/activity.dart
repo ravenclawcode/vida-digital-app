@@ -7,7 +7,7 @@ class Activity {
   final Widget icon;
   final Color color;
 
- Activity({
+  Activity({
     required this.id,
     required this.title,
     required this.date,

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mindfullshelter/provider/auth_provider.dart';
+import 'package:mindfullshelter/providers/auth_provider.dart';
 import 'package:mindfullshelter/utils/app_assets.dart';
 import 'package:mindfullshelter/utils/app_colors.dart';
 import 'package:mindfullshelter/utils/app_theme.dart';
@@ -39,11 +39,16 @@ class _ForgotPasswordInputEmailScreenState
     if (!mounted) return;
 
     if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Kode OTP telah dikirim ke email Anda')),
+      );
       Navigator.pushNamed(context, '/forgotpassword-inputotp');
     } else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Email tidak ditemukan')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Email tidak ditemukan atau terjadi kesalahan'),
+        ),
+      );
     }
   }
 
@@ -62,8 +67,11 @@ class _ForgotPasswordInputEmailScreenState
           child: Column(
             children: [
               SizedBox(height: 20),
-              _buildHeader(icon: icBackLeft1, onTap: () => Navigator.pop(context)),
-              SizedBox(height: 15),
+              _buildHeader(
+                icon: icBackLeft1,
+                onTap: () => Navigator.pop(context),
+              ),
+              SizedBox(height: 20),
               _buildActionForm(),
             ],
           ),
@@ -84,7 +92,7 @@ class _ForgotPasswordInputEmailScreenState
           onTap: onTap,
           child: Image(image: AssetImage(icon), width: 18),
         ),
-        SizedBox(height: 20),
+        SizedBox(height: 30),
         Text('Lupa Kata Sandi', style: AppTextStyles.heading2),
         SizedBox(height: 20),
         Text(
@@ -101,7 +109,7 @@ class _ForgotPasswordInputEmailScreenState
       child: Column(
         children: [
           CustomInputFormEmail(controller: emailController),
-          SizedBox(height: 15),
+          SizedBox(height: 35),
           Consumer<AuthProvider>(
             builder: (context, auth, child) {
               final disabled = !isFormFilled || auth.isLoading;

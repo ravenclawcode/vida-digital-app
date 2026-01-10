@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mindfullshelter/provider/auth_provider.dart';
+import 'package:mindfullshelter/providers/auth_provider.dart';
 import 'package:mindfullshelter/utils/app_assets.dart';
 import 'package:mindfullshelter/utils/app_colors.dart';
 import 'package:mindfullshelter/utils/app_theme.dart';
@@ -51,8 +51,8 @@ class _ForgotPasswordInputNewPasswordScreenState
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Gagal memperbarui kata sandi. Coba lagi.'),
+        const SnackBar(
+          content: Text('Gagal memperbarui kata sandi. Silakan coba lagi.'),
         ),
       );
     }
@@ -74,8 +74,11 @@ class _ForgotPasswordInputNewPasswordScreenState
           child: Column(
             children: [
               SizedBox(height: 20),
-              _buildHeader(icon: icBackLeft1, onTap: () => Navigator.pop(context)),
-              SizedBox(height: 15),
+              _buildHeader(
+                icon: icBackLeft1,
+                onTap: () => Navigator.pop(context),
+              ),
+              SizedBox(height: 20),
               _buildActionForm(),
             ],
           ),
@@ -96,11 +99,11 @@ class _ForgotPasswordInputNewPasswordScreenState
           onTap: onTap,
           child: Image(image: AssetImage(icon), width: 18),
         ),
-        SizedBox(height: 20),
+        SizedBox(height: 30),
         Text('Atur kata sandi baru', style: AppTextStyles.heading2),
         SizedBox(height: 20),
         Text(
-          'Buat kata sandi baru. Pastikan kata sandi\ntersebut berbeda dari kata sandi sebelumnya\ndemi keamanan.',
+          'Pastikan kata sandi Anda berbeda dari kata sandi sebelumnya.',
           style: AppTextStyles.bodyMedium,
         ),
       ],
@@ -119,7 +122,7 @@ class _ForgotPasswordInputNewPasswordScreenState
             isConfirm: true,
             passwordController: passwordController,
           ),
-          SizedBox(height: 15),
+          SizedBox(height: 35),
           Consumer<AuthProvider>(
             builder: (context, auth, child) {
               final disabled = !isFormFilled || auth.isLoading;
@@ -134,7 +137,10 @@ class _ForgotPasswordInputNewPasswordScreenState
                             color: AppColors.background,
                           ),
                         )
-                      : Text('Perbarui Kata Sandi', style: AppTextStyles.button1),
+                      : Text(
+                          'Perbarui Kata Sandi',
+                          style: AppTextStyles.button1,
+                        ),
                 );
               }
               return CustomButton1(

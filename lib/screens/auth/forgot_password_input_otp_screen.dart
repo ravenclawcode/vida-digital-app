@@ -1,5 +1,6 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:mindfullshelter/provider/auth_provider.dart';
+import 'package:mindfullshelter/providers/auth_provider.dart';
 import 'package:mindfullshelter/utils/app_assets.dart';
 import 'package:mindfullshelter/utils/app_colors.dart';
 import 'package:mindfullshelter/utils/app_theme.dart';
@@ -43,7 +44,7 @@ class _ForgorPasswordInputOtpScreenState
     }
 
     final auth = Provider.of<AuthProvider>(context, listen: false);
-    final success = await auth.verifyCode(otp);
+    final success = await auth.verifyOtp(otp);
 
     if (!mounted) return;
 
@@ -52,12 +53,11 @@ class _ForgorPasswordInputOtpScreenState
         otpError = false;
         otpErrorMessage = null;
       });
-
       Navigator.pushNamed(context, '/forgotpassword-confirm');
     } else {
       setState(() {
         otpError = true;
-        otpErrorMessage = "Kode OTP tidak valid";
+        otpErrorMessage = "Kode OTP tidak valid atau kadaluarsa";
       });
     }
   }
@@ -70,24 +70,37 @@ class _ForgorPasswordInputOtpScreenState
 
   @override
   Widget build(BuildContext context) {
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+    final userEmail = auth.resetEmail ?? "Email Anda";
+
     return Scaffold(
       body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 25),
-          child: Column(
-            children: [
-              SizedBox(height: 20),
-              _buildHeader(icon: icBackLeft1, onTap: () => Navigator.pop(context)),
-              SizedBox(height: 15),
-              _buildActionForm(),
-            ],
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 25),
+            child: Column(
+              children: [
+                SizedBox(height: 20),
+                _buildHeader(
+                  icon: icBackLeft1,
+                  email: userEmail,
+                  onTap: () => Navigator.pop(context),
+                ),
+                SizedBox(height: 20),
+                _buildActionForm(),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildHeader({required String icon, required VoidCallback onTap}) {
+  Widget _buildHeader({
+    required String icon,
+    required String email,
+    required VoidCallback onTap,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -99,7 +112,7 @@ class _ForgorPasswordInputOtpScreenState
           onTap: onTap,
           child: Image(image: AssetImage(icon), width: 18),
         ),
-        SizedBox(height: 20),
+        SizedBox(height: 30),
         Text('Periksa email Anda', style: AppTextStyles.heading2),
         SizedBox(height: 20),
         Text.rich(
@@ -110,8 +123,10 @@ class _ForgorPasswordInputOtpScreenState
                 style: AppTextStyles.bodyMedium,
               ),
               TextSpan(
-                text: 'vidadigital@gmail.com\n',
-                style: AppTextStyles.bodyMediumBoldColors,
+                text: '$email\n',
+                style: AppTextStyles.bodyMediumBoldColors.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
               ),
               TextSpan(
                 text: 'Masukkan kode 5 digit.',
@@ -132,7 +147,7 @@ class _ForgorPasswordInputOtpScreenState
           hasError: otpError,
           errorMessage: otpErrorMessage,
         ),
-        SizedBox(height: 15),
+        SizedBox(height: 35),
         Consumer<AuthProvider>(
           builder: (context, auth, child) {
             final disabled = !isFormFilled || auth.isLoading;
@@ -155,6 +170,25 @@ class _ForgorPasswordInputOtpScreenState
               label: 'Verifikasi Kode',
             );
           },
+        ),
+        SizedBox(height: 35),
+        Text.rich(
+          TextSpan(
+            children: [
+              TextSpan(
+                text: 'Belum menerima OTP? ',
+                style: AppTextStyles.bodyMedium,
+              ),
+              TextSpan(
+                text: 'Kirim ulang',
+                style: AppTextStyles.bodyMediumBold,
+                recognizer: TapGestureRecognizer()
+                  ..onTap = () {
+                    Navigator.pushNamed(context, '/');
+                  },
+              ),
+            ],
+          ),
         ),
       ],
     );

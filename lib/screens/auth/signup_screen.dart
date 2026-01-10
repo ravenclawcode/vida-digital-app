@@ -1,6 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:mindfullshelter/provider/auth_provider.dart';
+import 'package:mindfullshelter/providers/auth_provider.dart';
 import 'package:mindfullshelter/routes/routes.dart';
 import 'package:mindfullshelter/utils/app_assets.dart';
 import 'package:mindfullshelter/utils/app_colors.dart';
@@ -26,6 +26,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
+
   bool isAgreed = false;
   bool showCheckboxError = false;
   bool get isFormFilled {
@@ -38,16 +39,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         isAgreed;
   }
 
-  @override
-  void initState() {
-    super.initState();
-    emailController.addListener(() => setState(() {}));
-    usernameController.addListener(() => setState(() {}));
-    passwordController.addListener(() => setState(() {}));
-    confirmPasswordController.addListener(() => setState(() {}));
-  }
-
-  void _handleSignUp() async {
+  void _handleSignUp(String? tokenCode) async {
     if (!isAgreed) {
       setState(() => showCheckboxError = true);
       return;
@@ -55,22 +47,45 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
     if (!_formKey.currentState!.validate()) return;
 
+    if (tokenCode == null || tokenCode.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Sesi aktivasi habis, silakan ulang.')),
+      );
+      return;
+    }
+
     final email = emailController.text.trim();
     final username = usernameController.text.trim();
     final password = passwordController.text.trim();
 
-    final auth = Provider.of<AuthProvider>(context, listen: false);
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
-    final success = await auth.signUp(email, username, password);
+    final success = await authProvider.signUp(
+      username: username,
+      email: email,
+      password: password,
+      tokenCode: tokenCode,
+    );
 
     if (!mounted) return;
 
     if (success) {
-      Navigator.pushNamedAndRemoveUntil(context, '/sign-in', (route) => false);
-    } else {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Pendaftaran gagal')));
+      ).showSnackBar(const SnackBar(content: Text('Pendaftaran Berhasil!')));
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        Routes.signIn,
+        (route) => false,
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Pendaftaran gagal. Email/Username mungkin sudah terpakai.',
+          ),
+        ),
+      );
     }
   }
 
@@ -85,6 +100,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final Object? args = ModalRoute.of(context)?.settings.arguments;
+    final String? tokenCode = args is String ? args : null;
+
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: SafeArea(
@@ -99,8 +117,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 icon: icBackLeft1,
                 onTap: () => Navigator.pop(context),
               ),
-              SizedBox(height: 45),
-              _buildActionForm(),
+              SizedBox(height: 35),
+              _buildActionForm(tokenCode),
             ],
           ),
         ),
@@ -124,32 +142,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
           onTap: onTap,
           child: Image(image: AssetImage(icon), width: 18),
         ),
-        SizedBox(height: 20),
+        SizedBox(height: 30),
         Text('Daftar', style: AppTextStyles.heading2),
-        SizedBox(height: 20),
-        Text.rich(
-          TextSpan(
-            children: [
-              TextSpan(
-                text: 'Sudah punya akun? ',
-                style: AppTextStyles.bodyMedium,
-              ),
-              TextSpan(
-                text: 'Masuk',
-                style: AppTextStyles.bodyMediumBold,
-                recognizer: TapGestureRecognizer()
-                  ..onTap = () {
-                    Navigator.pushNamed(context, '/sign-in');
-                  },
-              ),
-            ],
-          ),
-        ),
       ],
     );
   }
 
-  Widget _buildActionForm() {
+  Widget _buildActionForm(String? tokenCode) {
     return Form(
       key: _formKey,
       child: Column(
@@ -166,84 +165,98 @@ class _SignUpScreenState extends State<SignUpScreen> {
             isConfirm: true,
             passwordController: passwordController,
           ),
-          SizedBox(height: 15),
+          SizedBox(height: 18),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CustomCheckbox(
-                value: isAgreed,
-                showError: showCheckboxError,
-                onChanged: (value) {
-                  setState(() {
-                    isAgreed = value;
-                    if (value) showCheckboxError = false;
-                  });
-                },
+              Padding(
+                padding: EdgeInsets.only(top: 3),
+                child: CustomCheckbox(
+                  value: isAgreed,
+                  showError: showCheckboxError,
+                  onChanged: (value) {
+                    setState(() {
+                      isAgreed = value;
+                      if (value) showCheckboxError = false;
+                    });
+                  },
+                ),
               ),
               SizedBox(width: 10),
               Expanded(
-                child: Text(
-                  'Saya setuju dengan syarat & ketentuan',
-                  style: AppTextStyles.bodyMediumBoldColors,
+                child: Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: 'Saya menyetujui ',
+                        style: AppTextStyles.bodyMediumBoldColors.copyWith(
+                          fontSize: 12,
+                          height: 1.6,
+                        ),
+                      ),
+                      TextSpan(
+                        text: 'Ketentuan & Layanan ',
+                        style: AppTextStyles.bodyExtraSmallBoldColors.copyWith(
+                          fontSize: 12,
+                          height: 1.6,
+                        ),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () async {
+                            final agreed = await Navigator.pushNamed(
+                              context,
+                              Routes.termsAndConditions,
+                              arguments: 0,
+                            );
+                            if (agreed == true) {
+                              setState(() {
+                                isAgreed = true;
+                                showCheckboxError = false;
+                              });
+                            }
+                          },
+                      ),
+                      TextSpan(
+                        text: 'serta ',
+                        style: AppTextStyles.bodyMediumBoldColors.copyWith(
+                          fontSize: 12,
+                          height: 1.6,
+                        ),
+                      ),
+                      TextSpan(
+                        text: '\nKebijakan Privasi ',
+                        style: AppTextStyles.bodyExtraSmallBoldColors.copyWith(
+                          fontSize: 12,
+                          height: 1.6,
+                        ),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () async {
+                            final agreed = await Navigator.pushNamed(
+                              context,
+                              Routes.termsAndConditions,
+                              arguments: 1,
+                            );
+                            if (agreed == true) {
+                              setState(() {
+                                isAgreed = true;
+                                showCheckboxError = false;
+                              });
+                            }
+                          },
+                      ),
+                      TextSpan(
+                        text: 'yang berlaku di VIDA Digital.',
+                        style: AppTextStyles.bodyMediumBoldColors.copyWith(
+                          fontSize: 12,
+                          height: 1.6,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
           ),
           SizedBox(height: 10),
-          Text.rich(
-            TextSpan(
-              children: [
-                TextSpan(
-                  text: 'Dengan mendaftar, saya menyetujui ',
-                  style: AppTextStyles.bodyExtraSmall,
-                ),
-                TextSpan(
-                  text: 'Ketentuan Layanan ',
-                  style: AppTextStyles.bodyExtraSmallBoldColors,
-                  recognizer: TapGestureRecognizer()
-                    ..onTap = () async {
-                      final agreed = await Navigator.pushNamed(
-                        context,
-                        Routes.termsAndConditions,
-                        arguments: 0,
-                      );
-                      if (agreed == true) {
-                        setState(() {
-                          isAgreed = true;
-                          showCheckboxError = false;
-                        });
-                      }
-                    },
-                ),
-                TextSpan(
-                  text:
-                      '\nVIDA Digital. Saya juga menyetujui penggunaan data\npenggunaan aplikasi untuk peningkatan layanan. VIDA\nDigital tidak akan membagikan data pribadi Anda. Lihat ',
-                  style: AppTextStyles.bodyExtraSmall,
-                ),
-                TextSpan(
-                  text: '\nKebijakan Privasi ',
-                  style: AppTextStyles.bodyExtraSmallBoldColors,
-                  recognizer: TapGestureRecognizer()
-                    ..onTap = () async {
-                      final agreed = await Navigator.pushNamed(
-                        context,
-                        Routes.termsAndConditions,
-                        arguments: 1,
-                      );
-                      if (agreed == true) {
-                        setState(() {
-                          isAgreed = true;
-                          showCheckboxError = false;
-                        });
-                      }
-                    },
-                ),
-                TextSpan(
-                  text: 'untuk informasi lebih lanjut.',
-                  style: AppTextStyles.bodyExtraSmall,
-                ),
-              ],
-            ),
-          ),
           SizedBox(height: 15),
           Consumer<AuthProvider>(
             builder: (context, auth, child) {
@@ -262,7 +275,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       : Text('Daftar', style: AppTextStyles.button1),
                 );
               }
-              return CustomButton1(onTap: _handleSignUp, label: 'Daftar');
+              return CustomButton1(
+                onTap: () => _handleSignUp(tokenCode),
+                label: 'Daftar',
+              );
             },
           ),
         ],

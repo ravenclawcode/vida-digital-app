@@ -12,7 +12,7 @@ import 'package:mindfullshelter/main.dart';
 void main() {
   testWidgets('MindShelter app smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const MindShelterApp());
+    await tester.pumpWidget(const VidaApp());
 
     // Verify that the app title appears.
     expect(find.text('Halo, Sahabat! 👋'), findsOneWidget);

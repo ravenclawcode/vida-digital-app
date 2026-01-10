@@ -1,230 +1,353 @@
 import 'package:flutter/material.dart';
-import 'package:mindfullshelter/provider/education_provider.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import 'package:mindfullshelter/providers/education_provider.dart';
 import 'package:mindfullshelter/routes/routes.dart';
 import 'package:mindfullshelter/utils/app_assets.dart';
 import 'package:mindfullshelter/utils/app_colors.dart';
 import 'package:mindfullshelter/utils/app_theme.dart';
 import 'package:provider/provider.dart';
 
-class DetailVideoScreen extends StatelessWidget {
+class DetailVideoScreen extends StatefulWidget {
   final String videoId;
   const DetailVideoScreen({super.key, required this.videoId});
 
   @override
-  Widget build(BuildContext context) {
-    final provider = Provider.of<EducationProvider>(context, listen: false);
-    final video = provider.videos.firstWhere((v) => v.id == videoId);
-    return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildContentVideo(context, videoId, video),
-            SizedBox(height: 20),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 25),
-              child: _buildDescVideo(context, videoId, video),
-            ),
-            SizedBox(height: 20),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 25),
-              child: Text('Video Terkait', style: AppTextStyles.titleVideo),
-            ),
-            SizedBox(height: 12),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 25),
-              child: _buildRelateVideo(context, videoId),
-            ),
-            SizedBox(height: 10),
-          ],
-        ),
-      ),
-    );
-  }
+  State<DetailVideoScreen> createState() => _DetailVideoScreenState();
 }
 
-Widget _buildContentVideo(BuildContext context, String videoId, dynamic video) {
-  return Stack(
-    children: [
-      SizedBox(
-        height: 260,
-        width: double.infinity,
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: FittedBox(
-                fit: BoxFit.cover,
-                child: SizedBox(
-                  width: MediaQuery.of(context).size.width,
-                  child: video.thumbnail,
-                ),
-              ),
-            ),
-          ],
-        ),
+class _DetailVideoScreenState extends State<DetailVideoScreen> {
+  late YoutubePlayerController _controller;
+  bool _isPlayerReady = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final provider = Provider.of<EducationProvider>(context, listen: false);
+    final video = provider.videos.firstWhere((v) => v.id == widget.videoId);
+
+    String videoId = YoutubePlayer.convertUrlToId(video.videoUrl ?? '') ?? '';
+
+    _controller = YoutubePlayerController(
+      initialVideoId: videoId,
+      flags: const YoutubePlayerFlags(
+        autoPlay: true,
+        mute: false,
+        hideControls: true,
       ),
-      Positioned(
-        top: 44,
-        left: 14,
-        child: Container(
-          width: 32,
-          height: 32,
-          decoration: BoxDecoration(
-            color: AppColors.textPrimary.withValues(alpha: 0.75),
-            shape: BoxShape.circle,
-          ),
-          child: InkWell(
-            onTap: () => Navigator.pop(context),
-            focusColor: Colors.transparent,
-            hoverColor: Colors.transparent,
-            highlightColor: Colors.transparent,
-            overlayColor: WidgetStateProperty.all(Colors.transparent),
-            child: Padding(
-              padding: EdgeInsets.all(8),
-              child: Image.asset(
-                icBackLeft2,
-                height: 12,
-                color: AppColors.textWhite,
-              ),
-            ),
-          ),
-        ),
+    )..addListener(_listener);
+  }
+
+  void _listener() {
+    if (mounted && _isPlayerReady) {
+      setState(() {});
+    }
+  }
+
+  @override
+  void deactivate() {
+    _controller.pause();
+    super.deactivate();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final provider = Provider.of<EducationProvider>(context, listen: false);
+    final video = provider.videos.firstWhere((v) => v.id == widget.videoId);
+
+    return YoutubePlayerBuilder(
+      player: YoutubePlayer(
+        controller: _controller,
+        onReady: () => setState(() => _isPlayerReady = true),
       ),
-      Positioned(
-        bottom: 0,
-        left: 0,
-        right: 0,
-        child: Container(
-          height: 40,
-          decoration: BoxDecoration(
-            color: AppColors.textPrimary.withValues(alpha: 0.75),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 23, vertical: 12),
-            child: Row(
+      builder: (context, player) {
+        return Scaffold(
+          body: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Image.asset(icPlay),
-                SizedBox(width: 20),
-                Expanded(
-                  child: Container(
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: AppColors.background.withValues(alpha: 0.50),
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                  ),
+                _buildContentVideo(context, widget.videoId, video, player),
+                const SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 25),
+                  child: _buildDescVideo(context, widget.videoId, video),
                 ),
-                SizedBox(width: 20),
-                Image.asset(icMute),
-                SizedBox(width: 20),
-                Image.asset(icFullscreen),
+                const SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 25),
+                  child: Text('Video Terkait', style: AppTextStyles.titleVideo),
+                ),
+                const SizedBox(height: 12),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 25),
+                  child: _buildRelateVideo(context, widget.videoId),
+                ),
+                const SizedBox(height: 10),
               ],
             ),
           ),
-        ),
-      ),
-    ],
-  );
-}
-
-Widget _buildDescVideo(BuildContext context, String videoId, dynamic video) {
-  List<String> paragraphs = video.description.split('\n');
-  return Column(
-    children: [
-      Row(
-        children: [
-          Image.asset(icTime, height: 12),
-          SizedBox(width: 6),
-          Text(video.durationFormatted, style: AppTextStyles.durationDescVideo),
-        ],
-      ),
-      SizedBox(height: 6),
-      Text(
-        video.title,
-        style: AppTextStyles.titleVideo.copyWith(fontSize: 16),
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
-      ),
-      SizedBox(height: 12),
-      ...paragraphs.map((text) {
-        if (text.trim().isEmpty) return SizedBox();
-        return Padding(
-          padding: EdgeInsets.only(bottom: 12),
-          child: Text(
-            text,
-            style: AppTextStyles.descVideo.copyWith(
-              color: AppColors.textPrimary,
-              height: 1.6
-            ),
-          ),
         );
-      }).toList(),
-    ],
-  );
-}
-
-Widget _buildRelateVideo(BuildContext context, String currentVideoId) {
-  final provider = Provider.of<EducationProvider>(context, listen: false);
-  final relatedVideos = provider.videos
-      .where((v) => v.id != currentVideoId)
-      .toList();
-
-  if (relatedVideos.isEmpty) {
-    return const Center(child: Text('Tidak ada video terkait lainnya'));
+      },
+    );
   }
 
-  return ListView.builder(
-    padding: EdgeInsets.all(0),
-    shrinkWrap: true,
-    physics: NeverScrollableScrollPhysics(),
-    itemCount: relatedVideos.length,
-    itemBuilder: (context, index) {
-      final item = relatedVideos[index];
+  Widget _buildContentVideo(
+    BuildContext context,
+    String videoId,
+    dynamic video,
+    Widget player,
+  ) {
+    return Stack(
+      children: [
+        SizedBox(height: 260, width: double.infinity, child: player),
 
-      return InkWell(
-        focusColor: Colors.transparent,
-        hoverColor: Colors.transparent,
-        highlightColor: Colors.transparent,
-        overlayColor: WidgetStateProperty.all(Colors.transparent),
-        onTap: () {
-          Navigator.pushReplacementNamed(
-            context,
-            Routes.detailVideo,
-            arguments: item.id,
-          );
-        },
-        child: Padding(
-          padding: EdgeInsets.only(bottom: 16),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: SizedBox(
-                  height: 76,
-                  width: 120,
-                  child: Stack(
-                    alignment: Alignment.center,
+        Positioned(
+          top: 44,
+          left: 14,
+          child: Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: AppColors.textPrimary.withValues(alpha: 0.75),
+              shape: BoxShape.circle,
+            ),
+            child: InkWell(
+              onTap: () => Navigator.pop(context),
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: Image.asset(
+                  icBackLeft2,
+                  height: 12,
+                  color: AppColors.textWhite,
+                ),
+              ),
+            ),
+          ),
+        ),
+
+        Positioned(
+          bottom: 0,
+          left: 0,
+          right: 0,
+          child: Container(
+            height: 40,
+            decoration: BoxDecoration(
+              color: AppColors.textPrimary.withValues(alpha: 0.75),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 23),
+              child: Row(
+                children: [
+                  InkWell(
+                    onTap: () => _controller.value.isPlaying
+                        ? _controller.pause()
+                        : _controller.play(),
+                    child: Icon(
+                      _controller.value.isPlaying
+                          ? Icons.pause
+                          : Icons.play_arrow,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 15),
+
+                  ProgressBar(
+                    controller: _controller,
+                    isExpanded: true,
+                    colors: ProgressBarColors(
+                      playedColor: AppColors.primary,
+                      handleColor: AppColors.primary,
+                      bufferedColor: Colors.white.withValues(alpha: 0.3),
+                      backgroundColor: Colors.white.withValues(alpha: 0.2),
+                    ),
+                  ),
+
+                  const SizedBox(width: 15),
+
+                  InkWell(
+                    onTap: () => _controller.value.volume > 0
+                        ? _controller.mute()
+                        : _controller.unMute(),
+                    child: Icon(
+                      _controller.value.volume == 0
+                          ? Icons.volume_off
+                          : Icons.volume_up,
+                      color: Colors.white,
+                      size: 18,
+                    ),
+                  ),
+                  const SizedBox(width: 15),
+
+                  InkWell(
+                    onTap: () => _controller.toggleFullScreenMode(),
+                    child: const Icon(
+                      Icons.fullscreen,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDescVideo(BuildContext context, String videoId, dynamic video) {
+    final provider = context.watch<EducationProvider>();
+    List<String> paragraphs = (video.description ?? 'Tidak ada deskripsi.')
+        .split('\n');
+
+    double likeButtonWidth(int likes) {
+      if (likes < 10) return 49;
+      if (likes < 100) return 56;
+      return 63;
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Image.asset(icTime, height: 12),
+            const SizedBox(width: 6),
+            Text(
+              video.duration ?? '00:00',
+              style: AppTextStyles.durationDescVideo,
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        Text(
+          video.title ?? '',
+          style: AppTextStyles.titleVideo.copyWith(fontSize: 16),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+        ),
+        const SizedBox(height: 6),
+        Row(
+          children: [
+            InkWell(
+              onTap: () => provider.toggleLike(video.id),
+              child: AnimatedSize(
+                duration: const Duration(milliseconds: 180),
+                child: Container(
+                  width: likeButtonWidth(video.likes ?? 0),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF5F5F5),
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Positioned.fill(
-                        child: FittedBox(
-                          fit: BoxFit.cover,
-                          child: item.thumbnail,
-                        ),
+                      Image.asset(
+                        (video.isLiked ?? false) ? icinThumbsUp : icunThumbsUp,
+                        height: 10,
                       ),
-                      Padding(
-                        padding: EdgeInsetsGeometry.fromLTRB(30, 30, 28, 30),
-                        child: Image.asset(icPlay),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${video.likes ?? 0}',
+                        style: AppTextStyles.actionButton,
                       ),
                     ],
                   ),
                 ),
               ),
-              SizedBox(width: 15),
-              Expanded(
-                child: Padding(
-                  padding: EdgeInsets.only(top: 4),
+            ),
+            const SizedBox(width: 8),
+            Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFFF5F5F5),
+                borderRadius: BorderRadius.circular(25),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              child: Row(
+                children: [
+                  Image.asset(icShare, height: 10),
+                  const SizedBox(width: 6),
+                  Text('bagikan', style: AppTextStyles.actionButton),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        ...paragraphs.map((text) {
+          if (text.trim().isEmpty) return const SizedBox();
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Text(
+              text.trim(),
+              style: AppTextStyles.descVideo.copyWith(
+                color: AppColors.textPrimary,
+                height: 1.6,
+              ),
+            ),
+          );
+        }).toList(),
+      ],
+    );
+  }
+
+  Widget _buildRelateVideo(BuildContext context, String currentVideoId) {
+    final provider = Provider.of<EducationProvider>(context, listen: false);
+    final relatedVideos = provider.videos
+        .where((v) => v.id != currentVideoId)
+        .toList();
+
+    if (relatedVideos.isEmpty) {
+      return const Center(child: Text('Tidak ada video terkait lainnya'));
+    }
+
+    return ListView.builder(
+      padding: EdgeInsets.zero,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: relatedVideos.length,
+      itemBuilder: (context, index) {
+        final item = relatedVideos[index];
+        return InkWell(
+          onTap: () {
+            Navigator.pushReplacementNamed(
+              context,
+              Routes.detailVideo,
+              arguments: item.id,
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: SizedBox(
+                    height: 76,
+                    width: 120,
+                    child: Image.network(
+                      item.thumbnail!,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) =>
+                          Container(color: Colors.grey),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 15),
+                Expanded(
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         item.title,
@@ -232,13 +355,13 @@ Widget _buildRelateVideo(BuildContext context, String currentVideoId) {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       Row(
                         children: [
                           Image.asset(icTime, height: 12),
-                          SizedBox(width: 6),
+                          const SizedBox(width: 6),
                           Text(
-                            item.durationFormatted,
+                            item.duration,
                             style: AppTextStyles.durationDescVideo,
                           ),
                         ],
@@ -246,11 +369,11 @@ Widget _buildRelateVideo(BuildContext context, String currentVideoId) {
                     ],
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      );
-    },
-  );
+        );
+      },
+    );
+  }
 }

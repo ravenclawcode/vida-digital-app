@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mindfullshelter/models/education.dart';
-import 'package:mindfullshelter/provider/education_provider.dart';
+import 'package:mindfullshelter/models/education_model.dart';
+import 'package:mindfullshelter/providers/education_provider.dart';
 import 'package:mindfullshelter/routes/routes.dart';
 import 'package:mindfullshelter/utils/app_assets.dart';
 import 'package:mindfullshelter/utils/app_colors.dart';
@@ -21,10 +21,18 @@ class Article extends StatelessWidget {
 Widget buildArticleList(BuildContext context) {
   return Consumer<EducationProvider>(
     builder: (_, provider, __) {
+      if (provider.isLoading) {
+        return const Center(child: CircularProgressIndicator());
+      }
+
       final artikels = provider.articles;
 
+      if (artikels.isEmpty) {
+        return const Center(child: Text('Belum ada artikel tersedia'));
+      }
+
       return ListView.builder(
-        padding: EdgeInsets.symmetric(horizontal: 25, vertical: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
         itemCount: artikels.length,
         itemBuilder: (_, index) {
           return buildArticleCard(context, artikels[index]);
@@ -34,23 +42,26 @@ Widget buildArticleList(BuildContext context) {
   );
 }
 
-Widget buildArticleCard(BuildContext context, ArticleEdu article) {
+Widget buildArticleCard(BuildContext context, EducationContent article) {
   return InkWell(
     focusColor: Colors.transparent,
     hoverColor: Colors.transparent,
     highlightColor: Colors.transparent,
     overlayColor: WidgetStateProperty.all(Colors.transparent),
-    onTap: () =>
-        Navigator.pushNamed(context, Routes.detailArticle, arguments: article.id),
+    onTap: () => Navigator.pushNamed(
+      context,
+      Routes.detailArticle,
+      arguments: article.id,
+    ),
     child: Container(
-      margin: EdgeInsets.only(bottom: 16),
-      padding: EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.background,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            offset: Offset(0, 3),
+            offset: const Offset(0, 3),
             blurRadius: 10,
             color: AppColors.shadow.withValues(alpha: 0.10),
           ),
@@ -63,7 +74,10 @@ Widget buildArticleCard(BuildContext context, ArticleEdu article) {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 5,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.accentLight,
                   borderRadius: BorderRadius.circular(20),
@@ -75,32 +89,33 @@ Widget buildArticleCard(BuildContext context, ArticleEdu article) {
                   ),
                 ),
               ),
-              Icon(Icons.chevron_right, size: 22, color: AppColors.textPrimary),
+              const Icon(
+                Icons.chevron_right,
+                size: 22,
+                color: AppColors.textPrimary,
+              ),
             ],
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Text(
             article.title,
             style: AppTextStyles.titleVideo,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          SizedBox(height: 6),
+          const SizedBox(height: 6),
           Text(
-            article.description,
+            (article.description ?? '').trim(),
             style: AppTextStyles.descVideo,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Row(
             children: [
               Image.asset(icTime, height: 12),
-              SizedBox(width: 6),
-              Text(
-                '${article.durationFormatted} menit',
-                style: AppTextStyles.durationDescVideo,
-              ),
+              const SizedBox(width: 6),
+              Text(article.duration, style: AppTextStyles.durationDescVideo),
             ],
           ),
         ],

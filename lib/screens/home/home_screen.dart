@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:mindfullshelter/data/dummy_data.dart';
-import 'package:mindfullshelter/provider/mood_provider.dart';
+import 'package:mindfullshelter/models/medication_model.dart';
+import 'package:mindfullshelter/providers/auth_provider.dart';
+import 'package:mindfullshelter/providers/medication_provider.dart';
+import 'package:mindfullshelter/providers/mood_provider.dart';
 import 'package:mindfullshelter/utils/app_assets.dart';
 import 'package:mindfullshelter/utils/app_colors.dart';
 import 'package:mindfullshelter/utils/app_theme.dart';
@@ -16,6 +19,59 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      context.read<MedicationProvider>().fetchMedications();
+      context.read<MoodProvider>().fetchWeeklyMood();
+    });
+  }
+
+  String _capitalizeEachWord(String text) {
+    if (text.isEmpty) return 'User';
+    return text
+        .split(' ')
+        .map((word) {
+          if (word.isEmpty) return "";
+          return word[0].toUpperCase() + word.substring(1).toLowerCase();
+        })
+        .join(' ');
+  }
+
+  Widget _buildProfileImage(AuthProvider auth) {
+    final user = auth.currentUser;
+
+    if (auth.imageFile != null) {
+      return Image.file(auth.imageFile!, fit: BoxFit.cover);
+    }
+
+    if (user?.profilePhotoUrl != null && user!.profilePhotoUrl!.isNotEmpty) {
+      return Image.network(
+        user.profilePhotoUrl!,
+        fit: BoxFit.cover,
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return const Center(
+            child: SizedBox(
+              width: 15,
+              height: 15,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+          );
+        },
+        errorBuilder: (context, error, stackTrace) {
+          return Image.asset(icAnonymousProfile, scale: 2);
+        },
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.all(12),
+      child: Image.asset(icAnonymousProfile),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
@@ -26,7 +82,7 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               _buildHeader(context),
               SizedBox(height: 22),
-              _buildWelcomeCard(),
+              _buildMedicationReminder(context),
               SizedBox(height: 22),
               _buildQuickMoodCheck(context),
               SizedBox(height: 26),
@@ -50,88 +106,274 @@ class _HomeScreenState extends State<HomeScreen> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text.rich(
-              TextSpan(
-                children: [
+            Consumer<AuthProvider>(
+              builder: (context, auth, child) {
+                final String rawName = auth.currentUser?.username ?? 'User';
+                final String formattedName = _capitalizeEachWord(rawName);
+
+                return Text.rich(
                   TextSpan(
-                    text: 'Selamat Datang,',
-                    style: AppTextStyles.welcomeHome,
+                    children: [
+                      TextSpan(
+                        text: 'Selamat Datang,',
+                        style: AppTextStyles.welcomeHome,
+                      ),
+                      TextSpan(
+                        text: '\n$formattedName',
+                        style: AppTextStyles.nameHome,
+                      ),
+                    ],
                   ),
-                  TextSpan(text: '\nSerra Gohv', style: AppTextStyles.nameHome),
-                ],
-              ),
+                );
+              },
             ),
           ],
         ),
-        Container(
-          padding: EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: AppColors.accentLight,
-            shape: BoxShape.circle,
-          ),
-          child: Image.asset(icAnonymousProfile, height: 18),
+        Consumer<AuthProvider>(
+          builder: (context, auth, child) {
+            return Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: AppColors.accentLight,
+                shape: BoxShape.circle,
+              ),
+              child: ClipOval(child: _buildProfileImage(auth)),
+            );
+          },
         ),
       ],
     );
   }
 
-  Widget _buildWelcomeCard() {
-    return Container(
-      padding: EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColors.primary,
-        boxShadow: [
-          BoxShadow(
-            offset: Offset(0, 3),
-            blurRadius: 10,
-            spreadRadius: 2,
-            color: AppColors.shadow.withValues(alpha: 0.05),
-          ),
-        ],
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('VIDA Digital', style: AppTextStyles.headingWelcome),
-                SizedBox(height: 5),
-                Text(
-                  'Platform Edukasi dan Dukungan Mental bagi Penyintas HIV/AIDS',
-                  style: AppTextStyles.bodyWelcome,
-                ),
-              ],
+  Widget _buildMedicationReminder(BuildContext context) {
+    final provider = context.watch<MedicationProvider>();
+
+    final List<MedicationEntry> entries = provider.todayEntries;
+
+    entries.sort((a, b) {
+      if (a.isTaken != b.isTaken) {
+        return a.isTaken ? 1 : -1;
+      }
+      final aTime = a.medication.time.hour * 60 + a.medication.time.minute;
+      final bTime = b.medication.time.hour * 60 + b.medication.time.minute;
+      return aTime.compareTo(bTime);
+    });
+
+    return AnimatedSize(
+      duration: Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.background,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            BoxShadow(
+              offset: Offset(0, 3),
+              blurRadius: 10,
+              spreadRadius: 2,
+              color: AppColors.shadow.withValues(alpha: 0.05),
             ),
+          ],
+        ),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  Image.asset(icSchedule, height: 15.5),
+                  SizedBox(width: 10),
+                  Text(
+                    'Jadwal Obat Hari Ini',
+                    style: AppTextStyles.headingMedication,
+                  ),
+                  Spacer(),
+                  InkWell(
+                    focusColor: Colors.transparent,
+                    hoverColor: Colors.transparent,
+                    highlightColor: Colors.transparent,
+                    overlayColor: WidgetStateProperty.all(Colors.transparent),
+                    onTap: () =>
+                        Navigator.pushNamed(context, '/medicationreminder'),
+                    child: Image.asset(icAdd, height: 14),
+                  ),
+                ],
+              ),
+
+              SizedBox(height: 10),
+
+              TweenAnimationBuilder<double>(
+                tween: Tween<double>(begin: 0, end: provider.progress),
+                duration: Duration(milliseconds: 400),
+                curve: Curves.easeInOut,
+                builder: (context, value, _) {
+                  return ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: LinearProgressIndicator(
+                      minHeight: 6,
+                      value: value,
+                      backgroundColor: Color(0xFFF5F5F5),
+                      valueColor: AlwaysStoppedAnimation(AppColors.textPink),
+                    ),
+                  );
+                },
+              ),
+              SizedBox(height: 12),
+              entries.isEmpty
+                  ? Center(
+                      child: Text(
+                        'Belum ada obat ditambahkan',
+                        style: AppTextStyles.bodySmallMood,
+                      ),
+                    )
+                  : AnimatedSwitcher(
+                      duration: Duration(milliseconds: 300),
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        key: ValueKey(entries.map((e) => e.id).join()),
+                        itemCount: entries.length,
+                        itemBuilder: (context, index) {
+                          final entry = entries[index];
+
+                          return Padding(
+                            padding: EdgeInsets.only(bottom: 8),
+                            child: AnimatedContainer(
+                              duration: Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                              height: 50,
+                              decoration: BoxDecoration(
+                                color: entry.isTaken
+                                    ? Color(0xFFFDFDFD)
+                                    : Color(0xFFFFFAFC),
+                                border: Border.all(
+                                  color: entry.isTaken
+                                      ? Color(0xFFE9E9E9)
+                                      : Color(0xFFFFE5F0),
+                                ),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Padding(
+                                padding: EdgeInsets.only(left: 12, right: 22),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 32,
+                                      height: 32,
+                                      decoration: BoxDecoration(
+                                        color: entry.isTaken
+                                            ? Color(0xFFF5F5F5)
+                                            : Color(0xFFFFE5F0),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: AnimatedSwitcher(
+                                        duration: Duration(milliseconds: 250),
+                                        transitionBuilder: (child, animation) {
+                                          return ScaleTransition(
+                                            scale: animation,
+                                            child: FadeTransition(
+                                              opacity: animation,
+                                              child: child,
+                                            ),
+                                          );
+                                        },
+                                        child: entry.isTaken
+                                            ? Padding(
+                                                padding: EdgeInsets.fromLTRB(
+                                                  10,
+                                                  9,
+                                                  8,
+                                                  9,
+                                                ),
+                                                child: Image.asset(
+                                                  icChecklist,
+                                                  key: ValueKey(
+                                                    'check_${entry.id}',
+                                                  ),
+                                                ),
+                                              )
+                                            : Padding(
+                                                padding: EdgeInsets.all(7),
+                                                child: Image.asset(
+                                                  icMedicine,
+                                                  key: ValueKey(
+                                                    'med_${entry.id}',
+                                                  ),
+                                                ),
+                                              ),
+                                      ),
+                                    ),
+                                    SizedBox(width: 8),
+                                    Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          entry.medication.name,
+                                          style: AppTextStyles.titleMedication
+                                              .copyWith(
+                                                decoration: entry.isTaken
+                                                    ? TextDecoration.lineThrough
+                                                    : TextDecoration.none,
+                                                color: entry.isTaken
+                                                    ? AppColors.textSecondary
+                                                    : null,
+                                              ),
+                                        ),
+                                        Row(
+                                          children: [
+                                            Image.asset(icTime, height: 9),
+                                            SizedBox(width: 3),
+                                            Text(
+                                              '${entry.medication.time.hour.toString().padLeft(2, '0')}.${entry.medication.time.minute.toString().padLeft(2, '0')}',
+                                              style:
+                                                  AppTextStyles.dateMedication,
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                    Spacer(),
+                                    InkWell(
+                                      focusColor: Colors.transparent,
+                                      hoverColor: Colors.transparent,
+                                      highlightColor: Colors.transparent,
+                                      overlayColor: WidgetStateProperty.all(
+                                        Colors.transparent,
+                                      ),
+                                      onTap: () =>
+                                          provider.toggleTaken(entry.id),
+                                      child: Text(
+                                        entry.isTaken ? 'Batal' : 'Tanda',
+                                        style: AppTextStyles.actionMedication
+                                            .copyWith(
+                                              color: entry.isTaken
+                                                  ? AppColors.textSecondary
+                                                  : AppColors.textPink,
+                                            ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+            ],
           ),
-          SizedBox(width: 16),
-          Container(
-            width: 57,
-            height: 57,
-            decoration: BoxDecoration(
-              color: AppColors.background,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: EdgeInsets.all(10),
-              child: Image.asset(icLogoAccent),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 
   Widget _buildQuickMoodCheck(BuildContext context) {
     final moodProvider = context.watch<MoodProvider>();
-
-    final startOfWeek = DateTime.now().subtract(
-      Duration(days: DateTime.now().weekday - 1),
-    );
-
-    final weeklyMood = moodProvider.weeklyMood(startOfWeek);
-
     final days = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
 
     return InkWell(
@@ -169,15 +411,15 @@ class _HomeScreenState extends State<HomeScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: List.generate(7, (index) {
-                  final value = weeklyMood[index];
+                  final entry = moodProvider.getMoodForDay(index);
 
                   return Column(
                     children: [
-                      value != null
+                      entry != null
                           ? SizedBox(
                               width: 24,
                               height: 24,
-                              child: value.mood.emoji,
+                              child: entry.mood.emoji,
                             )
                           : CustomPaint(
                               painter: CustomCirclePainter(),

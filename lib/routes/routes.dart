@@ -3,7 +3,7 @@ import 'package:mindfullshelter/screens/auth/forgot_password_confirm_screen.dart
 import 'package:mindfullshelter/screens/auth/forgot_password_input_email_screen.dart';
 import 'package:mindfullshelter/screens/auth/forgot_password_input_new_password_screen.dart';
 import 'package:mindfullshelter/screens/auth/forgot_password_input_otp_screen.dart';
-import 'package:mindfullshelter/screens/auth/multi_signin_screen.dart';
+import 'package:mindfullshelter/screens/auth/aktivation_account_screen.dart';
 import 'package:mindfullshelter/screens/auth/signin_screen.dart';
 import 'package:mindfullshelter/screens/auth/signup_screen.dart';
 import 'package:mindfullshelter/screens/audio/audio_mindfulness_screen.dart';
@@ -12,12 +12,14 @@ import 'package:mindfullshelter/screens/education/detail_video_screen.dart';
 import 'package:mindfullshelter/screens/home/chatbot_screen.dart';
 import 'package:mindfullshelter/screens/education/education_screen.dart';
 import 'package:mindfullshelter/screens/home/anonymous_comunity_screen.dart';
+import 'package:mindfullshelter/screens/home/medication_reminder_screen.dart';
 import 'package:mindfullshelter/screens/home/mood_tracker_screen.dart';
 import 'package:mindfullshelter/screens/home/main_screen.dart';
 import 'package:mindfullshelter/screens/onboarding/get_started_screen.dart';
 import 'package:mindfullshelter/screens/onboarding/splash_screen.dart';
 import 'package:mindfullshelter/screens/home/home_screen.dart';
 import 'package:mindfullshelter/screens/onboarding/introduction_screen.dart';
+import 'package:mindfullshelter/screens/profile/edit_profile_screen.dart';
 import 'package:mindfullshelter/screens/profile/profile_screen.dart';
 import 'package:mindfullshelter/screens/terms%20&%20conditions/terms_and_conditions_screen.dart';
 import 'package:mindfullshelter/utils/app_theme.dart';
@@ -26,7 +28,7 @@ class Routes {
   static const String main = '/';
   static const String splash = '/splash';
   static const String introduction = '/introduction';
-  static const String multiSignIn = '/multisign-in';
+  static const String activationAccountScreen = '/activationaccountscreen';
   static const String signIn = '/sign-in';
   static const String signUp = '/sign-up';
   static const String termsAndConditions = '/termsandconditions';
@@ -38,6 +40,8 @@ class Routes {
       '/forgotpassword-inputnewpassword';
   static const String home = '/home';
   static const String profile = '/profile';
+  static const String editProfile = '/editprofile';
+  static const String medicationReminder = '/medicationreminder';
   static const String moodTracker = '/moodtracker';
   static const String audioMindfulness = '/audiomindfulness';
   static const String anonymousComunity = '/anonymouscomunity';
@@ -55,12 +59,15 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       return MaterialPageRoute(builder: (_) => const MainScreen());
     case Routes.introduction:
       return MaterialPageRoute(builder: (_) => const IntroductionScreen());
-    case Routes.multiSignIn:
-      return MaterialPageRoute(builder: (_) => const MultiSigninScreen());
+    case Routes.activationAccountScreen:
+      return MaterialPageRoute(builder: (_) => const ActivationAccountScreen());
     case Routes.signIn:
       return MaterialPageRoute(builder: (_) => const SignInScreen());
     case Routes.signUp:
-      return MaterialPageRoute(builder: (_) => const SignUpScreen());
+      return MaterialPageRoute(
+        builder: (_) => const SignUpScreen(),
+        settings: settings,
+      );
     case Routes.termsAndConditions:
       final tabIndex = settings.arguments as int? ?? 0;
       return MaterialPageRoute(
@@ -88,6 +95,12 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       return MaterialPageRoute(builder: (_) => const HomeScreen());
     case Routes.profile:
       return MaterialPageRoute(builder: (_) => const ProfileScreen());
+    case Routes.editProfile:
+      return MaterialPageRoute(builder: (_) => const EditProfileScreen());
+    case Routes.medicationReminder:
+      return MaterialPageRoute(
+        builder: (_) => const MedicationReminderScreen(),
+      );
     case Routes.moodTracker:
       return MaterialPageRoute(builder: (_) => const MoodTrackerScreen());
     case Routes.audioMindfulness:

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mindfullshelter/providers/anonymouse_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:mindfullshelter/provider/anonymouse_provider.dart';
 import 'package:mindfullshelter/utils/app_assets.dart';
 import 'package:mindfullshelter/utils/custom_button10.dart';
 import 'package:mindfullshelter/utils/custom_button8.dart';
@@ -8,7 +8,7 @@ import 'package:mindfullshelter/utils/custom_button9.dart';
 import 'package:mindfullshelter/utils/custom_post_dialog.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_theme.dart';
-import '../../models/anonymous.dart';
+import '../../models/anonymous_model.dart';
 
 class AnonymousComunityScreen extends StatefulWidget {
   const AnonymousComunityScreen({super.key});
@@ -19,6 +19,7 @@ class AnonymousComunityScreen extends StatefulWidget {
 }
 
 class _AnonymousComunityScreenState extends State<AnonymousComunityScreen> {
+  final GlobalKey _menuKey = GlobalKey();
   final TextEditingController _commentController = TextEditingController();
   bool _hasText = false;
   int? expandedPostIndex;
@@ -26,6 +27,7 @@ class _AnonymousComunityScreenState extends State<AnonymousComunityScreen> {
   @override
   void initState() {
     super.initState();
+    Future.microtask(() => context.read<AnonymousProvider>().loadPosts());
     _commentController.addListener(() {
       final hasText = _commentController.text.trim().isNotEmpty;
       if (hasText != _hasText) {
@@ -35,11 +37,174 @@ class _AnonymousComunityScreenState extends State<AnonymousComunityScreen> {
   }
 
   void _openCreatePostDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (_) => CustomPostDialog(),
+    showDialog(context: context, builder: (_) => CustomPostDialog()).then((_) {
+      setState(() {
+        expandedPostIndex = null;
+      });
+    });
+  }
+
+  Widget _buildPostHeader(AnonymousPost post) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: AppColors.accentLight,
+            shape: BoxShape.circle,
+          ),
+          child: Image.asset(icAnonymousProfile, height: 14),
+        ),
+        SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                post.isMine ? post.authorName : 'Anonim',
+                style: AppTextStyles.namePost.copyWith(
+                ),
+              ),
+              Text(post.timeAgo, style: AppTextStyles.datePost),
+            ],
+          ),
+        ),
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+          decoration: BoxDecoration(
+            color: AppColors.accentLight,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Text(post.categoryLabel, style: AppTextStyles.categoryPost),
+        ),
+        SizedBox(width: 8),
+        Builder(
+          builder: (context) {
+            return InkWell(
+              focusColor: Colors.transparent,
+              hoverColor: Colors.transparent,
+              highlightColor: Colors.transparent,
+              overlayColor: WidgetStateProperty.all(Colors.transparent),
+              onTap: () {
+                final renderBox = context.findRenderObject() as RenderBox;
+                final position = renderBox.localToGlobal(Offset.zero);
+                _showPostMenuAtPosition(position, post);
+              },
+              child: Icon(Icons.more_vert, size: 20),
+            );
+          },
+        ),
+      ],
     );
+  }
+
+  void _showPostMenuAtPosition(Offset position, AnonymousPost post) {
+    const double menuWidth = 120.0;
+    const double menuHeight = 40.0;
+
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    double left = position.dx;
+    if (position.dx + menuWidth > screenWidth - 45) {
+      left = screenWidth - menuWidth - 45;
+    }
+
+    double top = position.dy + 28;
+    if (top + menuHeight > screenHeight - 8) {
+      top = screenHeight - menuHeight - 8;
+    }
+
+    late final OverlayEntry overlayEntry;
+    overlayEntry = OverlayEntry(
+      builder: (context) => Stack(
+        children: [
+          Positioned.fill(
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: () => overlayEntry.remove(),
+            ),
+          ),
+          Positioned(
+            left: left,
+            top: top,
+            child: Material(
+              color: Colors.transparent,
+              child: Container(
+                width: menuWidth,
+                decoration: BoxDecoration(
+                  color: AppColors.background,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: post.isMine ? Color(0xFFFFE8E6) : Color(0xFFF1F1F1),
+                    width: 0.5,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      offset: Offset(0, 3),
+                      blurRadius: 10,
+                      spreadRadius: 1,
+                      color: AppColors.shadow.withValues(alpha: 0.1),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () {
+                        overlayEntry.remove();
+                        if (post.isMine) {
+                          context.read<AnonymousProvider>().removePost(post.id);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Postingan berhasil dihapus'),
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Postingan berhasil dilaporkan'),
+                            ),
+                          );
+                        }
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        child: Row(
+                          children: [
+                            Image.asset(
+                              post.isMine ? icDelete : icReport,
+                              height: post.isMine ? 12 : 11,
+                            ),
+                            SizedBox(width: 8),
+                            Text(
+                              post.isMine ? 'Hapus' : 'Laporkan',
+                              style: post.isMine
+                                  ? AppTextStyles.dropMenuPost.copyWith(
+                                      color: Colors.red,
+                                    )
+                                  : AppTextStyles.dropMenuPost,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    Overlay.of(context).insert(overlayEntry);
   }
 
   @override
@@ -51,40 +216,71 @@ class _AnonymousComunityScreenState extends State<AnonymousComunityScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: Column(
           children: [
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             _buildHeader(),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 25),
-                      child: CustomButton8(
-                        onTap: _openCreatePostDialog,
-                        icon: icComment,
-                        label: 'Buat Postingan Anonim',
+              child: Consumer<AnonymousProvider>(
+                builder: (context, provider, child) {
+                  if (provider.isLoading && provider.posts.isEmpty) {
+                    return const Center(
+                      child: CircularProgressIndicator(
+                        color: AppColors.primary,
+                      ),
+                    );
+                  }
+                  return RefreshIndicator(
+                    onRefresh: () => provider.loadPosts(),
+                    color: AppColors.primary,
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 25),
+                            child: CustomButton8(
+                              onTap: _openCreatePostDialog,
+                              icon: icComment,
+                              label: 'Buat Postingan Anonim',
+                            ),
+                          ),
+                          const SizedBox(height: 15),
+                          provider.posts.isEmpty
+                              ? _buildEmptyState()
+                              : _buildPostsList(provider.posts),
+
+                          const SizedBox(height: 3),
+                          _buildComunityGuideline(),
+                          const SizedBox(height: 15),
+                        ],
                       ),
                     ),
-                    SizedBox(height: 15),
-                    Consumer<AnonymousProvider>(
-                      builder: (context, provider, child) {
-                        return _buildPostsList(provider.posts);
-                      },
-                    ),
-                    SizedBox(height: 3),
-                    _buildComunityGuideline(),
-                    SizedBox(height: 15),
-                  ],
-                ),
+                  );
+                },
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 40),
+      child: Column(
+        children: [
+          Icon(Icons.forum_outlined, size: 50, color: Colors.grey[300]),
+          const SizedBox(height: 10),
+          Text(
+            'Belum ada postingan komunitas.',
+            style: AppTextStyles.descPost.copyWith(color: Colors.grey),
+          ),
+        ],
       ),
     );
   }
@@ -110,21 +306,19 @@ class _AnonymousComunityScreenState extends State<AnonymousComunityScreen> {
   }
 
   Widget _buildPostsList(List<AnonymousPost> posts) {
-    if (posts.isEmpty) {
-      return Center(
-        child: Text('Belum ada postingan.', style: AppTextStyles.namePost),
-      );
-    }
     return ListView.builder(
+      key: ValueKey(posts.length),
       padding: EdgeInsets.symmetric(horizontal: 25),
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
       itemCount: posts.length,
       itemBuilder: (context, index) {
         final post = posts[index];
-        final isExpanded = expandedPostIndex == index;
-
-        return _buildPostCard(post, isExpanded: isExpanded, index: index);
+        return _buildPostCard(
+          post,
+          isExpanded: expandedPostIndex == index,
+          index: index,
+        );
       },
     );
   }
@@ -156,80 +350,52 @@ class _AnonymousComunityScreenState extends State<AnonymousComunityScreen> {
           SizedBox(height: 12),
           Divider(height: 0.8, color: Color(0xFFE9E9E9)),
 
-          if (isExpanded) ...[
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 6),
-                ...comments
-                    .map(
-                      (comment) => Container(
-                        margin: EdgeInsets.only(top: 10),
-                        padding: EdgeInsets.all(10),
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: AppColors.backgroundList,
-                          borderRadius: BorderRadius.circular(8),
+          AnimatedSize(
+            duration: Duration(milliseconds: 250),
+            curve: Curves.easeInOut,
+            alignment: Alignment.topCenter,
+            child: AnimatedOpacity(
+              duration: Duration(milliseconds: 180),
+              opacity: isExpanded ? 1 : 0,
+              child: isExpanded
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 6),
+
+                        ...comments.map(
+                          (comment) => Container(
+                            margin: EdgeInsets.only(top: 10),
+                            padding: EdgeInsets.all(10),
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: AppColors.backgroundList,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: _inlineComment(comment),
+                          ),
                         ),
-                        child: _inlineComment(comment),
-                      ),
+
+                        if (comments.isEmpty)
+                          Padding(
+                            padding: EdgeInsets.symmetric(vertical: 12),
+                            child: Center(
+                              child: Text(
+                                'Belum ada komentar.',
+                                style: AppTextStyles.commentDatePost,
+                              ),
+                            ),
+                          ),
+
+                        SizedBox(height: 10),
+                        _buildCommentInputField(post.id),
+                      ],
                     )
-                    .toList(),
-
-                if (comments.isEmpty)
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 12),
-                    child: Center(
-                      child: Text(
-                        'Belum ada komentar.',
-                        style: AppTextStyles.commentDatePost,
-                      ),
-                    ),
-                  ),
-
-                SizedBox(height: 10),
-                _buildCommentInputField(post.id),
-              ],
+                  : SizedBox(),
             ),
-          ],
+          ),
         ],
       ),
-    );
-  }
-
-  Widget _buildPostHeader(AnonymousPost post) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          padding: EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: AppColors.accentLight,
-            shape: BoxShape.circle,
-          ),
-          child: Image.asset(icAnonymousProfile, height: 14),
-        ),
-        SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Anonim', style: AppTextStyles.namePost),
-              Text(post.formattedTime, style: AppTextStyles.datePost),
-            ],
-          ),
-        ),
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-          decoration: BoxDecoration(
-            color: AppColors.accentLight,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Text(post.categoryLabel, style: AppTextStyles.categoryPost),
-        ),
-        SizedBox(width: 8),
-        Icon(Icons.more_vert, size: 20),
-      ],
     );
   }
 
@@ -237,20 +403,87 @@ class _AnonymousComunityScreenState extends State<AnonymousComunityScreen> {
     return Row(
       children: [
         SizedBox(width: 18),
-        _actionButton(
-          Image.asset(post.isLiked ? icLikes : icUnLikes, height: 11.5),
-          '${post.likes}',
-          onTap: () => context.read<AnonymousProvider>().toggleLike(post.id),
-        ),
+        _likeButton(post),
         SizedBox(width: 25),
-        _actionButton(
-          Image.asset(icComment, height: 11.5),
-          '${post.commentsCount}',
-          onTap: () => setState(() {
+        _commentButton(
+          post.commentsCount,
+          () => setState(() {
             expandedPostIndex = (expandedPostIndex == index) ? null : index;
+
+            _commentController.clear();
+            _hasText = false;
           }),
         ),
       ],
+    );
+  }
+
+  Widget _likeButton(AnonymousPost post) {
+    return InkWell(
+      onTap: () => context.read<AnonymousProvider>().toggleLike(post.id),
+      focusColor: Colors.transparent,
+      hoverColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      overlayColor: WidgetStateProperty.all(Colors.transparent),
+      child: Row(
+        children: [
+          AnimatedSwitcher(
+            duration: Duration(milliseconds: 180),
+            transitionBuilder: (child, animation) =>
+                ScaleTransition(scale: animation, child: child),
+            child: Image.asset(
+              post.isLiked ? icLikes : icUnLikes,
+              key: ValueKey(post.isLiked),
+              height: 11.5,
+            ),
+          ),
+          SizedBox(width: 4),
+          AnimatedSwitcher(
+            duration: Duration(milliseconds: 180),
+            child: Text(
+              '${post.likesCount}',
+              key: ValueKey(post.likesCount),
+              style: AppTextStyles.actionPost,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _commentButton(int count, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      focusColor: Colors.transparent,
+      hoverColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      overlayColor: WidgetStateProperty.all(Colors.transparent),
+      child: Row(
+        children: [
+          Image.asset(icComment, height: 11.5),
+          SizedBox(width: 4),
+          AnimatedSwitcher(
+            duration: Duration(milliseconds: 180),
+            transitionBuilder: (child, animation) {
+              return FadeTransition(
+                opacity: animation,
+                child: SlideTransition(
+                  position: Tween<Offset>(
+                    begin: Offset(0, 0.25),
+                    end: Offset.zero,
+                  ).animate(animation),
+                  child: child,
+                ),
+              );
+            },
+            child: Text(
+              '$count',
+              key: ValueKey(count),
+              style: AppTextStyles.actionPost,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -325,12 +558,12 @@ class _AnonymousComunityScreenState extends State<AnonymousComunityScreen> {
             children: [
               Row(
                 children: [
-                  Text('Anonim', style: AppTextStyles.commentNamePost),
-                  SizedBox(width: 5),
                   Text(
-                    comment.formattedTime,
-                    style: AppTextStyles.commentDatePost,
+                    comment.isMine ? comment.authorName : 'Anonim',
+                    style: AppTextStyles.commentNamePost,
                   ),
+                  SizedBox(width: 5),
+                  Text(comment.timeAgo, style: AppTextStyles.commentDatePost),
                 ],
               ),
               Text(comment.content, style: AppTextStyles.commentDescPost),
@@ -338,22 +571,6 @@ class _AnonymousComunityScreenState extends State<AnonymousComunityScreen> {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _actionButton(Widget icon, String label, {VoidCallback? onTap}) {
-    return InkWell(
-      focusColor: Colors.transparent,
-      hoverColor: Colors.transparent,
-      highlightColor: Colors.transparent,
-      overlayColor: WidgetStateProperty.all(Colors.transparent),
-      child: Row(
-        children: [
-          icon,
-          SizedBox(width: 4),
-          Text(label, style: AppTextStyles.actionPost),
-        ],
-      ),
     );
   }
 
@@ -374,7 +591,7 @@ class _AnonymousComunityScreenState extends State<AnonymousComunityScreen> {
               Text('Pedoman Komunitas', style: AppTextStyles.titleGuidline),
               SizedBox(height: 5),
               Text(
-                '• Bersikap baik dan saling mendukung\n• Hormati privasi dan anonimitas\n• Dilarang bullying, pelecehan, dan ujaran kebencian\n• Jika dalam krisis, segera cari bantuan\n• Laporkan konten yang mencurigakan',
+                '• Bersikap baik dan saling mendukung\n• Hormati privasi dan anonimitas\n• Dilarang bullying, pelecehan, dan ujaran kebencian\n• Laporkan konten yang melanggar',
                 style: AppTextStyles.descGuidline.copyWith(height: 1.7),
               ),
             ],
