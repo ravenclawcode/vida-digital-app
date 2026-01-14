@@ -28,7 +28,12 @@ Widget buildArticleList(BuildContext context) {
       final artikels = provider.articles;
 
       if (artikels.isEmpty) {
-        return const Center(child: Text('Belum ada artikel tersedia'));
+        return Center(
+          child: Text(
+            'Belum ada artikel tersedia',
+            style: AppTextStyles.noContent,
+          ),
+        );
       }
 
       return ListView.builder(

@@ -11,6 +11,15 @@ const vector1 = 'assets/images/vector1.png';
 const thumbnail1 = 'assets/images/thumbnail1.png';
 const thumbnail2 = 'assets/images/thumbnail2.png';
 const thumbnail3 = 'assets/images/thumbnail3.png';
+const avatar1 = 'assets/images/avatar1.png';
+const avatar2 = 'assets/images/avatar2.png';
+const avatar3 = 'assets/images/avatar3.png';
+const avatar4 = 'assets/images/avatar4.png';
+const avatar5 = 'assets/images/avatar5.png';
+const avatar6 = 'assets/images/avatar6.png';
+const avatar7 = 'assets/images/avatar7.png';
+const avatar8 = 'assets/images/avatar8.png';
+const avatar9 = 'assets/images/avatar9.png';
 
 //Icons
 const icLogo = 'assets/icons/ic_logo.png';
@@ -69,3 +78,4 @@ const icMedicine = 'assets/icons/ic_medicine.png';
 const icChecklist = 'assets/icons/ic_checklist.png';
 const icSchedule = 'assets/icons/ic_schedule.png';
 const icAdd = 'assets/icons/ic_add.png';
+const icCheck = 'assets/icons/ic_check.png';

@@ -51,7 +51,7 @@ class _SignInScreenState extends State<SignInScreen> {
       ).showSnackBar(const SnackBar(content: Text('Login Berhasil!')));
       Navigator.pushNamedAndRemoveUntil(
         context,
-        '/home',
+        '/',
         (route) => false,
       );
     } else {

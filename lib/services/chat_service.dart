@@ -6,21 +6,18 @@ import '../utils/api_constants.dart';
 
 class ChatService {
   Future<String?> _getToken() async {
-  final prefs = await SharedPreferences.getInstance();
-  final token = prefs.getString('auth_token'); 
-  
-  print("DEBUG: Token yang dikirim ke Chat: $token"); 
-  return token;
-}
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+
+    print("DEBUG: Token yang dikirim ke Chat: $token");
+    return token;
+  }
 
   Future<List<Chat>> fetchHistory() async {
     final token = await _getToken();
     final response = await http.get(
       Uri.parse(ApiConstants.chatHistory),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Accept': 'application/json',
-      },
+      headers: {'Authorization': 'Bearer $token', 'Accept': 'application/json'},
     );
 
     if (response.statusCode == 200) {
@@ -31,24 +28,24 @@ class ChatService {
   }
 
   Future<Chat> sendMessage(String message) async {
-  final token = await _getToken();
-  final response = await http.post(
-    Uri.parse(ApiConstants.chatSend),
-    headers: {
-      'Authorization': 'Bearer $token',
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-    },
-    body: jsonEncode({'message': message}),
-  );
+    final token = await _getToken();
+    final response = await http.post(
+      Uri.parse(ApiConstants.chatSend),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({'message': message}),
+    );
 
-  print("Status Code: ${response.statusCode}");
-  print("Response Body: ${response.body}");
+    print("Status Code: ${response.statusCode}");
+    print("Response Body: ${response.body}");
 
-  if (response.statusCode == 200) {
-    return Chat.fromJson(json.decode(response.body));
-  } else {
-    throw Exception('Error ${response.statusCode}: ${response.body}');
+    if (response.statusCode == 200) {
+      return Chat.fromJson(json.decode(response.body));
+    } else {
+      throw Exception('Error ${response.statusCode}: ${response.body}');
+    }
   }
-}
 }

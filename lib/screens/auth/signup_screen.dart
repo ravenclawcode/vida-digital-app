@@ -7,10 +7,10 @@ import 'package:mindfullshelter/utils/app_colors.dart';
 import 'package:mindfullshelter/utils/app_theme.dart';
 import 'package:mindfullshelter/utils/custom_button1.dart';
 import 'package:mindfullshelter/utils/custom_button4.dart';
-import 'package:mindfullshelter/utils/custom_checkbox.dart';
+import 'package:mindfullshelter/utils/custom_checkbox1.dart';
 import 'package:mindfullshelter/utils/custom_input_form_email.dart';
 import 'package:mindfullshelter/utils/custom_input_form_password.dart';
-import 'package:mindfullshelter/utils/custom_input_username.dart';
+import 'package:mindfullshelter/utils/custom_input_form_username.dart';
 import 'package:provider/provider.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -171,7 +171,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             children: [
               Padding(
                 padding: EdgeInsets.only(top: 3),
-                child: CustomCheckbox(
+                child: CustomCheckbox1(
                   value: isAgreed,
                   showError: showCheckboxError,
                   onChanged: (value) {

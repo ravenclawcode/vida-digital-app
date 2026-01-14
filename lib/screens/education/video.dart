@@ -28,7 +28,12 @@ Widget buildVideoList(BuildContext context) {
       final videos = provider.videos;
 
       if (videos.isEmpty) {
-        return const Center(child: Text('Belum ada video tersedia'));
+        return Center(
+          child: Text(
+            'Belum ada video tersedia',
+            style: AppTextStyles.noContent,
+          ),
+        );
       }
 
       return ListView.builder(

@@ -8,7 +8,7 @@ import 'package:mindfullshelter/utils/app_colors.dart';
 import 'package:mindfullshelter/utils/app_theme.dart';
 import 'package:mindfullshelter/utils/custom_button1.dart';
 import 'package:mindfullshelter/utils/custom_button5.dart';
-import 'package:mindfullshelter/utils/custom_checkbox.dart';
+import 'package:mindfullshelter/utils/custom_checkbox1.dart';
 import 'package:provider/provider.dart';
 
 class PrivacyPolicy extends StatefulWidget {
@@ -86,7 +86,7 @@ class _PrivacyPolicyState extends State<PrivacyPolicy> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                CustomCheckbox(
+                CustomCheckbox1(
                   value: terms.isAgree,
                   showError: showCheckboxError,
                   onChanged: (value) {

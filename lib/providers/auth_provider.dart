@@ -25,7 +25,7 @@ class AuthProvider with ChangeNotifier {
   User? _currentUser;
   User? get currentUser => _currentUser;
 
-  void setImage(File file) {
+  void setImage(File? file) {
     _imageFile = file;
     notifyListeners();
   }
@@ -104,8 +104,11 @@ class AuthProvider with ChangeNotifier {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        final prefs = await SharedPreferences.getInstance();
+        print(
+          'Data User dari Login: ${data['user']}',
+        ); 
 
+        final prefs = await SharedPreferences.getInstance();
         await prefs.setString('auth_token', data['access_token']);
 
         if (data['user'] != null) {
@@ -221,7 +224,12 @@ class AuthProvider with ChangeNotifier {
     return false;
   }
 
-  Future<bool> updateProfile(String username, String email) async {
+  Future<bool> updateProfile({
+    required String username,
+    required String email,
+    required String gender,
+    String? avatarUrl,
+  }) async {
     _isLoading = true;
     notifyListeners();
 
@@ -229,53 +237,33 @@ class AuthProvider with ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('auth_token');
 
-      var request = http.MultipartRequest(
-        'POST',
+      final response = await http.post(
         Uri.parse(ApiConstants.updateProfile),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+        body: {
+          'username': username,
+          'email': email,
+          'gender': gender,
+          'profile_photo': avatarUrl ?? _currentUser?.profilePhotoUrl ?? "",
+        },
       );
-
-      request.headers.addAll({
-        'Authorization': 'Bearer $token',
-        'Accept': 'application/json',
-      });
-
-      request.fields['username'] = username;
-      request.fields['email'] = email;
-
-      if (_imageFile != null) {
-        if (await _imageFile!.exists()) {
-          final ext = _imageFile!.path.split('.').last.toLowerCase();
-          final mime = ext == 'png' ? 'png' : 'jpeg';
-          request.files.add(
-            await http.MultipartFile.fromPath(
-              'profile_photo',
-              _imageFile!.path,
-              contentType: http.MediaType('image', mime),
-            ),
-          );
-        }
-      }
-
-      var streamedResponse = await request.send();
-      var response = await http.Response.fromStream(streamedResponse);
-
-      print('Response Status: ${response.statusCode}');
-      print('Response Body: ${response.body}');
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        _currentUser = User.fromJson(data['user']);
-        _imageFile = null;
+        if (data['user'] != null) {
+          _currentUser = User.fromJson(data['user']);
+          _imageFile = null; 
+        }
         _isLoading = false;
         notifyListeners();
         return true;
-      } else {
-        print('Gagal Update: ${response.body}');
       }
     } catch (e) {
       print('Update Profile Error: $e');
     }
-
     _isLoading = false;
     notifyListeners();
     return false;

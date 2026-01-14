@@ -8,6 +8,7 @@ import 'package:mindfullshelter/utils/custom_button1.dart';
 import 'package:mindfullshelter/utils/custom_button4.dart';
 import 'package:mindfullshelter/utils/custom_input_activation_code.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ActivationAccountScreen extends StatefulWidget {
   const ActivationAccountScreen({super.key});
@@ -148,8 +149,23 @@ class _ActivationAccountScreenState extends State<ActivationAccountScreen> {
                   text: 'Hubungi Tim VIDA',
                   style: AppTextStyles.bodyMediumBold,
                   recognizer: TapGestureRecognizer()
-                    ..onTap = () {
-                      Navigator.pushNamed(context, '/');
+                    ..onTap = () async {
+                      final Uri url = Uri.parse(
+                        'https://www.instagram.com/vidadigital.ung/',
+                      );
+
+                      if (await canLaunchUrl(url)) {
+                        await launchUrl(
+                          url,
+                          mode: LaunchMode.externalApplication,
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Tidak dapat membuka Instagram.'),
+                          ),
+                        );
+                      }
                     },
                 ),
               ],

@@ -21,27 +21,27 @@ class ProfileScreen extends StatelessWidget {
 
   Widget _buildProfileImage(AuthProvider auth) {
     final user = auth.currentUser;
+    final String? photoUrl = user?.profilePhotoUrl;
 
-    if (auth.imageFile != null) {
+    if (auth.imageFile != null && auth.imageFile!.path.isNotEmpty) {
       return Image.file(auth.imageFile!, fit: BoxFit.cover);
     }
 
-    if (user?.profilePhotoUrl != null && user!.profilePhotoUrl!.isNotEmpty) {
+    if (photoUrl != null && photoUrl.isNotEmpty) {
+      if (photoUrl.contains('assets/')) {
+        return Image.asset(photoUrl, fit: BoxFit.cover);
+      }
+
       return Image.network(
-        user.profilePhotoUrl!,
+        photoUrl,
         fit: BoxFit.cover,
-        loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) return child;
-          return const Center(child: CircularProgressIndicator(strokeWidth: 2));
-        },
-        errorBuilder: (context, error, stackTrace) {
-          return Image.asset(icAnonymousProfile, scale: 2);
-        },
+        errorBuilder: (context, error, stackTrace) =>
+            Image.asset(icAnonymousProfile),
       );
     }
 
     return Padding(
-      padding: EdgeInsets.all(23),
+      padding: const EdgeInsets.all(23),
       child: Image.asset(icAnonymousProfile),
     );
   }

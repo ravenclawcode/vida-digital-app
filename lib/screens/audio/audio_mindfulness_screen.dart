@@ -128,7 +128,12 @@ class _AudioMindfulnessScreenState extends State<AudioMindfulnessScreen> {
         }
 
         if (provider.audios.isEmpty) {
-          return const Center(child: Text("Tidak ada audio tersedia"));
+          return Center(
+            child: Text(
+              'Belum ada audio tersedia',
+              style: AppTextStyles.noContent,
+            ),
+          );
         }
 
         return ListView.builder(
@@ -136,14 +141,18 @@ class _AudioMindfulnessScreenState extends State<AudioMindfulnessScreen> {
           itemCount: provider.audios.length,
           itemBuilder: (context, index) {
             final audio = provider.audios[index];
-            return _buildAudioCard(audio);
+            return _buildAudioCard(audio, provider.audios, index);
           },
         );
       },
     );
   }
 
-  Widget _buildAudioCard(AudioMindfulness audio) {
+  Widget _buildAudioCard(
+    AudioMindfulness audio,
+    List<AudioMindfulness> audios,
+    int index,
+  ) {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.background,
@@ -159,7 +168,7 @@ class _AudioMindfulnessScreenState extends State<AudioMindfulnessScreen> {
       ),
       margin: const EdgeInsets.only(bottom: 15),
       child: InkWell(
-        onTap: () => _showAudioPlayer(audio),
+        onTap: () => _showAudioPlayer(audio, audios, index),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
           child: Row(
@@ -246,12 +255,17 @@ class _AudioMindfulnessScreenState extends State<AudioMindfulnessScreen> {
     );
   }
 
-  void _showAudioPlayer(AudioMindfulness audio) {
+  void _showAudioPlayer(
+    AudioMindfulness audio,
+    List<AudioMindfulness> allAudios,
+    int index,
+  ) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => AudioPlayerSheet(audio: audio),
+      builder: (context) =>
+          AudioPlayerSheet(audio: audio, playlist: allAudios, index: index),
     );
   }
 }

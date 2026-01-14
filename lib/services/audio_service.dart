@@ -8,18 +8,15 @@ class AudioService {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('auth_token');
 
-    String url = ApiConstants.audio; 
-    
+    String url = ApiConstants.audio;
+
     if (category != null && category != 'Semua') {
       url += '?category=$category';
     }
 
     final response = await http.get(
       Uri.parse(url),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Accept': 'application/json',
-      },
+      headers: {'Authorization': 'Bearer $token', 'Accept': 'application/json'},
     );
 
     if (response.statusCode == 200) {

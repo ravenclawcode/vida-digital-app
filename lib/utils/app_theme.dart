@@ -239,7 +239,7 @@ class AppTextStyles {
     color: AppColors.textWhite,
   );
 
-  //Font Quick Mood Check
+  //Font Medication
   static TextStyle get headingMedication => GoogleFonts.poppins(
     fontSize: 16,
     fontWeight: FontWeight.w600,
@@ -259,9 +259,15 @@ class AppTextStyles {
   );
 
   static TextStyle get actionMedication => GoogleFonts.poppins(
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: FontWeight.w500,
-    color: AppColors.textPink,
+    color: AppColors.textPrimary,
+  );
+
+  static TextStyle get checkboxMedication => GoogleFonts.poppins(
+    fontSize: 11,
+    fontWeight: FontWeight.w600,
+    color: AppColors.textPrimary,
   );
 
   //Font Quick Mood Check
@@ -588,5 +594,12 @@ class AppTextStyles {
     fontWeight: FontWeight.w400,
     color: AppColors.textPrimary,
     height: 1.7,
+  );
+
+   //Font no conntent
+   static TextStyle get noContent => GoogleFonts.poppins(
+    fontSize: 14,
+    fontWeight: FontWeight.w400,
+    color: AppColors.textPrimary,
   );
 }

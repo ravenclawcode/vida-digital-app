@@ -7,6 +7,7 @@ import 'package:mindfullshelter/utils/app_theme.dart';
 import 'package:mindfullshelter/utils/custom_button1.dart';
 import 'package:mindfullshelter/utils/custom_button2.dart';
 import 'package:mindfullshelter/utils/custom_button4.dart';
+import 'package:mindfullshelter/utils/custom_checkbox2.dart';
 import 'package:mindfullshelter/utils/time_dash_formatter.dart';
 import 'package:provider/provider.dart';
 
@@ -23,7 +24,8 @@ class CustomAddMedicationDialog extends StatefulWidget {
 class _CustomAddMedicationDialogState extends State<CustomAddMedicationDialog> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _timeController = TextEditingController();
-
+  bool isAgreed = false;
+  bool showCheckboxError = false;
   bool get _isValid =>
       _nameController.text.trim().isNotEmpty && _parseTime() != null;
 
@@ -56,15 +58,60 @@ class _CustomAddMedicationDialogState extends State<CustomAddMedicationDialog> {
     if (name.isEmpty || timeRaw.isEmpty) return;
 
     try {
-      await context.read<MedicationProvider>().addMedication(name, timeRaw);
+      final provider = context.read<MedicationProvider>();
+
+      if (widget.entry == null) {
+        await provider.addMedication(name, timeRaw, isEveryday: isAgreed);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Obat baru berhasil ditambahkan!')),
+          );
+        }
+      } else {
+        await provider.updateMedication(
+          widget.entry!.medication.id,
+          name,
+          timeRaw,
+          isEveryday: isAgreed,
+        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Perubahan obat berhasil disimpan!')),
+          );
+        }
+      }
+
       if (mounted) Navigator.pop(context);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal menyimpan obat. Coba lagi.')),
+          SnackBar(content: Text('Gagal memproses data. Coba lagi.')),
         );
       }
     }
+  }
+
+  bool get _isChanged {
+    if (widget.entry == null) {
+      return true;
+    }
+
+    final initialName = widget.entry!.medication.name;
+    final initialTime =
+        '${widget.entry!.medication.time.hour.toString().padLeft(2, '0')}.${widget.entry!.medication.time.minute.toString().padLeft(2, '0')}';
+    final initialEveryday = widget.entry!.medication.isEveryday;
+
+    return _nameController.text.trim() != initialName ||
+        _timeController.text.trim() != initialTime ||
+        isAgreed != initialEveryday;
+  }
+
+  bool get _canSubmit {
+    if (!_isValid) return false;
+    if (widget.entry != null && !_isChanged) {
+      return false;
+    }
+    return true;
   }
 
   @override
@@ -76,6 +123,7 @@ class _CustomAddMedicationDialogState extends State<CustomAddMedicationDialog> {
       _timeController.text =
           '${widget.entry!.medication.time.hour.toString().padLeft(2, '0')}.'
           '${widget.entry!.medication.time.minute.toString().padLeft(2, '0')}';
+      isAgreed = widget.entry!.medication.isEveryday;
     }
   }
 
@@ -164,9 +212,28 @@ class _CustomAddMedicationDialogState extends State<CustomAddMedicationDialog> {
                     ),
                     onChanged: (_) => setState(() {}),
                   ),
-
+                  SizedBox(height: 14),
+                  Row(
+                    children: [
+                      CustomCheckbox2(
+                        value: isAgreed,
+                        showError: showCheckboxError,
+                        onChanged: (value) {
+                          setState(() {
+                            isAgreed = value;
+                            if (value) showCheckboxError = false;
+                          });
+                        },
+                      ),
+                      SizedBox(width: 6),
+                      Text(
+                        'Setiap hari',
+                        style: AppTextStyles.actionMedication,
+                      ),
+                    ],
+                  ),
                   SizedBox(height: 20),
-                  _isValid
+                  _canSubmit
                       ? CustomButton1(
                           onTap: _submit,
                           label: widget.entry == null ? 'Tambah' : 'Simpan',
@@ -177,7 +244,6 @@ class _CustomAddMedicationDialogState extends State<CustomAddMedicationDialog> {
                             style: AppTextStyles.button1,
                           ),
                         ),
-
                   SizedBox(height: 6),
                   CustomButton2(
                     onTap: () => Navigator.pop(context),

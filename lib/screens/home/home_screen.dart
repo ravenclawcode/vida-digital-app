@@ -40,14 +40,23 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildProfileImage(AuthProvider auth) {
     final user = auth.currentUser;
+    final String? photoPath = user?.profilePhotoUrl;
 
-    if (auth.imageFile != null) {
+    if (auth.imageFile != null && auth.imageFile!.path.isNotEmpty) {
       return Image.file(auth.imageFile!, fit: BoxFit.cover);
     }
 
-    if (user?.profilePhotoUrl != null && user!.profilePhotoUrl!.isNotEmpty) {
+    if (photoPath != null && photoPath.isNotEmpty) {
+      if (photoPath.contains('assets/')) {
+        return Image.asset(
+          photoPath,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) => _buildDefaultAvatar(),
+        );
+      }
+
       return Image.network(
-        user.profilePhotoUrl!,
+        photoPath,
         fit: BoxFit.cover,
         loadingBuilder: (context, child, loadingProgress) {
           if (loadingProgress == null) return child;
@@ -59,12 +68,14 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           );
         },
-        errorBuilder: (context, error, stackTrace) {
-          return Image.asset(icAnonymousProfile, scale: 2);
-        },
+        errorBuilder: (context, error, stackTrace) => _buildDefaultAvatar(),
       );
     }
 
+    return _buildDefaultAvatar();
+  }
+
+  Widget _buildDefaultAvatar() {
     return Padding(
       padding: const EdgeInsets.all(12),
       child: Image.asset(icAnonymousProfile),
@@ -225,7 +236,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   ? Center(
                       child: Text(
                         'Belum ada obat ditambahkan',
-                        style: AppTextStyles.bodySmallMood,
+                        style: AppTextStyles.noContent.copyWith(
+                          fontSize: 10,
+                          color: AppColors.textSecondary,
+                        ),
                       ),
                     )
                   : AnimatedSwitcher(

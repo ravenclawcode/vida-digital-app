@@ -23,12 +23,6 @@ class _MedicationReminderScreenState extends State<MedicationReminderScreen> {
       barrierDismissible: true,
       builder: (_) => const CustomAddMedicationDialog(),
     );
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Obat baru berhasil ditambahkan!')),
-      );
-    }
   }
 
   void _handleDeleteMedication(
@@ -65,17 +59,6 @@ class _MedicationReminderScreenState extends State<MedicationReminderScreen> {
       barrierDismissible: true,
       builder: (_) => CustomAddMedicationDialog(entry: entry),
     );
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Perubahan obat berhasil disimpan'),
-          backgroundColor: Colors.green,
-          behavior: SnackBarBehavior.floating,
-          duration: Duration(seconds: 2),
-        ),
-      );
-    }
   }
 
   @override
@@ -114,13 +97,13 @@ class _MedicationReminderScreenState extends State<MedicationReminderScreen> {
                                 style: AppTextStyles.headingMedication,
                               ),
                             ),
-                            const SizedBox(height: 15),
+                            const SizedBox(height: 20),
                             _buildMedicationList(provider.todayEntries),
                           ],
                         );
                       },
                     ),
-                    const SizedBox(height: 3),
+                    const SizedBox(height: 20),
                     _buildTips(),
                     const SizedBox(height: 15),
                   ],
@@ -136,7 +119,7 @@ class _MedicationReminderScreenState extends State<MedicationReminderScreen> {
   Widget _buildMedicationList(List<MedicationEntry> entries) {
     if (entries.isEmpty) {
       return Center(
-        child: Text('Belum ada obat', style: AppTextStyles.namePost),
+        child: Text('Belum ada obat tersedia', style: AppTextStyles.noContent),
       );
     }
 
@@ -146,15 +129,16 @@ class _MedicationReminderScreenState extends State<MedicationReminderScreen> {
       physics: const NeverScrollableScrollPhysics(),
       itemCount: entries.length,
       itemBuilder: (context, index) {
-        return _buildMedicationCard(entries[index]);
+        final isLast = index == entries.length - 1;
+        return _buildMedicationCard(entries[index], isLast);
       },
     );
   }
 
-  Widget _buildMedicationCard(MedicationEntry entry) {
+  Widget _buildMedicationCard(MedicationEntry entry, isLast) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
       height: 50,
+      margin: EdgeInsets.only(bottom: isLast ? 0 : 12),
       decoration: BoxDecoration(
         color: AppColors.background,
         borderRadius: BorderRadius.circular(10),

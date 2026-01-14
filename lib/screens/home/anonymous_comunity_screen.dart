@@ -23,6 +23,7 @@ class _AnonymousComunityScreenState extends State<AnonymousComunityScreen> {
   final TextEditingController _commentController = TextEditingController();
   bool _hasText = false;
   int? expandedPostIndex;
+  late final OverlayEntry overlayEntry;
 
   @override
   void initState() {
@@ -63,8 +64,7 @@ class _AnonymousComunityScreenState extends State<AnonymousComunityScreen> {
             children: [
               Text(
                 post.isMine ? post.authorName : 'Anonim',
-                style: AppTextStyles.namePost.copyWith(
-                ),
+                style: AppTextStyles.namePost.copyWith(),
               ),
               Text(post.timeAgo, style: AppTextStyles.datePost),
             ],
@@ -116,7 +116,6 @@ class _AnonymousComunityScreenState extends State<AnonymousComunityScreen> {
       top = screenHeight - menuHeight - 8;
     }
 
-    late final OverlayEntry overlayEntry;
     overlayEntry = OverlayEntry(
       builder: (context) => Stack(
         children: [
@@ -248,12 +247,16 @@ class _AnonymousComunityScreenState extends State<AnonymousComunityScreen> {
                               label: 'Buat Postingan Anonim',
                             ),
                           ),
-                          const SizedBox(height: 15),
+                          const SizedBox(height: 20),
                           provider.posts.isEmpty
-                              ? _buildEmptyState()
+                              ? Center(
+                                  child: Text(
+                                    'Belum ada postingan komunitas',
+                                    style: AppTextStyles.noContent,
+                                  ),
+                                )
                               : _buildPostsList(provider.posts),
-
-                          const SizedBox(height: 3),
+                          const SizedBox(height: 20),
                           _buildComunityGuideline(),
                           const SizedBox(height: 15),
                         ],
@@ -265,22 +268,6 @@ class _AnonymousComunityScreenState extends State<AnonymousComunityScreen> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildEmptyState() {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 40),
-      child: Column(
-        children: [
-          Icon(Icons.forum_outlined, size: 50, color: Colors.grey[300]),
-          const SizedBox(height: 10),
-          Text(
-            'Belum ada postingan komunitas.',
-            style: AppTextStyles.descPost.copyWith(color: Colors.grey),
-          ),
-        ],
       ),
     );
   }
@@ -314,10 +301,12 @@ class _AnonymousComunityScreenState extends State<AnonymousComunityScreen> {
       itemCount: posts.length,
       itemBuilder: (context, index) {
         final post = posts[index];
+        final isLast = index == posts.length - 1;
         return _buildPostCard(
           post,
           isExpanded: expandedPostIndex == index,
           index: index,
+          isLast: isLast,
         );
       },
     );
@@ -327,12 +316,13 @@ class _AnonymousComunityScreenState extends State<AnonymousComunityScreen> {
     AnonymousPost post, {
     required bool isExpanded,
     required int index,
+    required bool isLast,
   }) {
     final provider = context.read<AnonymousProvider>();
     final comments = provider.getCommentsForPost(post.id);
 
     return Container(
-      margin: EdgeInsets.only(bottom: 15),
+      margin: EdgeInsets.only(bottom: isLast ? 0 : 12),
       padding: EdgeInsets.fromLTRB(20, 20, 20, 23),
       decoration: BoxDecoration(
         color: AppColors.background,
@@ -349,7 +339,6 @@ class _AnonymousComunityScreenState extends State<AnonymousComunityScreen> {
           _buildActionButtons(post, index),
           SizedBox(height: 12),
           Divider(height: 0.8, color: Color(0xFFE9E9E9)),
-
           AnimatedSize(
             duration: Duration(milliseconds: 250),
             curve: Curves.easeInOut,
@@ -381,12 +370,14 @@ class _AnonymousComunityScreenState extends State<AnonymousComunityScreen> {
                             padding: EdgeInsets.symmetric(vertical: 12),
                             child: Center(
                               child: Text(
-                                'Belum ada komentar.',
-                                style: AppTextStyles.commentDatePost,
+                                'Belum ada komentar',
+                                style: AppTextStyles.noContent.copyWith(
+                                  fontSize: 10,
+                                  color: AppColors.textLight,
+                                ),
                               ),
                             ),
                           ),
-
                         SizedBox(height: 10),
                         _buildCommentInputField(post.id),
                       ],

@@ -12,7 +12,10 @@ class MedicationService {
   Future<List<dynamic>> fetchTodayMedications() async {
     final response = await http.get(
       Uri.parse(ApiConstants.medicationToday),
-      headers: {'Authorization': 'Bearer ${await _getToken()}', 'Accept': 'application/json'},
+      headers: {
+        'Authorization': 'Bearer ${await _getToken()}',
+        'Accept': 'application/json',
+      },
     );
     if (response.statusCode == 200) {
       return jsonDecode(response.body)['data'];
@@ -23,7 +26,10 @@ class MedicationService {
   Future<bool> addMedication(String name, String time) async {
     final response = await http.post(
       Uri.parse(ApiConstants.medicationStore),
-      headers: {'Authorization': 'Bearer ${await _getToken()}', 'Accept': 'application/json'},
+      headers: {
+        'Authorization': 'Bearer ${await _getToken()}',
+        'Accept': 'application/json',
+      },
       body: {'name': name, 'time': time},
     );
     return response.statusCode == 200;
@@ -32,7 +38,10 @@ class MedicationService {
   Future<bool> updateStatus(String id, String status) async {
     final response = await http.post(
       Uri.parse('${ApiConstants.medicationStore}/$id/status'),
-      headers: {'Authorization': 'Bearer ${await _getToken()}', 'Accept': 'application/json'},
+      headers: {
+        'Authorization': 'Bearer ${await _getToken()}',
+        'Accept': 'application/json',
+      },
       body: {'status': status},
     );
     return response.statusCode == 200;

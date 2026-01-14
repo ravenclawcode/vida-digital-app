@@ -1,20 +1,19 @@
 import 'package:flutter/cupertino.dart';
 import 'package:mindfullshelter/models/activity.dart';
 import 'package:mindfullshelter/models/terms%20conditions.dart';
-import 'package:mindfullshelter/models/user.dart';
 import 'package:mindfullshelter/utils/app_assets.dart';
 
 import '../models/mood_model.dart';
 
 class DummyData {
-  static List<User> users = [
-    User(
-      id: '1',
-      email: 'test@gmail.com',
-      username: 'tester',
-      password: '123456',
-    ),
-  ];
+  // static List<User> users = [
+  //   User(
+  //     id: '1',
+  //     email: 'test@gmail.com',
+  //     username: 'tester',
+  //     password: '123456',
+  //   ),
+  // ];
 
   static final TermsAndConditions termsOfService = TermsAndConditions(
     id: '1',

@@ -1,3 +1,4 @@
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -10,11 +11,23 @@ import 'package:mindfullshelter/providers/education_provider.dart';
 import 'package:mindfullshelter/providers/medication_provider.dart';
 import 'package:mindfullshelter/providers/mood_provider.dart';
 import 'package:mindfullshelter/routes/routes.dart';
+import 'package:mindfullshelter/services/my_audio_handler.dart';
 import 'package:provider/provider.dart';
 import 'utils/app_theme.dart';
 
+late MyAudioHandler audioHandler;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  audioHandler = await AudioService.init(
+    builder: () => MyAudioHandler(),
+    config: const AudioServiceConfig(
+      androidNotificationChannelId: 'com.ravenclawcode.vida',
+      androidNotificationChannelName: 'Vida Mindfulness Audio',
+      androidStopForegroundOnPause: true,
+      androidNotificationIcon: 'mipmap/ic_launcher',
+    ),
+  );
 
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -35,7 +48,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => MedicationProvider()),
         ChangeNotifierProvider(create: (_) => MoodProvider()),
         ChangeNotifierProvider(create: (_) => AudioProvider()),
-         ChangeNotifierProvider(create: (_) => ChatProvider()),
+        ChangeNotifierProvider(create: (_) => ChatProvider()),
         ChangeNotifierProvider(create: (_) => EducationProvider()),
         ChangeNotifierProvider(create: (_) => AnonymousProvider()),
       ],

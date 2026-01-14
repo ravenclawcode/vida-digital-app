@@ -51,12 +51,20 @@ class MedicationProvider with ChangeNotifier {
     }
   }
 
-  Future<void> addMedication(String name, String time) async {
+  Future<void> addMedication(
+    String name,
+    String time, {
+    bool isEveryday = false,
+  }) async {
     try {
       final response = await http.post(
         Uri.parse(ApiConstants.medicationStore),
         headers: await _getHeaders(),
-        body: {'name': name, 'time': time},
+        body: {
+          'name': name,
+          'time': time,
+          'is_everyday': isEveryday ? '1' : '0',
+        },
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -64,9 +72,11 @@ class MedicationProvider with ChangeNotifier {
         await fetchMedications();
       } else {
         debugPrint("Gagal Simpan: ${response.body}");
+        throw Exception('Gagal menyimpan data ke server');
       }
     } catch (e) {
       debugPrint("Error Exception: $e");
+      rethrow;
     }
   }
 
@@ -91,6 +101,31 @@ class MedicationProvider with ChangeNotifier {
       }
     } catch (e) {
       debugPrint("Error update status: $e");
+    }
+  }
+
+  Future<void> updateMedication(
+    String id,
+    String name,
+    String time, {
+    bool isEveryday = false,
+  }) async {
+    try {
+      final response = await http.put(
+        Uri.parse('${ApiConstants.baseUrl}/medications/$id'),
+        headers: await _getHeaders(),
+        body: {
+          'name': name,
+          'time': time,
+          'is_everyday': isEveryday ? '1' : '0',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        await fetchMedications();
+      }
+    } catch (e) {
+      rethrow;
     }
   }
 

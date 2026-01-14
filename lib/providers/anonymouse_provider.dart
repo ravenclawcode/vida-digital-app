@@ -30,7 +30,7 @@ class AnonymousProvider extends ChangeNotifier {
     notifyListeners();
 
     final success = await _service.storePost(category, content);
-    
+
     if (success) {
       print("DEBUG: Upload Berhasil, Memuat ulang post...");
       await loadPosts();
@@ -40,7 +40,7 @@ class AnonymousProvider extends ChangeNotifier {
 
     _isLoading = false;
     notifyListeners();
-}
+  }
 
   Future<void> toggleLike(String postId) async {
     final success = await _service.toggleLike(postId);
@@ -67,10 +67,10 @@ class AnonymousProvider extends ChangeNotifier {
   }
 
   Future<void> removePost(String postId) async {
-  final success = await _service.deletePost(postId);
-  if (success) {
-    _posts.removeWhere((post) => post.id == postId);
-    notifyListeners();
+    final success = await _service.deletePost(postId);
+    if (success) {
+      _posts.removeWhere((post) => post.id == postId);
+      notifyListeners();
+    }
   }
-}
 }

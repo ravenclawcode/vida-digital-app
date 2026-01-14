@@ -46,7 +46,7 @@ class _ForgotPasswordInputEmailScreenState
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Email tidak ditemukan atau terjadi kesalahan'),
+          content: Text('Email tidak ditemukan'),
         ),
       );
     }
