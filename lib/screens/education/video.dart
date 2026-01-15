@@ -163,7 +163,7 @@ Widget buildVideoCard(BuildContext context, EducationContent video) {
             ],
           ),
           Padding(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.fromLTRB(12, 12, 12, 14),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -173,14 +173,16 @@ Widget buildVideoCard(BuildContext context, EducationContent video) {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 2),
                 Row(
                   children: [
                     Image.asset(icTime, height: 12),
-                    const SizedBox(width: 6),
+                    const SizedBox(width: 4),
                     Text(
                       video.duration,
-                      style: AppTextStyles.durationDescVideo,
+                      style: AppTextStyles.durationDescVideo.copyWith(
+                        fontSize: 12,
+                      ),
                     ),
                   ],
                 ),

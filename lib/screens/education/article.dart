@@ -60,7 +60,7 @@ Widget buildArticleCard(BuildContext context, EducationContent article) {
     ),
     child: Container(
       margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 18),
       decoration: BoxDecoration(
         color: AppColors.background,
         borderRadius: BorderRadius.circular(12),
@@ -111,16 +111,19 @@ Widget buildArticleCard(BuildContext context, EducationContent article) {
           const SizedBox(height: 6),
           Text(
             (article.description ?? '').trim(),
-            style: AppTextStyles.descVideo,
+            style: AppTextStyles.descVideo.copyWith(fontSize: 12),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 6),
           Row(
             children: [
               Image.asset(icTime, height: 12),
-              const SizedBox(width: 6),
-              Text(article.duration, style: AppTextStyles.durationDescVideo),
+              const SizedBox(width: 4),
+              Text(
+                article.duration,
+                style: AppTextStyles.durationDescVideo.copyWith(fontSize: 12),
+              ),
             ],
           ),
         ],

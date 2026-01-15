@@ -3,6 +3,8 @@ import 'package:mindfullshelter/providers/chat_provider.dart';
 import 'package:mindfullshelter/utils/app_assets.dart';
 import 'package:mindfullshelter/utils/custom_button6.dart';
 import 'package:mindfullshelter/utils/custom_button7.dart';
+import 'package:mindfullshelter/utils/custom_dialog_delete_chat.dart';
+import 'package:mindfullshelter/utils/custom_typing_indicator.dart';
 import 'package:provider/provider.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_theme.dart';
@@ -18,7 +20,6 @@ class ChatbotScreen extends StatefulWidget {
 
 class _ChatbotScreenState extends State<ChatbotScreen> {
   final TextEditingController _messageController = TextEditingController();
-
   final ScrollController _scrollController = ScrollController();
   bool _hasText = false;
 
@@ -49,12 +50,23 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
     if (text.isEmpty) return;
 
     _messageController.clear();
+
+    Future.delayed(const Duration(milliseconds: 50), () => _scrollToBottom());
+
     context.read<ChatProvider>().sendChat(text).then((_) {
       Future.delayed(
         const Duration(milliseconds: 100),
         () => _scrollToBottom(),
       );
     });
+  }
+
+  void _deleteChat() async {
+    await showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (_) => const CustomDialogDeleteChat(),
+    );
   }
 
   @override
@@ -91,6 +103,8 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
     required String icon,
     required VoidCallback onTap,
   }) {
+    final bool canDelete = context.watch<ChatProvider>().messages.length > 1;
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 25),
       child: Row(
@@ -127,6 +141,18 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
               ),
             ],
           ),
+          Spacer(),
+          InkWell(
+            focusColor: Colors.transparent,
+            hoverColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            overlayColor: WidgetStateProperty.all(Colors.transparent),
+            onTap: canDelete ? _deleteChat : null,
+            child: Image.asset(
+              canDelete ? icDeleteActive : icDeleteNoactive,
+              height: 20,
+            ),
+          ),
         ],
       ),
     );
@@ -160,18 +186,25 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
     return Consumer<ChatProvider>(
       builder: (context, chatProvider, _) {
         final messages = chatProvider.messages;
+        final int typingOffset = chatProvider.isBotTyping ? 1 : 0;
+
         return ListView.builder(
           controller: _scrollController,
-          itemCount: messages.length + 1,
+          itemCount: messages.length + 1 + typingOffset,
           itemBuilder: (context, index) {
             if (index == 0) {
               return Padding(
-                padding: EdgeInsets.only(bottom: 25),
+                padding: const EdgeInsets.only(bottom: 25),
                 child: _buildWelcomeCard(),
               );
             }
+
+            if (chatProvider.isBotTyping && index == messages.length + 1) {
+              return _buildTypingIndicator();
+            }
+
             return Padding(
-              padding: EdgeInsets.symmetric(horizontal: 25),
+              padding: const EdgeInsets.symmetric(horizontal: 25),
               child: _buildMessageBubble(messages[index - 1]),
             );
           },
@@ -269,4 +302,8 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
       ),
     );
   }
+
+  Widget _buildTypingIndicator() {
+  return const CustomTypingIndicator();
+}
 }

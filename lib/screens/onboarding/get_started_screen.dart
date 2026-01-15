@@ -8,24 +8,23 @@ import 'package:provider/provider.dart';
 class GetStartedScreen extends StatelessWidget {
   const GetStartedScreen({super.key});
 
+  String _capitalizeEachWord(String text) {
+    if (text.isEmpty) return 'User';
+    return text
+        .split(' ')
+        .map((word) {
+          if (word.isEmpty) return "";
+          return word[0].toUpperCase() + word.substring(1).toLowerCase();
+        })
+        .join(' ');
+  }
+
   @override
   Widget build(BuildContext context) {
-    String _capitalizeEachWord(String text) {
-      if (text.isEmpty) return 'User';
-
-      return text
-          .split(' ')
-          .map((word) {
-            if (word.isEmpty) return "";
-            return word[0].toUpperCase() + word.substring(1).toLowerCase();
-          })
-          .join(' ');
-    }
-
     return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 25),
+          padding: const EdgeInsets.symmetric(horizontal: 25),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
@@ -33,6 +32,7 @@ class GetStartedScreen extends StatelessWidget {
                 builder: (context, auth, child) {
                   final String rawName = auth.currentUser?.username ?? 'User';
                   final String formattedUsername = _capitalizeEachWord(rawName);
+                  
                   return _buildContent(formattedUsername);
                 },
               ),
@@ -40,7 +40,7 @@ class GetStartedScreen extends StatelessWidget {
               CustomButton1(
                 onTap: () => Navigator.pushNamedAndRemoveUntil(
                   context,
-                  '/',
+                  '/', 
                   (route) => false,
                 ),
                 label: 'Memulai',
@@ -55,7 +55,6 @@ class GetStartedScreen extends StatelessWidget {
 
   Widget _buildContent(String username) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.end,
       children: [
         Text.rich(
           TextSpan(
@@ -74,13 +73,13 @@ class GetStartedScreen extends StatelessWidget {
           ),
           textAlign: TextAlign.center,
         ),
-        SizedBox(height: 30),
+        const SizedBox(height: 30),
         Text(
-          'Ruang aman untuk belajar dan mendapatkan\ninformasi tentang HIV/AIDS.',
+          'Ruang aman untuk belajar dan mendapatkan informasi tentang HIV/AIDS.',
           style: AppTextStyles.bodyMedium,
           textAlign: TextAlign.center,
         ),
-        SizedBox(height: 40),
+        const SizedBox(height: 40),
         Image.asset(illustration6, height: 389),
       ],
     );

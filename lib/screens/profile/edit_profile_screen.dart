@@ -156,7 +156,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         children: [
           Row(
             children: [
-              InkWell(onTap: onTap, child: Image.asset(icon, width: 10)),
+              InkWell(
+                focusColor: Colors.transparent,
+                hoverColor: Colors.transparent,
+                highlightColor: Colors.transparent,
+                overlayColor: WidgetStateProperty.all(Colors.transparent),
+                onTap: onTap,
+                child: Image.asset(icon, width: 10),
+              ),
               const SizedBox(width: 25),
               Text('Edit Profil', style: AppTextStyles.heading3Bold),
             ],
@@ -180,6 +187,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           ),
           const SizedBox(height: 15),
           InkWell(
+            focusColor: Colors.transparent,
+            hoverColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            overlayColor: WidgetStateProperty.all(Colors.transparent),
             onTap: () {
               showSelectAvatar(context, (url) {
                 setState(() {

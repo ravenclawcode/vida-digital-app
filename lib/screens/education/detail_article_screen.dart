@@ -5,6 +5,7 @@ import 'package:mindfullshelter/utils/app_assets.dart';
 import 'package:mindfullshelter/utils/app_colors.dart';
 import 'package:mindfullshelter/utils/app_theme.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 class DetailArticleScreen extends StatelessWidget {
   final String articleId;
@@ -36,7 +37,7 @@ class DetailArticleScreen extends StatelessWidget {
                       padding: EdgeInsets.symmetric(horizontal: 25),
                       child: Text(
                         'Artikel Terkait',
-                        style: AppTextStyles.titleVideo,
+                        style: AppTextStyles.titleVideo.copyWith(fontSize: 16),
                       ),
                     ),
                     SizedBox(height: 12),
@@ -100,7 +101,7 @@ Widget _buildContentArticle(
         Row(
           children: [
             Image.asset(icTime, height: 12),
-            SizedBox(width: 6),
+            SizedBox(width: 4),
             Text('${article.duration}', style: AppTextStyles.durationDescVideo),
             SizedBox(width: 8),
             Text('•', style: AppTextStyles.durationDescVideo),
@@ -115,7 +116,13 @@ Widget _buildContentArticle(
               hoverColor: Colors.transparent,
               highlightColor: Colors.transparent,
               overlayColor: WidgetStateProperty.all(Colors.transparent),
-              onTap: () {},
+              onTap: () {
+                // ignore: deprecated_member_use
+                Share.share(
+                  'Baca Artikel: ${article.title}\n\n${article.description?.substring(0, 100)}...',
+                  subject: 'Edukasi HIV/AIDS',
+                );
+              },
               child: Container(
                 decoration: BoxDecoration(
                   color: Color(0xFFF5F5F5),
@@ -139,6 +146,8 @@ Widget _buildContentArticle(
         Text(
           article.title ?? '',
           style: AppTextStyles.durationDescVideo.copyWith(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
             color: AppColors.textPrimary,
           ),
         ),
@@ -201,10 +210,10 @@ Widget _buildRelateArticle(BuildContext context, String currentArticleId) {
   if (relatedArticles.isEmpty) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.symmetric(vertical: 20),
         child: Text(
           'Tidak ada artikel terkait lainnya',
-          style: AppTextStyles.descVideo,
+          style: AppTextStyles.noContent.copyWith(fontSize: 12),
         ),
       ),
     );
@@ -219,6 +228,10 @@ Widget _buildRelateArticle(BuildContext context, String currentArticleId) {
       final item = relatedArticles[index];
 
       return InkWell(
+        focusColor: Colors.transparent,
+        hoverColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+        overlayColor: WidgetStateProperty.all(Colors.transparent),
         onTap: () {
           Navigator.pushReplacementNamed(
             context,
@@ -228,7 +241,7 @@ Widget _buildRelateArticle(BuildContext context, String currentArticleId) {
         },
         child: Container(
           margin: EdgeInsets.only(bottom: 10),
-          padding: EdgeInsets.symmetric(horizontal: 13, vertical: 15),
+          padding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           decoration: BoxDecoration(
             color: AppColors.background,
             borderRadius: BorderRadius.circular(10),
@@ -237,33 +250,23 @@ Widget _buildRelateArticle(BuildContext context, String currentArticleId) {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: AppColors.accentLight,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  item.category,
-                  style: AppTextStyles.categoryVideo.copyWith(
-                    color: AppColors.textPink,
-                    fontSize: 10,
-                  ),
-                ),
-              ),
-              SizedBox(height: 8),
               Text(
                 item.title,
-                style: AppTextStyles.titleVideo.copyWith(fontSize: 13),
+                style: AppTextStyles.titleVideo.copyWith(fontSize: 14),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              SizedBox(height: 3),
+              SizedBox(height: 2),
               Row(
                 children: [
                   Image.asset(icTime, height: 11),
-                  SizedBox(width: 5),
-                  Text(item.duration, style: AppTextStyles.durationDescVideo),
+                  SizedBox(width: 4),
+                  Text(
+                    item.duration,
+                    style: AppTextStyles.durationDescVideo.copyWith(
+                      fontSize: 12,
+                    ),
+                  ),
                 ],
               ),
             ],

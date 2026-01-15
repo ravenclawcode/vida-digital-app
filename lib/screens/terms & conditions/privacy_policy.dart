@@ -59,7 +59,7 @@ class _PrivacyPolicyState extends State<PrivacyPolicy> {
                   children: [
                     Text(
                       clause.title,
-                      style: AppTextStyles.heading3Bold.copyWith(fontSize: 18),
+                      style: AppTextStyles.heading3Bold.copyWith(fontSize: 16),
                     ),
                     SizedBox(height: 6),
                     ...paragraphs.map((text) {
@@ -69,7 +69,7 @@ class _PrivacyPolicyState extends State<PrivacyPolicy> {
                         child: Text(
                           text,
                           style: AppTextStyles.bodyExtraLarge.copyWith(
-                            fontSize: 15,
+                            fontSize: 14,
                           ),
                         ),
                       );
@@ -100,7 +100,7 @@ class _PrivacyPolicyState extends State<PrivacyPolicy> {
                 Expanded(
                   child: Text(
                     "Saya telah membaca dan menyatakan\nsetuju untuk mengikuti Syarat &\nKetentuan Penggunaan Sistem yang\nada pada VIDA Digital.",
-                    style: AppTextStyles.bodyExtraLarge.copyWith(fontSize: 15),
+                    style: AppTextStyles.bodyExtraLarge.copyWith(fontSize: 14),
                   ),
                 ),
               ],

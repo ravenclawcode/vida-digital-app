@@ -21,9 +21,9 @@ class ApiConstants {
   // -----------------------------------------------------------
   // FITUR UTAMA
   // -----------------------------------------------------------
-  static const String home = '$baseUrl/home'; 
-  static const String audio = '$baseUrl/audio'; 
-  static const String education = '$baseUrl/education'; 
+  static const String home = '$baseUrl/home';
+  static const String audio = '$baseUrl/audio';
+  static const String education = '$baseUrl/education';
   static const String counselors = '$baseUrl/counselors';
 
   // Mood Tracker
@@ -40,4 +40,5 @@ class ApiConstants {
   // Chatbot AI
   static const String chatSend = '$baseUrl/chat/send';
   static const String chatHistory = '$baseUrl/chat/history';
+  static const String deleteAllChat = '$baseUrl/chat/clear';
 }

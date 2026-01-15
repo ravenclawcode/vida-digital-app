@@ -48,4 +48,19 @@ class ChatService {
       throw Exception('Error ${response.statusCode}: ${response.body}');
     }
   }
+
+  Future<void> deleteAllChat() async {
+  final token = await _getToken();
+  final response = await http.delete(
+    Uri.parse(ApiConstants.deleteAllChat),
+    headers: {
+      'Authorization': 'Bearer $token',
+      'Accept': 'application/json',
+    },
+  );
+
+  if (response.statusCode != 200) {
+    throw Exception('Gagal menghapus percakapan di server');
+  }
+}
 }

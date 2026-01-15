@@ -168,6 +168,10 @@ class _AudioMindfulnessScreenState extends State<AudioMindfulnessScreen> {
       ),
       margin: const EdgeInsets.only(bottom: 15),
       child: InkWell(
+        focusColor: Colors.transparent,
+        hoverColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+        overlayColor: WidgetStateProperty.all(Colors.transparent),
         onTap: () => _showAudioPlayer(audio, audios, index),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),

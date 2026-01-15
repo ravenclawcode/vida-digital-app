@@ -79,3 +79,5 @@ const icChecklist = 'assets/icons/ic_checklist.png';
 const icSchedule = 'assets/icons/ic_schedule.png';
 const icAdd = 'assets/icons/ic_add.png';
 const icCheck = 'assets/icons/ic_check.png';
+const icDeleteActive = 'assets/icons/ic_delete_active.png';
+const icDeleteNoactive = 'assets/icons/ic_delete_noactive.png';

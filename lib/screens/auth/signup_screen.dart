@@ -60,7 +60,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
-    final success = await authProvider.signUp(
+    final successRegister = await authProvider.signUp(
       username: username,
       email: email,
       password: password,
@@ -69,13 +69,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
     if (!mounted) return;
 
-    if (success) {
+    if (successRegister) {
+      await authProvider.login(email, password);
+
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Pendaftaran Berhasil!')));
+
       Navigator.pushNamedAndRemoveUntil(
         context,
-        Routes.signIn,
+        Routes.getStarted,
         (route) => false,
       );
     } else {

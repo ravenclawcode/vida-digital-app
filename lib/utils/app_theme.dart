@@ -405,7 +405,7 @@ class AppTextStyles {
   );
 
   static TextStyle get descVideo => GoogleFonts.poppins(
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: FontWeight.w400,
     color: AppColors.textLight,
   );
@@ -417,7 +417,7 @@ class AppTextStyles {
   );
 
   static TextStyle get durationDescVideo => GoogleFonts.poppins(
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: FontWeight.w400,
     color: AppColors.textLight,
   );
@@ -565,9 +565,9 @@ class AppTextStyles {
   );
 
   static TextStyle get instructionsAddImage => GoogleFonts.poppins(
-    fontSize: 12,
+    fontSize: 16,
     fontWeight: FontWeight.w400,
-    color: AppColors.textSecondary,
+    color: AppColors.textPrimary,
   );
 
   static TextStyle get headingProfile => GoogleFonts.poppins(

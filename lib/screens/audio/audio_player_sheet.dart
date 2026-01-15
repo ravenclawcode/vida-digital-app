@@ -37,9 +37,11 @@ class AudioPlayerSheetState extends State<AudioPlayerSheet> {
 
   String _formatDuration(Duration duration) {
     String twoDigits(int n) => n.toString().padLeft(2, "0");
-    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
-    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
-    return "$twoDigitMinutes:$twoDigitSeconds";
+
+    final minutes = duration.inMinutes.remainder(60);
+    final seconds = twoDigits(duration.inSeconds.remainder(60));
+
+    return "$minutes:$seconds";
   }
 
   @override
@@ -191,6 +193,12 @@ class AudioPlayerSheetState extends State<AudioPlayerSheet> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             InkWell(
+                              focusColor: Colors.transparent,
+                              hoverColor: Colors.transparent,
+                              highlightColor: Colors.transparent,
+                              overlayColor: WidgetStateProperty.all(
+                                Colors.transparent,
+                              ),
                               onTap: () => audioHandler.skipToPrevious(),
                               child: Image.asset(icSkipPrevious, height: 21),
                             ),
@@ -203,6 +211,12 @@ class AudioPlayerSheetState extends State<AudioPlayerSheet> {
                                 shape: BoxShape.circle,
                               ),
                               child: InkWell(
+                                focusColor: Colors.transparent,
+                                hoverColor: Colors.transparent,
+                                highlightColor: Colors.transparent,
+                                overlayColor: WidgetStateProperty.all(
+                                  Colors.transparent,
+                                ),
                                 onTap: () {
                                   if (playing) {
                                     audioHandler.pause();
@@ -236,6 +250,12 @@ class AudioPlayerSheetState extends State<AudioPlayerSheet> {
                             ),
                             const SizedBox(width: 38),
                             InkWell(
+                              focusColor: Colors.transparent,
+                              hoverColor: Colors.transparent,
+                              highlightColor: Colors.transparent,
+                              overlayColor: WidgetStateProperty.all(
+                                Colors.transparent,
+                              ),
                               onTap: () => audioHandler.skipToNext(),
                               child: Image.asset(icSkipNext, height: 21),
                             ),

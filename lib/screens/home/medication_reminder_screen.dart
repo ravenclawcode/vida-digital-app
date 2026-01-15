@@ -204,6 +204,10 @@ Widget _buildHeader(BuildContext context) {
     child: Row(
       children: [
         InkWell(
+          focusColor: Colors.transparent,
+          hoverColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          overlayColor: WidgetStateProperty.all(Colors.transparent),
           onTap: () => Navigator.pop(context),
           child: Image.asset(icBackLeft2, width: 10),
         ),

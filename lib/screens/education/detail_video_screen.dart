@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:mindfullshelter/providers/education_provider.dart';
 import 'package:mindfullshelter/routes/routes.dart';
@@ -80,7 +81,10 @@ class _DetailVideoScreenState extends State<DetailVideoScreen> {
                 const SizedBox(height: 20),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 25),
-                  child: Text('Video Terkait', style: AppTextStyles.titleVideo),
+                  child: Text(
+                    'Video Terkait',
+                    style: AppTextStyles.titleVideo.copyWith(fontSize: 16),
+                  ),
                 ),
                 const SizedBox(height: 12),
                 Padding(
@@ -117,6 +121,10 @@ class _DetailVideoScreenState extends State<DetailVideoScreen> {
               shape: BoxShape.circle,
             ),
             child: InkWell(
+              focusColor: Colors.transparent,
+              hoverColor: Colors.transparent,
+              highlightColor: Colors.transparent,
+              overlayColor: WidgetStateProperty.all(Colors.transparent),
               onTap: () => Navigator.pop(context),
               child: Padding(
                 padding: const EdgeInsets.all(8),
@@ -144,6 +152,10 @@ class _DetailVideoScreenState extends State<DetailVideoScreen> {
               child: Row(
                 children: [
                   InkWell(
+                    focusColor: Colors.transparent,
+                    hoverColor: Colors.transparent,
+                    highlightColor: Colors.transparent,
+                    overlayColor: WidgetStateProperty.all(Colors.transparent),
                     onTap: () => _controller.value.isPlaying
                         ? _controller.pause()
                         : _controller.play(),
@@ -171,6 +183,10 @@ class _DetailVideoScreenState extends State<DetailVideoScreen> {
                   const SizedBox(width: 15),
 
                   InkWell(
+                    focusColor: Colors.transparent,
+                    hoverColor: Colors.transparent,
+                    highlightColor: Colors.transparent,
+                    overlayColor: WidgetStateProperty.all(Colors.transparent),
                     onTap: () => _controller.value.volume > 0
                         ? _controller.mute()
                         : _controller.unMute(),
@@ -185,6 +201,10 @@ class _DetailVideoScreenState extends State<DetailVideoScreen> {
                   const SizedBox(width: 15),
 
                   InkWell(
+                    focusColor: Colors.transparent,
+                    hoverColor: Colors.transparent,
+                    highlightColor: Colors.transparent,
+                    overlayColor: WidgetStateProperty.all(Colors.transparent),
                     onTap: () => _controller.toggleFullScreenMode(),
                     child: const Icon(
                       Icons.fullscreen,
@@ -236,6 +256,10 @@ class _DetailVideoScreenState extends State<DetailVideoScreen> {
         Row(
           children: [
             InkWell(
+              focusColor: Colors.transparent,
+              hoverColor: Colors.transparent,
+              highlightColor: Colors.transparent,
+              overlayColor: WidgetStateProperty.all(Colors.transparent),
               onTap: () => provider.toggleLike(video.id),
               child: AnimatedSize(
                 duration: const Duration(milliseconds: 180),
@@ -267,18 +291,34 @@ class _DetailVideoScreenState extends State<DetailVideoScreen> {
               ),
             ),
             const SizedBox(width: 8),
-            Container(
-              decoration: BoxDecoration(
-                color: const Color(0xFFF5F5F5),
-                borderRadius: BorderRadius.circular(25),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              child: Row(
-                children: [
-                  Image.asset(icShare, height: 10),
-                  const SizedBox(width: 6),
-                  Text('bagikan', style: AppTextStyles.actionButton),
-                ],
+            InkWell(
+              focusColor: Colors.transparent,
+              hoverColor: Colors.transparent,
+              highlightColor: Colors.transparent,
+              overlayColor: WidgetStateProperty.all(Colors.transparent),
+              onTap: () {
+                // ignore: deprecated_member_use
+                Share.share(
+                  'Lihat video edukasi ini: ${video.title}\n\nTonton di sini: ${video.videoUrl}',
+                  subject: 'Edukasi HIV/AIDS',
+                );
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF5F5F5),
+                  borderRadius: BorderRadius.circular(25),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 4,
+                ),
+                child: Row(
+                  children: [
+                    Image.asset(icShare, height: 10),
+                    const SizedBox(width: 6),
+                    Text('bagikan', style: AppTextStyles.actionButton),
+                  ],
+                ),
               ),
             ),
           ],
@@ -292,6 +332,7 @@ class _DetailVideoScreenState extends State<DetailVideoScreen> {
               text.trim(),
               style: AppTextStyles.descVideo.copyWith(
                 color: AppColors.textPrimary,
+                fontSize: 13,
                 height: 1.6,
               ),
             ),
@@ -308,7 +349,15 @@ class _DetailVideoScreenState extends State<DetailVideoScreen> {
         .toList();
 
     if (relatedVideos.isEmpty) {
-      return const Center(child: Text('Tidak ada video terkait lainnya'));
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          child: Text(
+            'Tidak ada video terkait lainnya',
+            style: AppTextStyles.noContent.copyWith(fontSize: 12),
+          ),
+        ),
+      );
     }
 
     return ListView.builder(
@@ -319,6 +368,10 @@ class _DetailVideoScreenState extends State<DetailVideoScreen> {
       itemBuilder: (context, index) {
         final item = relatedVideos[index];
         return InkWell(
+          focusColor: Colors.transparent,
+          hoverColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          overlayColor: WidgetStateProperty.all(Colors.transparent),
           onTap: () {
             Navigator.pushReplacementNamed(
               context,
@@ -351,18 +404,20 @@ class _DetailVideoScreenState extends State<DetailVideoScreen> {
                     children: [
                       Text(
                         item.title,
-                        style: AppTextStyles.titleVideo.copyWith(fontSize: 12),
+                        style: AppTextStyles.titleVideo.copyWith(fontSize: 14),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 2),
                       Row(
                         children: [
                           Image.asset(icTime, height: 12),
-                          const SizedBox(width: 6),
+                          const SizedBox(width: 4),
                           Text(
                             item.duration,
-                            style: AppTextStyles.durationDescVideo,
+                            style: AppTextStyles.durationDescVideo.copyWith(
+                              fontSize: 12,
+                            ),
                           ),
                         ],
                       ),
