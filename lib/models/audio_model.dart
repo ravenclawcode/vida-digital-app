@@ -42,9 +42,9 @@ class AudioMindfulness {
   }
 
   String get durationFormatted {
-  final minutes = duration ~/ 60;
-  final seconds = duration % 60;
-  
-  return '$minutes:${seconds.toString().padLeft(2, '0')}';
-}
+    final minutes = duration ~/ 60;
+    final seconds = duration % 60;
+
+    return '$minutes:${seconds.toString().padLeft(2, '0')}';
+  }
 }

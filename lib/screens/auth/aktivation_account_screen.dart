@@ -69,6 +69,7 @@ class _ActivationAccountScreenState extends State<ActivationAccountScreen> {
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 25),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(height: 20),
               _buildHeader(
@@ -88,20 +89,29 @@ class _ActivationAccountScreenState extends State<ActivationAccountScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        InkWell(
-          focusColor: Colors.transparent,
-          hoverColor: Colors.transparent,
-          highlightColor: Colors.transparent,
-          overlayColor: WidgetStateProperty.all(Colors.transparent),
-          onTap: onTap,
-          child: Image(image: AssetImage(icon), width: 18),
+        Align(
+          alignment: AlignmentGeometry.topLeft,
+          child: InkWell(
+            focusColor: Colors.transparent,
+            hoverColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            overlayColor: WidgetStateProperty.all(Colors.transparent),
+            onTap: onTap,
+            child: Image(image: AssetImage(icon), width: 18),
+          ),
         ),
         SizedBox(height: 30),
-        Text('Aktivasi Akun', style: AppTextStyles.heading2),
+        Align(
+          alignment: AlignmentGeometry.topLeft,
+          child: Text('Aktivasi Akun', style: AppTextStyles.heading2),
+        ),
         SizedBox(height: 20),
-        Text(
-          'Demi keamanan komunitas, silakan\nmasukkan kode aktivasi yang telah diberikan.',
-          style: AppTextStyles.bodyMedium,
+        Align(
+          alignment: AlignmentGeometry.topLeft,
+          child: Text(
+            'Demi keamanan komunitas, silakan\nmasukkan kode aktivasi yang telah diberikan.',
+            style: AppTextStyles.bodyMedium,
+          ),
         ),
       ],
     );

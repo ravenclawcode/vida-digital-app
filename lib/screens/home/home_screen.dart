@@ -164,8 +164,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
     entries.sort((a, b) {
       if (a.isTaken != b.isTaken) {
-        return a.isTaken ? 1 : -1;
+        return a.isTaken ? -1 : 1;
       }
+
       final aTime = a.medication.time.hour * 60 + a.medication.time.minute;
       final bTime = b.medication.time.hour * 60 + b.medication.time.minute;
       return aTime.compareTo(bTime);

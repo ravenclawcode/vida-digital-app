@@ -21,8 +21,7 @@ class _CustomInputFormGenderState extends State<CustomInputFormGender> {
         : null;
 
     return DropdownButtonFormField<String>(
-      initialValue:
-          currentValue, // Lebih responsif terhadap perubahan controller
+      initialValue: currentValue,
       items: _genderOptions.map((String value) {
         return DropdownMenuItem<String>(value: value, child: Text(value));
       }).toList(),

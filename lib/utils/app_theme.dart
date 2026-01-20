@@ -14,16 +14,16 @@ class AppTheme {
       ),
       scaffoldBackgroundColor: AppColors.background,
       textTheme: GoogleFonts.poppinsTextTheme(),
-      appBarTheme: AppBarTheme(
-        backgroundColor: const Color.fromARGB(0, 100, 64, 64),
-        elevation: 0,
-        iconTheme: const IconThemeData(color: AppColors.textPrimary),
-        titleTextStyle: GoogleFonts.poppins(
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary,
-        ),
-      ),
+      // appBarTheme: AppBarTheme(
+      //   backgroundColor: const Color.fromARGB(0, 100, 64, 64),
+      //   elevation: 0,
+      //   iconTheme: const IconThemeData(color: AppColors.textPrimary),
+      //   titleTextStyle: GoogleFonts.poppins(
+      //     fontSize: 20,
+      //     fontWeight: FontWeight.w600,
+      //     color: AppColors.textPrimary,
+      //   ),
+      // ),
     );
   }
 }
@@ -596,8 +596,8 @@ class AppTextStyles {
     height: 1.7,
   );
 
-   //Font no conntent
-   static TextStyle get noContent => GoogleFonts.poppins(
+  //Font no conntent
+  static TextStyle get noContent => GoogleFonts.poppins(
     fontSize: 14,
     fontWeight: FontWeight.w400,
     color: AppColors.textPrimary,

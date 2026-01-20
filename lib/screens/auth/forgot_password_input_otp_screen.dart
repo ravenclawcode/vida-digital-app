@@ -79,6 +79,7 @@ class _ForgorPasswordInputOtpScreenState
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 25),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(height: 20),
                 _buildHeader(
@@ -104,16 +105,22 @@ class _ForgorPasswordInputOtpScreenState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        InkWell(
-          focusColor: Colors.transparent,
-          hoverColor: Colors.transparent,
-          highlightColor: Colors.transparent,
-          overlayColor: WidgetStateProperty.all(Colors.transparent),
-          onTap: onTap,
-          child: Image(image: AssetImage(icon), width: 18),
+        Align(
+          alignment: AlignmentGeometry.topLeft,
+          child: InkWell(
+            focusColor: Colors.transparent,
+            hoverColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            overlayColor: WidgetStateProperty.all(Colors.transparent),
+            onTap: onTap,
+            child: Image(image: AssetImage(icon), width: 18),
+          ),
         ),
         SizedBox(height: 30),
-        Text('Periksa email Anda', style: AppTextStyles.heading2),
+        Align(
+          alignment: AlignmentGeometry.topLeft,
+          child: Text('Periksa email Anda', style: AppTextStyles.heading2),
+        ),
         SizedBox(height: 20),
         Text.rich(
           TextSpan(

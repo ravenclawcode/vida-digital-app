@@ -23,7 +23,7 @@ class _AnonymousComunityScreenState extends State<AnonymousComunityScreen> {
   final TextEditingController _commentController = TextEditingController();
   bool _hasText = false;
   int? expandedPostIndex;
-  late final OverlayEntry overlayEntry;
+  OverlayEntry? overlayEntry;
 
   @override
   void initState() {
@@ -43,6 +43,20 @@ class _AnonymousComunityScreenState extends State<AnonymousComunityScreen> {
         expandedPostIndex = null;
       });
     });
+  }
+
+  bool _isForbidden(String text) {
+    final cleanText = text.replaceAll(RegExp(r'[\s\-\.]'), '');
+    final phoneRegex = RegExp(r'(?:\+62|62|0)8[1-9][0-9]{6,10}');
+
+    final forbiddenWords = ['wa', 'whatsapp', 'nomer', 'kontak', 'hubungi'];
+
+    if (phoneRegex.hasMatch(cleanText)) return true;
+
+    for (var word in forbiddenWords) {
+      if (text.toLowerCase().contains(word)) return true;
+    }
+    return false;
   }
 
   Widget _buildPostHeader(AnonymousPost post) {
@@ -100,6 +114,8 @@ class _AnonymousComunityScreenState extends State<AnonymousComunityScreen> {
   }
 
   void _showPostMenuAtPosition(Offset position, AnonymousPost post) {
+    overlayEntry?.remove();
+
     const double menuWidth = 120.0;
     const double menuHeight = 40.0;
 
@@ -122,7 +138,10 @@ class _AnonymousComunityScreenState extends State<AnonymousComunityScreen> {
           Positioned.fill(
             child: GestureDetector(
               behavior: HitTestBehavior.translucent,
-              onTap: () => overlayEntry.remove(),
+              onTap: () {
+                overlayEntry?.remove();
+                overlayEntry = null;
+              },
             ),
           ),
           Positioned(
@@ -154,7 +173,8 @@ class _AnonymousComunityScreenState extends State<AnonymousComunityScreen> {
                     GestureDetector(
                       behavior: HitTestBehavior.opaque,
                       onTap: () {
-                        overlayEntry.remove();
+                        overlayEntry?.remove();
+                        overlayEntry = null;
                         if (post.isMine) {
                           context.read<AnonymousProvider>().removePost(post.id);
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -203,12 +223,14 @@ class _AnonymousComunityScreenState extends State<AnonymousComunityScreen> {
       ),
     );
 
-    Overlay.of(context).insert(overlayEntry);
+    Overlay.of(context).insert(overlayEntry!);
   }
 
   @override
   void dispose() {
     _commentController.dispose();
+    overlayEntry?.remove();
+    overlayEntry = null;
     super.dispose();
   }
 
@@ -500,7 +522,7 @@ class _AnonymousComunityScreenState extends State<AnonymousComunityScreen> {
                 filled: true,
                 fillColor: AppColors.backgroundList,
                 isDense: true,
-                contentPadding: EdgeInsets.symmetric(
+                contentPadding: const EdgeInsets.symmetric(
                   horizontal: 12,
                   vertical: 12,
                 ),
@@ -512,16 +534,31 @@ class _AnonymousComunityScreenState extends State<AnonymousComunityScreen> {
             ),
           ),
         ),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         _hasText
             ? CustomButton9(
                 onTap: () {
+                  final commentText = _commentController.text.trim();
+
+                  FocusScope.of(context).unfocus();
+
+                  if (_isForbidden(commentText)) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Gagal: Demi keamanan, dilarang membagikan kontak pribadi.',
+                        ),
+                      ),
+                    );
+                    return;
+                  }
+
                   context.read<AnonymousProvider>().addComment(
                     postId,
-                    _commentController.text,
+                    commentText,
                   );
+
                   _commentController.clear();
-                  FocusScope.of(context).unfocus();
                 },
                 icon: icSendMessage,
               )

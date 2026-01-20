@@ -32,7 +32,7 @@ class GetStartedScreen extends StatelessWidget {
                 builder: (context, auth, child) {
                   final String rawName = auth.currentUser?.username ?? 'User';
                   final String formattedUsername = _capitalizeEachWord(rawName);
-                  
+
                   return _buildContent(formattedUsername);
                 },
               ),
@@ -40,7 +40,7 @@ class GetStartedScreen extends StatelessWidget {
               CustomButton1(
                 onTap: () => Navigator.pushNamedAndRemoveUntil(
                   context,
-                  '/', 
+                  '/',
                   (route) => false,
                 ),
                 label: 'Memulai',

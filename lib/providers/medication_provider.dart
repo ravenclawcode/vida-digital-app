@@ -1,11 +1,11 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mindfullshelter/services/notification_service.dart';
 import '../models/medication_model.dart';
-import '../utils/api_constants.dart';
+import '../services/medication_service.dart';
 
 class MedicationProvider with ChangeNotifier {
+  final MedicationService _service = MedicationService();
+  final NotificationService _notificationService = NotificationService();
   List<MedicationEntry> _todayEntries = [];
   bool _isLoading = false;
 
@@ -17,34 +17,33 @@ class MedicationProvider with ChangeNotifier {
     return _todayEntries.where((e) => e.isTaken).length / _todayEntries.length;
   }
 
-  Future<Map<String, String>> _getHeaders() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('auth_token');
-    return {'Authorization': 'Bearer $token', 'Accept': 'application/json'};
-  }
-
   Future<void> fetchMedications() async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      final response = await http.get(
-        Uri.parse(ApiConstants.medicationToday),
-        headers: await _getHeaders(),
-      );
+      final data = await _service.fetchTodayMedications();
+      _todayEntries = data.map((item) {
+        return MedicationEntry(
+          id: item['id'],
+          medication: Medication.fromJson(item),
+          isTaken: item['status'] == 'taken',
+        );
+      }).toList();
 
-      if (response.statusCode == 200) {
-        final List data = jsonDecode(response.body)['data'];
-        _todayEntries = data.map((item) {
-          return MedicationEntry(
-            id: item['id'],
-            medication: Medication.fromJson(item),
-            isTaken: item['status'] == 'taken',
-          );
-        }).toList();
+      await _notificationService.cancelAllNotifications();
+
+      for (var entry in _todayEntries) {
+        final safeId = entry.medication.id.hashCode.abs();
+
+        _notificationService.scheduleMedicationReminders(
+          id: safeId,
+          medicationName: entry.medication.name,
+          scheduledTime: _convertTimeOfDayToDateTime(entry.medication.time),
+        );
       }
     } catch (e) {
-      print("Error fetch: $e");
+      debugPrint("Error fetch: $e");
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -57,50 +56,10 @@ class MedicationProvider with ChangeNotifier {
     bool isEveryday = false,
   }) async {
     try {
-      final response = await http.post(
-        Uri.parse(ApiConstants.medicationStore),
-        headers: await _getHeaders(),
-        body: {
-          'name': name,
-          'time': time,
-          'is_everyday': isEveryday ? '1' : '0',
-        },
-      );
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        debugPrint("Berhasil simpan ke DB");
-        await fetchMedications();
-      } else {
-        debugPrint("Gagal Simpan: ${response.body}");
-        throw Exception('Gagal menyimpan data ke server');
-      }
+      await _service.addMedication(name, time, isEveryday);
+      await fetchMedications();
     } catch (e) {
-      debugPrint("Error Exception: $e");
       rethrow;
-    }
-  }
-
-  Future<void> toggleTaken(String medicationId) async {
-    final entryIndex = _todayEntries.indexWhere(
-      (e) => e.medication.id == medicationId,
-    );
-    if (entryIndex == -1) return;
-
-    final newStatus = _todayEntries[entryIndex].isTaken ? 'skipped' : 'taken';
-
-    try {
-      final response = await http.post(
-        Uri.parse('${ApiConstants.baseUrl}/medications/$medicationId/status'),
-        headers: await _getHeaders(),
-        body: {'status': newStatus},
-      );
-
-      if (response.statusCode == 200) {
-        _todayEntries[entryIndex].isTaken = !_todayEntries[entryIndex].isTaken;
-        notifyListeners();
-      }
-    } catch (e) {
-      debugPrint("Error update status: $e");
     }
   }
 
@@ -111,37 +70,55 @@ class MedicationProvider with ChangeNotifier {
     bool isEveryday = false,
   }) async {
     try {
-      final response = await http.put(
-        Uri.parse('${ApiConstants.baseUrl}/medications/$id'),
-        headers: await _getHeaders(),
-        body: {
-          'name': name,
-          'time': time,
-          'is_everyday': isEveryday ? '1' : '0',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        await fetchMedications();
-      }
+      await _notificationService.cancelReminder(id.hashCode.abs());
+      await _service.updateMedication(id, name, time, isEveryday);
+      await fetchMedications();
     } catch (e) {
       rethrow;
     }
   }
 
+  Future<void> toggleTaken(String medicationId) async {
+    final index = _todayEntries.indexWhere(
+      (e) => e.medication.id == medicationId,
+    );
+    if (index == -1) return;
+
+    final newStatus = _todayEntries[index].isTaken ? 'skipped' : 'taken';
+
+    try {
+      await _service.updateStatus(medicationId, newStatus);
+      _todayEntries[index].isTaken = !_todayEntries[index].isTaken;
+      notifyListeners();
+    } catch (e) {
+      debugPrint("Error toggle: $e");
+    }
+  }
+
   Future<void> deleteMedication(String id) async {
     try {
-      final response = await http.delete(
-        Uri.parse('${ApiConstants.baseUrl}/medications/$id'),
-        headers: await _getHeaders(),
-      );
-
-      if (response.statusCode == 200) {
-        _todayEntries.removeWhere((e) => e.medication.id == id);
-        notifyListeners();
-      }
+      await _notificationService.cancelReminder(id.hashCode.abs());
+      await _service.deleteMedication(id);
+      _todayEntries.removeWhere((e) => e.medication.id == id);
+      notifyListeners();
     } catch (e) {
-      print("Error delete: $e");
+      debugPrint("Error delete: $e");
     }
+  }
+
+  DateTime _convertTimeOfDayToDateTime(TimeOfDay time) {
+    final now = DateTime.now();
+    var scheduledDate = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      time.hour,
+      time.minute,
+    );
+
+    if (scheduledDate.isBefore(now)) {
+      scheduledDate = scheduledDate.add(const Duration(days: 1));
+    }
+    return scheduledDate;
   }
 }

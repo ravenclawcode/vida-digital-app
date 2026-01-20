@@ -304,6 +304,6 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
   }
 
   Widget _buildTypingIndicator() {
-  return const CustomTypingIndicator();
-}
+    return const CustomTypingIndicator();
+  }
 }

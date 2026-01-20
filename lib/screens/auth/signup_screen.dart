@@ -137,16 +137,22 @@ class _SignUpScreenState extends State<SignUpScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        InkWell(
-          focusColor: Colors.transparent,
-          hoverColor: Colors.transparent,
-          highlightColor: Colors.transparent,
-          overlayColor: WidgetStateProperty.all(Colors.transparent),
-          onTap: onTap,
-          child: Image(image: AssetImage(icon), width: 18),
+        Align(
+          alignment: AlignmentGeometry.topLeft,
+          child: InkWell(
+            focusColor: Colors.transparent,
+            hoverColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            overlayColor: WidgetStateProperty.all(Colors.transparent),
+            onTap: onTap,
+            child: Image(image: AssetImage(icon), width: 18),
+          ),
         ),
         SizedBox(height: 30),
-        Text('Daftar', style: AppTextStyles.heading2),
+        Align(
+          alignment: AlignmentGeometry.topLeft,
+          child: Text('Daftar', style: AppTextStyles.heading2),
+        ),
       ],
     );
   }

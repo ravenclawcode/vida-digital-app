@@ -12,10 +12,13 @@ import 'package:mindfullshelter/providers/medication_provider.dart';
 import 'package:mindfullshelter/providers/mood_provider.dart';
 import 'package:mindfullshelter/routes/routes.dart';
 import 'package:mindfullshelter/services/my_audio_handler.dart';
+import 'package:mindfullshelter/services/notification_service.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'utils/app_theme.dart';
 
 late MyAudioHandler audioHandler;
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -28,6 +31,10 @@ void main() async {
       androidNotificationIcon: 'mipmap/ic_launcher',
     ),
   );
+
+  await NotificationService().init();
+
+  await _requestNotificationPermissions();
 
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -55,6 +62,16 @@ void main() async {
       child: const VidaApp(),
     ),
   );
+}
+
+Future<void> _requestNotificationPermissions() async {
+  if (await Permission.notification.isDenied) {
+    await Permission.notification.request();
+  }
+
+  if (await Permission.scheduleExactAlarm.isDenied) {
+    await Permission.scheduleExactAlarm.request();
+  }
 }
 
 class VidaApp extends StatelessWidget {

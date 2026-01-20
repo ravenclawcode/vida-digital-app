@@ -37,31 +37,58 @@ class _CustomPostDialogState extends State<CustomPostDialog> {
     super.dispose();
   }
 
+  bool _isForbidden(String text) {
+    final cleanText = text.replaceAll(RegExp(r'[\s\-\.]'), '');
+    final phoneRegex = RegExp(r'(?:\+62|62|0)8[1-9][0-9]{6,10}');
+
+    final forbiddenWords = ['wa', 'whatsapp', 'nomer', 'kontak', 'hubungi'];
+
+    if (phoneRegex.hasMatch(cleanText)) return true;
+
+    for (var word in forbiddenWords) {
+      if (text.toLowerCase().contains(word)) return true;
+    }
+
+    return false;
+  }
+
   Future<void> _submit() async {
-  final content = _controller.text.trim();
-  if (content.length < 5) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Cerita minimal 5 karakter')),
-    );
-    return;
-  }
+    final content = _controller.text.trim();
 
-  final provider = context.read<AnonymousProvider>();
-  
-  Navigator.pop(context);
-  
-  ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(content: Text('Sedang mengunggah...')),
-  );
+    if (content.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Cerita tidak boleh kosong')),
+      );
+      return;
+    }
 
-  try {
-    await provider.addPost(selectedCategory.label, content);
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Gagal mengunggah postingan')),
-    );
+    Navigator.pop(context);
+
+    if (_isForbidden(content)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Gagal: Demi keamanan, dilarang membagikan kontak pribadi.',
+          ),
+        ),
+      );
+      return;
+    }
+
+    final provider = context.read<AnonymousProvider>();
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Sedang mengunggah...')));
+
+    try {
+      await provider.addPost(selectedCategory.label, content);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Gagal mengunggah postingan')),
+      );
+    }
   }
-}
 
   @override
   Widget build(BuildContext context) {

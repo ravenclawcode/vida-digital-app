@@ -104,9 +104,7 @@ class AuthProvider with ChangeNotifier {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        print(
-          'Data User dari Login: ${data['user']}',
-        ); 
+        print('Data User dari Login: ${data['user']}');
 
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('auth_token', data['access_token']);
@@ -255,7 +253,7 @@ class AuthProvider with ChangeNotifier {
         final data = jsonDecode(response.body);
         if (data['user'] != null) {
           _currentUser = User.fromJson(data['user']);
-          _imageFile = null; 
+          _imageFile = null;
         }
         _isLoading = false;
         notifyListeners();

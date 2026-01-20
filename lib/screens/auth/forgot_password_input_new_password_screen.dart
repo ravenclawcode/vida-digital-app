@@ -72,6 +72,7 @@ class _ForgotPasswordInputNewPasswordScreenState
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 25),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(height: 20),
               _buildHeader(
@@ -91,13 +92,16 @@ class _ForgotPasswordInputNewPasswordScreenState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        InkWell(
-          focusColor: Colors.transparent,
-          hoverColor: Colors.transparent,
-          highlightColor: Colors.transparent,
-          overlayColor: WidgetStateProperty.all(Colors.transparent),
-          onTap: onTap,
-          child: Image(image: AssetImage(icon), width: 18),
+        Align(
+          alignment: AlignmentGeometry.topLeft,
+          child: InkWell(
+            focusColor: Colors.transparent,
+            hoverColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            overlayColor: WidgetStateProperty.all(Colors.transparent),
+            onTap: onTap,
+            child: Image(image: AssetImage(icon), width: 18),
+          ),
         ),
         SizedBox(height: 30),
         Text('Atur kata sandi baru', style: AppTextStyles.heading2),

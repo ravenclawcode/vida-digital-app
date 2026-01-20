@@ -13,6 +13,7 @@ class ForgotPasswordConfirmScreen extends StatelessWidget {
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 25),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(height: 20),
               _buildHeader(
@@ -35,20 +36,29 @@ class ForgotPasswordConfirmScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        InkWell(
-          focusColor: Colors.transparent,
-          hoverColor: Colors.transparent,
-          highlightColor: Colors.transparent,
-          overlayColor: WidgetStateProperty.all(Colors.transparent),
-          onTap: onTap,
-          child: Image(image: AssetImage(icon), width: 18),
+        Align(
+          alignment: AlignmentGeometry.topLeft,
+          child: InkWell(
+            focusColor: Colors.transparent,
+            hoverColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            overlayColor: WidgetStateProperty.all(Colors.transparent),
+            onTap: onTap,
+            child: Image(image: AssetImage(icon), width: 18),
+          ),
         ),
         SizedBox(height: 30),
-        Text('Reset Kata Sandi', style: AppTextStyles.heading2),
+        Align(
+          alignment: AlignmentGeometry.topLeft,
+          child: Text('Reset Kata Sandi', style: AppTextStyles.heading2),
+        ),
         SizedBox(height: 20),
-        Text(
-          'Kata sandi Anda berhasil diatur ulang. Klik\nkonfirmasi untuk membuat kata sandi baru.',
-          style: AppTextStyles.bodyMedium,
+        Align(
+          alignment: AlignmentGeometry.topLeft,
+          child: Text(
+            'Kata sandi Anda berhasil diatur ulang. Klik\nkonfirmasi untuk membuat kata sandi baru.',
+            style: AppTextStyles.bodyMedium,
+          ),
         ),
         SizedBox(height: 35),
         CustomButton1(

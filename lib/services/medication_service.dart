@@ -4,18 +4,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/api_constants.dart';
 
 class MedicationService {
-  Future<String?> _getToken() async {
+  Future<Map<String, String>> _getHeaders() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('auth_token');
+    final token = prefs.getString('auth_token');
+    return {'Authorization': 'Bearer $token', 'Accept': 'application/json'};
   }
 
   Future<List<dynamic>> fetchTodayMedications() async {
     final response = await http.get(
       Uri.parse(ApiConstants.medicationToday),
-      headers: {
-        'Authorization': 'Bearer ${await _getToken()}',
-        'Accept': 'application/json',
-      },
+      headers: await _getHeaders(),
     );
     if (response.statusCode == 200) {
       return jsonDecode(response.body)['data'];
@@ -23,27 +21,45 @@ class MedicationService {
     throw Exception('Gagal mengambil data obat');
   }
 
-  Future<bool> addMedication(String name, String time) async {
+  Future<void> addMedication(String name, String time, bool isEveryday) async {
     final response = await http.post(
       Uri.parse(ApiConstants.medicationStore),
-      headers: {
-        'Authorization': 'Bearer ${await _getToken()}',
-        'Accept': 'application/json',
-      },
-      body: {'name': name, 'time': time},
+      headers: await _getHeaders(),
+      body: {'name': name, 'time': time, 'is_everyday': isEveryday ? '1' : '0'},
     );
-    return response.statusCode == 200;
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw Exception('Gagal menambah obat');
+    }
   }
 
-  Future<bool> updateStatus(String id, String status) async {
+  Future<void> updateMedication(
+    String id,
+    String name,
+    String time,
+    bool isEveryday,
+  ) async {
+    final response = await http.put(
+      Uri.parse('${ApiConstants.baseUrl}/medications/$id'),
+      headers: await _getHeaders(),
+      body: {'name': name, 'time': time, 'is_everyday': isEveryday ? '1' : '0'},
+    );
+    if (response.statusCode != 200) throw Exception('Gagal memperbarui obat');
+  }
+
+  Future<void> updateStatus(String id, String status) async {
     final response = await http.post(
-      Uri.parse('${ApiConstants.medicationStore}/$id/status'),
-      headers: {
-        'Authorization': 'Bearer ${await _getToken()}',
-        'Accept': 'application/json',
-      },
+      Uri.parse('${ApiConstants.baseUrl}/medications/$id/status'),
+      headers: await _getHeaders(),
       body: {'status': status},
     );
-    return response.statusCode == 200;
+    if (response.statusCode != 200) throw Exception('Gagal update status');
+  }
+
+  Future<void> deleteMedication(String id) async {
+    final response = await http.delete(
+      Uri.parse('${ApiConstants.baseUrl}/medications/$id'),
+      headers: await _getHeaders(),
+    );
+    if (response.statusCode != 200) throw Exception('Gagal menghapus obat');
   }
 }
