@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:mindfullshelter/providers/auth_provider.dart';
+import 'package:mindfullshelter/routes/routes.dart';
 import 'package:mindfullshelter/utils/app_assets.dart';
 import 'package:mindfullshelter/utils/app_colors.dart';
 import 'package:mindfullshelter/utils/app_theme.dart';
@@ -9,9 +10,11 @@ import 'package:mindfullshelter/utils/custom_button4.dart';
 import 'package:mindfullshelter/utils/custom_input_form_email.dart';
 import 'package:mindfullshelter/utils/custom_input_form_password.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SignInScreen extends StatefulWidget {
-  const SignInScreen({super.key});
+  final String role;
+  const SignInScreen({super.key, this.role = 'pasien'});
 
   @override
   State<SignInScreen> createState() => _SignInScreenState();
@@ -66,6 +69,10 @@ class _SignInScreenState extends State<SignInScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final String role =
+        ModalRoute.of(context)?.settings.arguments as String? ?? 'pasien';
+    final bool isCounselor = role == 'konselor';
+
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: SafeArea(
@@ -79,9 +86,9 @@ class _SignInScreenState extends State<SignInScreen> {
                 onTap: () => Navigator.pop(context),
               ),
               SizedBox(height: 25),
-              _buildActionForm(),
+              _buildActionForm(isCounselor),
               SizedBox(height: 35),
-              _buildAnotherAction(),
+              _buildAnotherAction(isCounselor),
             ],
           ),
         ),
@@ -112,7 +119,7 @@ class _SignInScreenState extends State<SignInScreen> {
     );
   }
 
-  Widget _buildActionForm() {
+  Widget _buildActionForm(bool isCounselor) {
     return Form(
       key: _formKey,
       child: Column(
@@ -120,22 +127,25 @@ class _SignInScreenState extends State<SignInScreen> {
           CustomInputFormEmail(controller: emailController),
           SizedBox(height: 15),
           CustomInputFormPassword(controller: passwordController),
-          SizedBox(height: 10),
-          Align(
-            alignment: AlignmentGeometry.topRight,
-            child: InkWell(
-              focusColor: Colors.transparent,
-              hoverColor: Colors.transparent,
-              highlightColor: Colors.transparent,
-              overlayColor: WidgetStateProperty.all(Colors.transparent),
-              onTap: () =>
-                  Navigator.pushNamed(context, '/forgotpassword-inputemail'),
-              child: Text(
-                'Lupa Kata Sandi?',
-                style: AppTextStyles.bodyMediumColors.copyWith(fontSize: 13),
+          if (!isCounselor) ...[
+            SizedBox(height: 10),
+            Align(
+              alignment: AlignmentGeometry.topRight,
+              child: InkWell(
+                splashColor: Colors.transparent,
+                highlightColor: Colors.transparent,
+                hoverColor: Colors.transparent,
+                focusColor: Colors.transparent,
+                overlayColor: WidgetStateProperty.all(Colors.transparent),
+                onTap: () =>
+                    Navigator.pushNamed(context, '/forgotpassword-inputemail'),
+                child: Text(
+                  'Lupa Kata Sandi?',
+                  style: AppTextStyles.bodyMediumColors.copyWith(fontSize: 13),
+                ),
               ),
             ),
-          ),
+          ],
           SizedBox(height: 28),
           Consumer<AuthProvider>(
             builder: (context, auth, child) {
@@ -162,7 +172,7 @@ class _SignInScreenState extends State<SignInScreen> {
     );
   }
 
-  Widget _buildAnotherAction() {
+  Widget _buildAnotherAction(bool isCounselor) {
     return Column(
       children: [
         Text.rich(
@@ -173,11 +183,36 @@ class _SignInScreenState extends State<SignInScreen> {
                 style: AppTextStyles.bodyMedium,
               ),
               TextSpan(
-                text: 'Aktivasi akun',
-                style: AppTextStyles.bodyMediumBold,
+                text: isCounselor ? 'Hubungi Tim Vida' : 'Aktivasi akun',
+                style: AppTextStyles.bodyMediumBold.copyWith(
+                  color: AppColors.primary,
+                ),
                 recognizer: TapGestureRecognizer()
-                  ..onTap = () {
-                    Navigator.pushNamed(context, '/activationaccountscreen');
+                  ..onTap = () async {
+                    if (isCounselor) {
+                      final Uri url = Uri.parse(
+                        'https://www.instagram.com/vidadigital.ung/',
+                      );
+
+                      if (await canLaunchUrl(url)) {
+                        await launchUrl(
+                          url,
+                          mode: LaunchMode.externalApplication,
+                        );
+                      } else {
+                        if (!context.mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Tidak dapat membuka Instagram.'),
+                          ),
+                        );
+                      }
+                    } else {
+                      Navigator.pushNamed(
+                        context,
+                        Routes.activationAccountScreen,
+                      );
+                    }
                   },
               ),
             ],

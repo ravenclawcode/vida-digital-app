@@ -62,7 +62,12 @@ Route<dynamic> generateRoute(RouteSettings settings) {
     case Routes.activationAccountScreen:
       return MaterialPageRoute(builder: (_) => const ActivationAccountScreen());
     case Routes.signIn:
-      return MaterialPageRoute(builder: (_) => const SignInScreen());
+      final role = settings.arguments as String? ?? 'pasien';
+
+      return MaterialPageRoute(
+        builder: (_) => SignInScreen(role: role),
+        settings: settings,
+      );
     case Routes.signUp:
       return MaterialPageRoute(
         builder: (_) => const SignUpScreen(),

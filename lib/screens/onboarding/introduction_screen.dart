@@ -1,6 +1,7 @@
 // import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:mindfullshelter/routes/routes.dart';
 // import 'package:mindfullshelter/utils/app_assets.dart';
 // import 'package:mindfullshelter/utils/app_colors.dart';
 // import 'package:mindfullshelter/utils/app_theme.dart';
@@ -51,17 +52,24 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 25),
               child: CustomButton11(
-                onTap: () => Navigator.pushNamed(context, '/sign-in'),
-                label: 'Masuk',
+                onTap: () => Navigator.pushNamed(
+                  context,
+                  Routes.signIn,
+                  arguments: 'pasien',
+                ),
+                label: 'Pasien',
               ),
             ),
             SizedBox(height: 10),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 25),
               child: CustomButton1(
-                onTap: () =>
-                    Navigator.pushNamed(context, '/activationaccountscreen'),
-                label: 'Aktivasi Akun',
+                onTap: () => Navigator.pushNamed(
+                  context,
+                  Routes.signIn,
+                  arguments: 'konselor',
+                ),
+                label: 'Konselor',
               ),
             ),
             SizedBox(height: 60),
