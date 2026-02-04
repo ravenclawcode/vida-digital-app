@@ -26,7 +26,7 @@ class AppColors {
   static const Color buttonOff = Color(0xFFFFACC9);
 
   //Shadow Colors
-  static const Color shadow = Color(0xFF646464);
+  static const Color shadow = Color(0xFF707070);
 
   // Text Colors
   static const Color textPrimary = Color(0xFF283433);

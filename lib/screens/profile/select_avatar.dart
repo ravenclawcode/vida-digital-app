@@ -146,7 +146,6 @@ class _SelectAvatarState extends State<SelectAvatar> {
                             ),
                             child: ClipOval(
                               child: Image.asset(
-                                // GANTI KE ASSET
                                 avatarUrls[index],
                                 width: itemSize,
                                 height: itemSize,

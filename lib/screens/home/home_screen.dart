@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mindfullshelter/data/dummy_data.dart';
 import 'package:mindfullshelter/models/medication_model.dart';
 import 'package:mindfullshelter/providers/auth_provider.dart';
 import 'package:mindfullshelter/providers/medication_provider.dart';
@@ -101,7 +100,7 @@ class _HomeScreenState extends State<HomeScreen> {
               SizedBox(height: 16),
               _buildFeatureGrid(context),
               SizedBox(height: 26),
-              _buildRecentActivity(),
+              // _buildRecentActivity(),
               SizedBox(height: 26),
             ],
           ),
@@ -184,7 +183,7 @@ class _HomeScreenState extends State<HomeScreen> {
               offset: Offset(0, 3),
               blurRadius: 10,
               spreadRadius: 2,
-              color: AppColors.shadow.withValues(alpha: 0.05),
+              color: AppColors.shadow.withValues(alpha: 0.10),
             ),
           ],
         ),
@@ -407,7 +406,7 @@ class _HomeScreenState extends State<HomeScreen> {
               offset: Offset(0, 3),
               blurRadius: 10,
               spreadRadius: 2,
-              color: AppColors.shadow.withValues(alpha: 0.05),
+              color: AppColors.shadow.withValues(alpha: 0.10),
             ),
           ],
         ),
@@ -527,7 +526,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   offset: Offset(0, 3),
                   blurRadius: 10,
                   spreadRadius: 2,
-                  color: AppColors.shadow.withValues(alpha: 0.05),
+                  color: AppColors.shadow.withValues(alpha: 0.10),
                 ),
               ],
             ),
@@ -569,94 +568,94 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildRecentActivity() {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.background,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            offset: Offset(0, 3),
-            blurRadius: 10,
-            spreadRadius: 2,
-            color: AppColors.shadow.withValues(alpha: 0.05),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Aktivitas Terakhir', style: AppTextStyles.headingHome),
-            SizedBox(height: 10),
-            ...DummyData.activity.take(3).map((value) {
-              return Container(
-                margin: EdgeInsets.only(bottom: 10),
-                decoration: BoxDecoration(
-                  color: AppColors.backgroundList,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: 28,
-                        height: 28,
-                        decoration: BoxDecoration(
-                          color: value.color,
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        child: Padding(
-                          padding: EdgeInsets.all(6),
-                          child: value.icon,
-                        ),
-                      ),
-                      SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              value.title,
-                              style: AppTextStyles.titleActivity,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            Text(
-                              _getRelativeTime(value.date),
-                              style: AppTextStyles.dateActivity,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            }),
-          ],
-        ),
-      ),
-    );
-  }
+  // Widget _buildRecentActivity() {
+  //   return Container(
+  //     decoration: BoxDecoration(
+  //       color: AppColors.background,
+  //       borderRadius: BorderRadius.circular(10),
+  //       boxShadow: [
+  //         BoxShadow(
+  //           offset: Offset(0, 3),
+  //           blurRadius: 10,
+  //           spreadRadius: 2,
+  //           color: AppColors.shadow.withValues(alpha: 0.05),
+  //         ),
+  //       ],
+  //     ),
+  //     child: Padding(
+  //       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+  //       child: Column(
+  //         crossAxisAlignment: CrossAxisAlignment.start,
+  //         children: [
+  //           Text('Aktivitas Terakhir', style: AppTextStyles.headingHome),
+  //           SizedBox(height: 10),
+  //           ...DummyData.activity.take(3).map((value) {
+  //             return Container(
+  //               margin: EdgeInsets.only(bottom: 10),
+  //               decoration: BoxDecoration(
+  //                 color: AppColors.backgroundList,
+  //                 borderRadius: BorderRadius.circular(10),
+  //               ),
+  //               child: Padding(
+  //                 padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+  //                 child: Row(
+  //                   crossAxisAlignment: CrossAxisAlignment.start,
+  //                   children: [
+  //                     Container(
+  //                       width: 28,
+  //                       height: 28,
+  //                       decoration: BoxDecoration(
+  //                         color: value.color,
+  //                         borderRadius: BorderRadius.circular(5),
+  //                       ),
+  //                       child: Padding(
+  //                         padding: EdgeInsets.all(6),
+  //                         child: value.icon,
+  //                       ),
+  //                     ),
+  //                     SizedBox(width: 10),
+  //                     Expanded(
+  //                       child: Column(
+  //                         crossAxisAlignment: CrossAxisAlignment.start,
+  //                         children: [
+  //                           Text(
+  //                             value.title,
+  //                             style: AppTextStyles.titleActivity,
+  //                             maxLines: 1,
+  //                             overflow: TextOverflow.ellipsis,
+  //                           ),
+  //                           Text(
+  //                             _getRelativeTime(value.date),
+  //                             style: AppTextStyles.dateActivity,
+  //                             maxLines: 1,
+  //                             overflow: TextOverflow.ellipsis,
+  //                           ),
+  //                         ],
+  //                       ),
+  //                     ),
+  //                   ],
+  //                 ),
+  //               ),
+  //             );
+  //           }),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 
-  String _getRelativeTime(DateTime date) {
-    final now = DateTime.now();
-    final difference = now.difference(date);
+  // String _getRelativeTime(DateTime date) {
+  //   final now = DateTime.now();
+  //   final difference = now.difference(date);
 
-    if (difference.inDays > 0) {
-      return '${difference.inDays} hari lalu';
-    } else if (difference.inHours > 0) {
-      return '${difference.inHours} jam lalu';
-    } else if (difference.inMinutes > 0) {
-      return '${difference.inMinutes} menit lalu';
-    } else {
-      return 'Baru saja';
-    }
-  }
+  //   if (difference.inDays > 0) {
+  //     return '${difference.inDays} hari lalu';
+  //   } else if (difference.inHours > 0) {
+  //     return '${difference.inHours} jam lalu';
+  //   } else if (difference.inMinutes > 0) {
+  //     return '${difference.inMinutes} menit lalu';
+  //   } else {
+  //     return 'Baru saja';
+  //   }
+  // }
 }

@@ -159,9 +159,9 @@ class _AudioMindfulnessScreenState extends State<AudioMindfulnessScreen> {
         borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
-            offset: const Offset(3, 3),
+            offset: Offset(0, 3),
             blurRadius: 10,
-            spreadRadius: 1,
+            spreadRadius: 2,
             color: AppColors.shadow.withValues(alpha: 0.10),
           ),
         ],

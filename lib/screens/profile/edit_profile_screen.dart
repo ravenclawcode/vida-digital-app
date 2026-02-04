@@ -33,7 +33,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   bool get isDataChanged {
     final auth = Provider.of<AuthProvider>(context, listen: false);
     final user = auth.currentUser;
-
     if (user == null) return false;
 
     final currentUsername = usernameController.text.trim();
@@ -45,13 +44,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         currentEmail != user.email ||
         currentGender != (user.gender ?? '');
 
-    bool hasNewAvatar = selectedAvatarUrl != null;
     bool hasNewImageFile = auth.imageFile != null;
+
+    bool hasNewAvatar =
+        selectedAvatarUrl != null && selectedAvatarUrl != user.profilePhotoUrl;
 
     return (hasTextChanged || hasNewAvatar || hasNewImageFile) &&
         currentUsername.isNotEmpty &&
-        currentEmail.isNotEmpty &&
-        currentGender.isNotEmpty;
+        currentEmail.isNotEmpty;
   }
 
   @override

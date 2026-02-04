@@ -137,17 +137,17 @@ class _MedicationReminderScreenState extends State<MedicationReminderScreen> {
 
   Widget _buildMedicationCard(MedicationEntry entry, isLast) {
     return Container(
-      height: 50,
+      height: 58,
       margin: EdgeInsets.only(bottom: isLast ? 0 : 12),
       decoration: BoxDecoration(
         color: AppColors.background,
         borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
-            offset: const Offset(0, 3),
+            offset: Offset(0, 3),
             blurRadius: 10,
-            spreadRadius: 1,
-            color: AppColors.shadow.withValues(alpha: 0.05),
+            spreadRadius: 2,
+            color: AppColors.shadow.withValues(alpha: 0.10),
           ),
         ],
       ),

@@ -124,7 +124,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                 width: 35,
                 height: 35,
                 decoration: BoxDecoration(
-                  color: AppColors.borderTabbar,
+                  color: Color(0xFFF5F5F5),
                   shape: BoxShape.circle,
                 ),
                 child: Center(

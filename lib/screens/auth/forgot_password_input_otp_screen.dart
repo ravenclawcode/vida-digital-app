@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:mindfullshelter/providers/auth_provider.dart';
@@ -23,6 +25,9 @@ class _ForgorPasswordInputOtpScreenState
 
   bool otpError = false;
   String? otpErrorMessage;
+  Timer? _timer;
+  int _start = 60;
+  bool _isTimerActive = true;
 
   bool get isFormFilled => otpController.text.trim().isNotEmpty;
 
@@ -30,6 +35,24 @@ class _ForgorPasswordInputOtpScreenState
   void initState() {
     super.initState();
     otpController.addListener(() => setState(() {}));
+    startTimer();
+  }
+
+  void startTimer() {
+    _isTimerActive = true;
+    _start = 60;
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_start == 0) {
+        setState(() {
+          _isTimerActive = false;
+          timer.cancel();
+        });
+      } else {
+        setState(() {
+          _start--;
+        });
+      }
+    });
   }
 
   Future<void> _handleSendOtp() async {
@@ -62,8 +85,26 @@ class _ForgorPasswordInputOtpScreenState
     }
   }
 
+  Future<void> _handleResendOtp() async {
+    if (_isTimerActive) return;
+
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+    final email = auth.resetEmail;
+
+    if (email != null) {
+      final success = await auth.forgotPassword(email);
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Kode OTP baru telah dikirim')),
+        );
+        startTimer();
+      }
+    }
+  }
+
   @override
   void dispose() {
+    _timer?.cancel();
     otpController.dispose();
     super.dispose();
   }
@@ -187,12 +228,14 @@ class _ForgorPasswordInputOtpScreenState
                 style: AppTextStyles.bodyMedium,
               ),
               TextSpan(
-                text: 'Kirim ulang',
-                style: AppTextStyles.bodyMediumBold,
+                text: _isTimerActive ? 'Kirim ulang ${_start}s' : 'Kirim ulang',
+                style: _isTimerActive
+                    ? AppTextStyles.bodyMedium.copyWith(
+                        color: AppColors.textLight,
+                      )
+                    : AppTextStyles.bodyMediumBold,
                 recognizer: TapGestureRecognizer()
-                  ..onTap = () {
-                    Navigator.pushNamed(context, '/');
-                  },
+                  ..onTap = _isTimerActive ? null : _handleResendOtp,
               ),
             ],
           ),

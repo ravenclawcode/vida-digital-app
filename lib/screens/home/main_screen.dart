@@ -39,10 +39,10 @@ class _MainScreenState extends State<MainScreen> {
           hoverColor: Colors.transparent,
         ),
         child: BottomNavigationBar(
+          
           type: BottomNavigationBarType.fixed,
           currentIndex: selectedIndex,
           onTap: onNavItemSelected,
-
           selectedLabelStyle: AppTextStyles.labelSelectNav,
           unselectedLabelStyle: AppTextStyles.labelUnselectNav,
           elevation: 1,

@@ -19,6 +19,7 @@ class DetailVideoScreen extends StatefulWidget {
 class _DetailVideoScreenState extends State<DetailVideoScreen> {
   late YoutubePlayerController _controller;
   bool _isPlayerReady = false;
+  bool _isMuted = false;
 
   @override
   void initState() {
@@ -187,19 +188,23 @@ class _DetailVideoScreenState extends State<DetailVideoScreen> {
                     hoverColor: Colors.transparent,
                     highlightColor: Colors.transparent,
                     overlayColor: WidgetStateProperty.all(Colors.transparent),
-                    onTap: () => _controller.value.volume > 0
-                        ? _controller.mute()
-                        : _controller.unMute(),
+                    onTap: () {
+                      setState(() {
+                        _isMuted = !_isMuted;
+                        if (_isMuted) {
+                          _controller.mute();
+                        } else {
+                          _controller.unMute();
+                        }
+                      });
+                    },
                     child: Icon(
-                      _controller.value.volume == 0
-                          ? Icons.volume_off
-                          : Icons.volume_up,
+                      _isMuted ? Icons.volume_off : Icons.volume_up,
                       color: Colors.white,
                       size: 18,
                     ),
                   ),
                   const SizedBox(width: 15),
-
                   InkWell(
                     focusColor: Colors.transparent,
                     hoverColor: Colors.transparent,
@@ -213,6 +218,39 @@ class _DetailVideoScreenState extends State<DetailVideoScreen> {
                     ),
                   ),
                 ],
+              ),
+            ),
+          ),
+        ),
+        Positioned.fill(
+          child: Center(
+            child: AnimatedOpacity(
+              opacity: _controller.value.isPlaying ? 0.0 : 1.0,
+              duration: const Duration(milliseconds: 300),
+              child: InkWell(
+                onTap: () {
+                  setState(() {
+                    _controller.value.isPlaying
+                        ? _controller.pause()
+                        : _controller.play();
+                  });
+                },
+                child: Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    color: AppColors.textPrimary.withValues(alpha: 0.75),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Padding(
+                    padding: _controller.value.isPlaying
+                        ? const EdgeInsets.all(16)
+                        : const EdgeInsets.fromLTRB(20, 16, 16, 16),
+                    child: Image.asset(
+                      _controller.value.isPlaying ? icPause : icPlay,
+                    ),
+                  ),
+                ),
               ),
             ),
           ),

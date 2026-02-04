@@ -79,7 +79,7 @@ class _CustomPostDialogState extends State<CustomPostDialog> {
 
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(const SnackBar(content: Text('Sedang mengunggah...')));
+    ).showSnackBar(const SnackBar(content: Text('Berhasil mengunggah postingan')));
 
     try {
       await provider.addPost(selectedCategory.label, content);

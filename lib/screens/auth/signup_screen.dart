@@ -78,7 +78,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
       Navigator.pushNamedAndRemoveUntil(
         context,
-        Routes.getStarted,
+        Routes.signIn,
         (route) => false,
       );
     } else {
