@@ -7,6 +7,7 @@ import 'package:mindfullshelter/utils/app_assets.dart';
 import 'package:mindfullshelter/utils/app_colors.dart';
 import 'package:mindfullshelter/utils/app_theme.dart';
 import 'package:mindfullshelter/utils/custom_circle_painter.dart';
+import 'package:mindfullshelter/utils/session_manager.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -17,6 +18,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  int? role;
+
   @override
   void initState() {
     super.initState();
@@ -24,6 +27,24 @@ class _HomeScreenState extends State<HomeScreen> {
       context.read<MedicationProvider>().fetchMedications();
       context.read<MoodProvider>().fetchWeeklyMood();
     });
+    _checkSession();
+  }
+
+  void _checkSession() async {
+    int? sessionRole = await SessionManager().getRole();
+    setState(() {
+      role = sessionRole;
+    });
+
+    if (sessionRole == 1) {
+      Future.microtask(() {
+        context.read<MedicationProvider>().fetchMedications();
+        context.read<MoodProvider>().fetchWeeklyMood();
+      });
+    } else {
+      // Jika konselor (0), fetch data daftar pasien (buat provider baru nanti)
+      // context.read<CounselorProvider>().fetchPatients();
+    }
   }
 
   String _capitalizeEachWord(String text) {
@@ -83,6 +104,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (role == null) return const Center(child: CircularProgressIndicator());
+
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -91,17 +114,21 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildHeader(context),
-              SizedBox(height: 22),
-              _buildMedicationReminder(context),
-              SizedBox(height: 22),
-              _buildQuickMoodCheck(context),
-              SizedBox(height: 26),
-              Text('Fitur Utama', style: AppTextStyles.headingHome),
-              SizedBox(height: 16),
-              _buildFeatureGrid(context),
-              SizedBox(height: 26),
-              // _buildRecentActivity(),
-              SizedBox(height: 26),
+              const SizedBox(height: 22),
+              if (role == 1) ...[
+                _buildTesPHQ(context),
+                const SizedBox(height: 22),
+                _buildMedicationReminder(context),
+                const SizedBox(height: 22),
+                _buildQuickMoodCheck(context),
+                const SizedBox(height: 26),
+                Text('Fitur Utama', style: AppTextStyles.headingHome),
+                const SizedBox(height: 16),
+                _buildFeatureGrid(context),
+              ] else ...[
+                _buildCounselorPatientList(),
+              ],
+              const SizedBox(height: 26),
             ],
           ),
         ),
@@ -153,6 +180,55 @@ class _HomeScreenState extends State<HomeScreen> {
           },
         ),
       ],
+    );
+  }
+
+  Widget _buildTesPHQ(BuildContext context) {
+    return InkWell(
+      focusColor: Colors.transparent,
+      hoverColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      overlayColor: WidgetStateProperty.all(Colors.transparent),
+      onTap: () => Navigator.pushNamed(context, '/test-phq'),
+      child: Container(
+        width: double.infinity,
+        height: 95,
+        decoration: BoxDecoration(
+          color: AppColors.primary,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            BoxShadow(
+              offset: Offset(0, 3),
+              color: Color(0xFFFAB1C6).withValues(alpha: 0.80),
+              blurRadius: 10,
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Tes Kesehatan Mental PHQ-9',
+                    style: AppTextStyles.headingChat.copyWith(fontSize: 15),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    'Evaluasi kondisi mental Anda',
+                    style: AppTextStyles.bodyChat,
+                  ),
+                ],
+              ),
+              Image.asset(icMedical, height: 53),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -568,94 +644,42 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Widget _buildRecentActivity() {
-  //   return Container(
-  //     decoration: BoxDecoration(
-  //       color: AppColors.background,
-  //       borderRadius: BorderRadius.circular(10),
-  //       boxShadow: [
-  //         BoxShadow(
-  //           offset: Offset(0, 3),
-  //           blurRadius: 10,
-  //           spreadRadius: 2,
-  //           color: AppColors.shadow.withValues(alpha: 0.05),
-  //         ),
-  //       ],
-  //     ),
-  //     child: Padding(
-  //       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-  //       child: Column(
-  //         crossAxisAlignment: CrossAxisAlignment.start,
-  //         children: [
-  //           Text('Aktivitas Terakhir', style: AppTextStyles.headingHome),
-  //           SizedBox(height: 10),
-  //           ...DummyData.activity.take(3).map((value) {
-  //             return Container(
-  //               margin: EdgeInsets.only(bottom: 10),
-  //               decoration: BoxDecoration(
-  //                 color: AppColors.backgroundList,
-  //                 borderRadius: BorderRadius.circular(10),
-  //               ),
-  //               child: Padding(
-  //                 padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-  //                 child: Row(
-  //                   crossAxisAlignment: CrossAxisAlignment.start,
-  //                   children: [
-  //                     Container(
-  //                       width: 28,
-  //                       height: 28,
-  //                       decoration: BoxDecoration(
-  //                         color: value.color,
-  //                         borderRadius: BorderRadius.circular(5),
-  //                       ),
-  //                       child: Padding(
-  //                         padding: EdgeInsets.all(6),
-  //                         child: value.icon,
-  //                       ),
-  //                     ),
-  //                     SizedBox(width: 10),
-  //                     Expanded(
-  //                       child: Column(
-  //                         crossAxisAlignment: CrossAxisAlignment.start,
-  //                         children: [
-  //                           Text(
-  //                             value.title,
-  //                             style: AppTextStyles.titleActivity,
-  //                             maxLines: 1,
-  //                             overflow: TextOverflow.ellipsis,
-  //                           ),
-  //                           Text(
-  //                             _getRelativeTime(value.date),
-  //                             style: AppTextStyles.dateActivity,
-  //                             maxLines: 1,
-  //                             overflow: TextOverflow.ellipsis,
-  //                           ),
-  //                         ],
-  //                       ),
-  //                     ),
-  //                   ],
-  //                 ),
-  //               ),
-  //             );
-  //           }),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
+  Widget _buildCounselorPatientList() {
+    final patients = [
+      {'name': 'Vida1', 'status': 'Sangat Baik'},
+      {'name': 'Vida2', 'status': 'Perlu Perhatian'},
+    ];
 
-  // String _getRelativeTime(DateTime date) {
-  //   final now = DateTime.now();
-  //   final difference = now.difference(date);
-
-  //   if (difference.inDays > 0) {
-  //     return '${difference.inDays} hari lalu';
-  //   } else if (difference.inHours > 0) {
-  //     return '${difference.inHours} jam lalu';
-  //   } else if (difference.inMinutes > 0) {
-  //     return '${difference.inMinutes} menit lalu';
-  //   } else {
-  //     return 'Baru saja';
-  //   }
-  // }
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: patients.length,
+      itemBuilder: (context, index) {
+        return Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.all(15),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 5)],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                patients[index]['name'] as String,
+                style: AppTextStyles.titleFeature,
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 5,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 }

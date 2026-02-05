@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:mindfullshelter/screens/chat/chat_screen.dart';
 import 'package:mindfullshelter/screens/home/home_screen.dart';
 import 'package:mindfullshelter/screens/profile/profile_screen.dart';
+import 'package:mindfullshelter/screens/tools/tools_screen.dart';
 import 'package:mindfullshelter/utils/app_assets.dart';
 import 'package:mindfullshelter/utils/app_colors.dart';
 import 'package:mindfullshelter/utils/app_theme.dart';
+import 'package:mindfullshelter/utils/session_manager.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -14,6 +17,20 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int selectedIndex = 0;
+  int? userRole;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRole();
+  }
+
+  void _loadRole() async {
+    int? role = await SessionManager().getRole();
+    setState(() {
+      userRole = role;
+    });
+  }
 
   void onNavItemSelected(int index) {
     setState(() {
@@ -27,11 +44,16 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (userRole == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    final List<Widget> screens = userRole == 0
+        ? [const HomeScreen(), const ToolsScreen(tabIndex: 0,), const ProfileScreen()]
+        : [const HomeScreen(), const ChatScreen(), const ProfileScreen()];
+
     return Scaffold(
-      body: IndexedStack(
-        index: selectedIndex,
-        children: [HomeScreen(), ProfileScreen()],
-      ),
+      body: IndexedStack(index: selectedIndex, children: screens),
       bottomNavigationBar: Theme(
         data: Theme.of(context).copyWith(
           splashColor: Colors.transparent,
@@ -39,7 +61,6 @@ class _MainScreenState extends State<MainScreen> {
           hoverColor: Colors.transparent,
         ),
         child: BottomNavigationBar(
-          
           type: BottomNavigationBarType.fixed,
           currentIndex: selectedIndex,
           onTap: onNavItemSelected,
@@ -49,7 +70,7 @@ class _MainScreenState extends State<MainScreen> {
           items: [
             BottomNavigationBarItem(
               icon: Padding(
-                padding: EdgeInsets.symmetric(vertical: 5),
+                padding: const EdgeInsets.symmetric(vertical: 5),
                 child: Image.asset(
                   icHome,
                   color: onIconSelected(0),
@@ -60,10 +81,21 @@ class _MainScreenState extends State<MainScreen> {
             ),
             BottomNavigationBarItem(
               icon: Padding(
-                padding: EdgeInsets.symmetric(vertical: 5),
+                padding: const EdgeInsets.symmetric(vertical: 5),
+                child: Image.asset(
+                  userRole == 0 ? icTools : icChat,
+                  color: onIconSelected(1),
+                  height: 22,
+                ),
+              ),
+              label: userRole == 0 ? 'Alat' : 'Chat',
+            ),
+            BottomNavigationBarItem(
+              icon: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 5),
                 child: Image.asset(
                   icProfile,
-                  color: onIconSelected(1),
+                  color: onIconSelected(2),
                   height: 25,
                 ),
               ),

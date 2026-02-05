@@ -602,4 +602,36 @@ class AppTextStyles {
     fontWeight: FontWeight.w400,
     color: AppColors.textPrimary,
   );
+
+  //Font Chat
+  static TextStyle get headingChat => GoogleFonts.poppins(
+    fontSize: 16,
+    fontWeight: FontWeight.w600,
+    color: AppColors.textWhite,
+  );
+
+  static TextStyle get bodyChat => GoogleFonts.poppins(
+    fontSize: 12,
+    fontWeight: FontWeight.w400,
+    color: AppColors.textWhite,
+  );
+
+  //Font Chat
+  static TextStyle get headingTesPHQ => GoogleFonts.poppins(
+    fontSize: 18,
+    fontWeight: FontWeight.w600,
+    color: AppColors.textPrimary,
+  );
+
+  static TextStyle get subTesPHQ => GoogleFonts.poppins(
+    fontSize: 14,
+    fontWeight: FontWeight.w500,
+    color: AppColors.textPrimary,
+  );
+
+  static TextStyle get bodyTesPHQ => GoogleFonts.poppins(
+    fontSize: 14,
+    fontWeight: FontWeight.w400,
+    color: AppColors.textPrimary,
+  );
 }

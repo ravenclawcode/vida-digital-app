@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:mindfullshelter/models/user_model.dart';
 import 'package:mindfullshelter/utils/api_constants.dart';
+import 'package:mindfullshelter/utils/session_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/auth_service.dart';
 
@@ -99,20 +100,15 @@ class AuthProvider with ChangeNotifier {
     try {
       final response = await _authService.login(email, password);
 
-      print('Login Status: ${response.statusCode}');
-      print('Login Body: ${response.body}');
-
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        print('Data User dari Login: ${data['user']}');
+        final int rawRoleId = data['user']['role_id'];
 
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('auth_token', data['access_token']);
+        int sessionRole = (rawRoleId == 2) ? 0 : 1;
 
-        if (data['user'] != null) {
-          _currentUser = User.fromJson(data['user']);
-        }
+        await SessionManager().saveSession(data['access_token'], sessionRole);
 
+        _currentUser = User.fromJson(data['user']);
         _isLoading = false;
         notifyListeners();
         return true;
