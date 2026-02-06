@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mindfullshelter/providers/auth_provider.dart';
+import 'package:mindfullshelter/providers/phq9_provider.dart';
 import 'package:mindfullshelter/utils/app_assets.dart';
 import 'package:mindfullshelter/utils/app_colors.dart';
 import 'package:mindfullshelter/utils/app_theme.dart';
@@ -24,6 +24,31 @@ class _TestPhqScreenState extends State<TestPhqScreen> {
   void initState() {
     super.initState();
     _keyController.addListener(() => setState(() {}));
+  }
+
+  void _handleVerifyCode(BuildContext context) async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final phqProvider = Provider.of<PhqProvider>(context, listen: false);
+    final code = _keyController.text.trim();
+
+    final isValid = await phqProvider.validatePatientCode(code);
+
+    if (!mounted) return;
+
+    if (isValid) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Kode Berhasil Diverifikasi!')),
+      );
+
+      Navigator.pushNamed(context, '/phq9-questions', arguments: code);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Kode tidak ditemukan atau sudah digunakan.'),
+        ),
+      );
+    }
   }
 
   @override
@@ -117,10 +142,11 @@ class _TestPhqScreenState extends State<TestPhqScreen> {
             ),
             SizedBox(height: 12),
             Text(
-              'Anda memerlukan kode akses dari konselor untuk mengikuti tes ini. Silakan hubungi konselor Anda untuk mendapatkan kode.', style: AppTextStyles.bodyTesPHQ,
+              'Anda memerlukan kode akses dari konselor untuk mengikuti tes ini. Silakan hubungi konselor Anda untuk mendapatkan kode.',
+              style: AppTextStyles.bodyTesPHQ,
             ),
             SizedBox(height: 16),
-            Text('Kode Akses', style: AppTextStyles.subTesPHQ,),
+            Text('Kode Akses', style: AppTextStyles.subTesPHQ),
             SizedBox(height: 12),
             _buildActionForm(),
           ],
@@ -136,13 +162,15 @@ class _TestPhqScreenState extends State<TestPhqScreen> {
         children: [
           CustomInputKeyTesPhq9(controller: _keyController),
           SizedBox(height: 15),
-          Consumer<AuthProvider>(
-            builder: (context, auth, child) {
-              final disabled = !isFormFilled || auth.isLoading;
+          Consumer<PhqProvider>(
+            builder: (context, phqProvider, child) {
+              final isLoading = phqProvider.isLoading;
+              final disabled = !isFormFilled || isLoading;
+
               if (disabled) {
                 return CustomButton4(
-                  label: auth.isLoading
-                      ? SizedBox(
+                  label: isLoading
+                      ? const SizedBox(
                           width: 20,
                           height: 20,
                           child: CircularProgressIndicator(
@@ -156,8 +184,9 @@ class _TestPhqScreenState extends State<TestPhqScreen> {
                         ),
                 );
               }
+
               return CustomButton1(
-                onTap: () {},
+                onTap: () => _handleVerifyCode(context),
                 label: 'Verifikasi & Mulai Tes',
               );
             },

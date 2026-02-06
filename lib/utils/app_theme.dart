@@ -625,7 +625,7 @@ class AppTextStyles {
 
   static TextStyle get subTesPHQ => GoogleFonts.poppins(
     fontSize: 14,
-    fontWeight: FontWeight.w500,
+    fontWeight: FontWeight.w600,
     color: AppColors.textPrimary,
   );
 
@@ -633,5 +633,11 @@ class AppTextStyles {
     fontSize: 14,
     fontWeight: FontWeight.w400,
     color: AppColors.textPrimary,
+  );
+
+  static TextStyle get keyTesPHQ => GoogleFonts.poppins(
+    fontSize: 14,
+    fontWeight: FontWeight.w800,
+    color: AppColors.primary,
   );
 }

@@ -23,6 +23,7 @@ import 'package:mindfullshelter/screens/onboarding/introduction_screen.dart';
 import 'package:mindfullshelter/screens/profile/edit_profile_screen.dart';
 import 'package:mindfullshelter/screens/profile/profile_screen.dart';
 import 'package:mindfullshelter/screens/terms%20&%20conditions/terms_and_conditions_screen.dart';
+import 'package:mindfullshelter/screens/test%20phq-9/question_test_phq_screen.dart';
 import 'package:mindfullshelter/screens/test%20phq-9/test_phq_screen.dart';
 import 'package:mindfullshelter/screens/tools/tools_screen.dart';
 import 'package:mindfullshelter/utils/app_theme.dart';
@@ -46,6 +47,7 @@ class Routes {
   static const String tools = '/tools';
   static const String profile = '/profile';
   static const String testPHQ = '/test-phq';
+  static const String questionsPHQ = '/phq9-questions';
   static const String editProfile = '/editprofile';
   static const String medicationReminder = '/medicationreminder';
   static const String moodTracker = '/moodtracker';
@@ -112,6 +114,8 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       return MaterialPageRoute(builder: (_) => const ProfileScreen());
     case Routes.testPHQ:
       return MaterialPageRoute(builder: (_) => const TestPhqScreen());
+    case Routes.questionsPHQ:
+      return MaterialPageRoute(builder: (_) => const QuestionTestPhqScreen());
     case Routes.editProfile:
       return MaterialPageRoute(builder: (_) => const EditProfileScreen());
     case Routes.medicationReminder:

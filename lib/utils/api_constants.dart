@@ -41,4 +41,9 @@ class ApiConstants {
   static const String chatSend = '$baseUrl/chat/send';
   static const String chatHistory = '$baseUrl/chat/history';
   static const String deleteAllChat = '$baseUrl/chat/clear';
+
+  // PHQ-9 Tools (Konselor)
+  static const String generatePhqCode = '$baseUrl/phq-generate';
+  static const String deletePhqCode = '$baseUrl/phq-delete';
+  static const String validatePhqCode = '$baseUrl/phq-validate';
 }

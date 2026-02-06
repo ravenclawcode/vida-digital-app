@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
-import 'package:mindfullshelter/models/activity.dart';
-import 'package:mindfullshelter/models/terms%20conditions.dart';
+import 'package:mindfullshelter/models/activity_model.dart';
+import 'package:mindfullshelter/models/terms_conditions_model.dart';
 import 'package:mindfullshelter/utils/app_assets.dart';
 
 import '../models/mood_model.dart';

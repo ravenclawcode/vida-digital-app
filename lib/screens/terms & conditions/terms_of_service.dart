@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:mindfullshelter/models/terms%20conditions.dart';
+import 'package:mindfullshelter/models/terms_conditions_model.dart';
 import 'package:mindfullshelter/providers/terms_conditions_provider.dart';
 import 'package:mindfullshelter/utils/app_assets.dart';
 import 'package:mindfullshelter/utils/app_colors.dart';

@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:mindfullshelter/models/terms%20conditions.dart';
+import 'package:mindfullshelter/models/terms_conditions_model.dart';
 import '../data/dummy_data.dart';
 
 class TermsAndConditionsProvider with ChangeNotifier {

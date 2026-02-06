@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mindfullshelter/providers/education_provider.dart';
-import 'package:mindfullshelter/screens/education/article.dart';
-import 'package:mindfullshelter/screens/education/video.dart';
 import 'package:mindfullshelter/screens/tools/phq9.dart';
 import 'package:mindfullshelter/screens/tools/soap.dart';
-import 'package:mindfullshelter/utils/app_assets.dart';
 import 'package:mindfullshelter/utils/app_colors.dart';
 import 'package:mindfullshelter/utils/app_theme.dart';
 import 'package:provider/provider.dart';
