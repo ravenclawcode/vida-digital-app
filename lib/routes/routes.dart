@@ -25,6 +25,7 @@ import 'package:mindfullshelter/screens/profile/profile_screen.dart';
 import 'package:mindfullshelter/screens/terms%20&%20conditions/terms_and_conditions_screen.dart';
 import 'package:mindfullshelter/screens/test%20phq-9/question_test_phq_screen.dart';
 import 'package:mindfullshelter/screens/test%20phq-9/test_phq_screen.dart';
+import 'package:mindfullshelter/screens/test%20phq-9/test_result_phq_screen.dart';
 import 'package:mindfullshelter/screens/tools/tools_screen.dart';
 import 'package:mindfullshelter/utils/app_theme.dart';
 
@@ -48,6 +49,7 @@ class Routes {
   static const String profile = '/profile';
   static const String testPHQ = '/test-phq';
   static const String questionsPHQ = '/phq9-questions';
+  static const String testResultPHQ = '/test-phq-result';
   static const String editProfile = '/editprofile';
   static const String medicationReminder = '/medicationreminder';
   static const String moodTracker = '/moodtracker';
@@ -115,7 +117,15 @@ Route<dynamic> generateRoute(RouteSettings settings) {
     case Routes.testPHQ:
       return MaterialPageRoute(builder: (_) => const TestPhqScreen());
     case Routes.questionsPHQ:
-      return MaterialPageRoute(builder: (_) => const QuestionTestPhqScreen());
+      return MaterialPageRoute(
+        builder: (_) => const QuestionTestPhqScreen(),
+        settings: settings,
+      );
+    case Routes.testResultPHQ:
+      final score = settings.arguments as int? ?? 0;
+      return MaterialPageRoute(
+        builder: (_) => TestResultPhqScreen(score: score),
+      );
     case Routes.editProfile:
       return MaterialPageRoute(builder: (_) => const EditProfileScreen());
     case Routes.medicationReminder:

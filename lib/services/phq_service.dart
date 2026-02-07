@@ -38,4 +38,19 @@ class PhqService {
       body: jsonEncode({'token_code': code}),
     );
   }
+
+  Future<http.Response> useCode(String code) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+
+    return await http.post(
+      Uri.parse("${ApiConstants.baseUrl}/phq-mark-used"),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({'token_code': code}),
+    );
+  }
 }

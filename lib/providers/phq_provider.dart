@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:mindfullshelter/models/phq9_model.dart';
+import 'package:mindfullshelter/models/phq_model.dart';
 import 'dart:convert';
 
-import 'package:mindfullshelter/services/phq9_service.dart';
+import 'package:mindfullshelter/services/phq_service.dart';
 
 class PhqProvider with ChangeNotifier {
   final PhqService _service = PhqService();
@@ -34,19 +34,27 @@ class PhqProvider with ChangeNotifier {
   }
 
   Future<bool> validatePatientCode(String code) async {
-  _isLoading = true;
-  notifyListeners();
+    _isLoading = true;
+    notifyListeners();
 
-  try {
-    final response = await _service.validateCode(code);
-    _isLoading = false;
-    notifyListeners();
-    
-    return response.statusCode == 200;
-  } catch (e) {
-    _isLoading = false;
-    notifyListeners();
-    return false;
+    try {
+      final response = await _service.validateCode(code);
+      _isLoading = false;
+      notifyListeners();
+
+      return response.statusCode == 200;
+    } catch (e) {
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
   }
-}
+
+  Future<void> burnCode(String code) async {
+    try {
+      await _service.useCode(code);
+    } catch (e) {
+      debugPrint("Gagal menghanguskan kode: $e");
+    }
+  }
 }

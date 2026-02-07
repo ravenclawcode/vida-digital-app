@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:mindfullshelter/providers/phq9_provider.dart';
+import 'package:mindfullshelter/providers/phq_provider.dart';
 import 'package:mindfullshelter/utils/app_assets.dart';
 import 'package:mindfullshelter/utils/app_colors.dart';
 import 'package:mindfullshelter/utils/app_theme.dart';

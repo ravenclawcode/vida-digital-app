@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/timezone.dart' as tz;
@@ -62,12 +61,7 @@ class NotificationService {
     required DateTime time,
     bool isAlarm = false,
   }) async {
-    debugPrint(
-      "Mencoba menjadwalkan ID: $id | Waktu: $time | Sekarang: ${DateTime.now()}",
-    );
-
     if (time.isBefore(DateTime.now())) {
-      debugPrint("Gagal: Waktu sudah lewat!");
       return;
     }
 
@@ -89,8 +83,6 @@ class NotificationService {
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       matchDateTimeComponents: DateTimeComponents.time,
     );
-
-    debugPrint("Berhasil dijadwalkan!");
   }
 
   Future<void> cancelReminder(int id) async {

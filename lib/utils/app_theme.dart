@@ -616,7 +616,7 @@ class AppTextStyles {
     color: AppColors.textWhite,
   );
 
-  //Font Chat
+  //Font Test PHQ-9
   static TextStyle get headingTesPHQ => GoogleFonts.poppins(
     fontSize: 18,
     fontWeight: FontWeight.w600,
@@ -639,5 +639,29 @@ class AppTextStyles {
     fontSize: 14,
     fontWeight: FontWeight.w800,
     color: AppColors.primary,
+  );
+
+  static TextStyle get questionsTesPHQ => GoogleFonts.poppins(
+    fontSize: 16,
+    fontWeight: FontWeight.w400,
+    color: AppColors.textPrimary,
+  );
+
+  static TextStyle get poinTesPHQ => GoogleFonts.poppins(
+    fontSize: 40,
+    fontWeight: FontWeight.w600,
+    color: AppColors.textPrimary,
+  );
+
+  static TextStyle get totalTesPHQ => GoogleFonts.poppins(
+    fontSize: 14,
+    fontWeight: FontWeight.w400,
+    color: AppColors.textSecondary,
+  );
+
+  static TextStyle get categoryTesPHQ => GoogleFonts.poppins(
+    fontSize: 14,
+    fontWeight: FontWeight.w600,
+    color: AppColors.textPrimary,
   );
 }

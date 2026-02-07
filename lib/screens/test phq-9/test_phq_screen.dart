@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mindfullshelter/providers/phq9_provider.dart';
+import 'package:mindfullshelter/providers/phq_provider.dart';
+import 'package:mindfullshelter/routes/routes.dart';
 import 'package:mindfullshelter/utils/app_assets.dart';
 import 'package:mindfullshelter/utils/app_colors.dart';
 import 'package:mindfullshelter/utils/app_theme.dart';
@@ -41,7 +42,7 @@ class _TestPhqScreenState extends State<TestPhqScreen> {
         const SnackBar(content: Text('Kode Berhasil Diverifikasi!')),
       );
 
-      Navigator.pushNamed(context, '/phq9-questions', arguments: code);
+      Navigator.pushNamed(context, Routes.questionsPHQ, arguments: code);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

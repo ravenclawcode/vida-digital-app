@@ -46,4 +46,9 @@ class ApiConstants {
   static const String generatePhqCode = '$baseUrl/phq-generate';
   static const String deletePhqCode = '$baseUrl/phq-delete';
   static const String validatePhqCode = '$baseUrl/phq-validate';
+  static const String markPhqCodeUsed = '$baseUrl/phq-mark-used';
+
+  // PHQ-9 Questions
+  static const String getPhqQuestions = '$baseUrl/phq-questions';
+  static const String postPhqResult = '$baseUrl/phq-results';
 }
