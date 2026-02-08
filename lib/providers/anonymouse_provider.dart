@@ -17,8 +17,7 @@ class AnonymousProvider extends ChangeNotifier {
 
     try {
       _posts = await _service.fetchPosts();
-    } catch (e) {
-      debugPrint("Error Load Posts: $e");
+    } catch (_) {
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -29,17 +28,17 @@ class AnonymousProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
-    final success = await _service.storePost(category, content);
+    try {
+      final success = await _service.storePost(category, content);
 
-    if (success) {
-      print("DEBUG: Upload Berhasil, Memuat ulang post...");
-      await loadPosts();
-    } else {
-      print("DEBUG: Upload Gagal di level Provider.");
+      if (success) {
+        await loadPosts();
+      }
+    } catch (_) {
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
-
-    _isLoading = false;
-    notifyListeners();
   }
 
   Future<void> toggleLike(String postId) async {

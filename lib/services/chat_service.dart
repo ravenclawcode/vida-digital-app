@@ -8,8 +8,6 @@ class ChatService {
   Future<String?> _getToken() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('auth_token');
-
-    print("DEBUG: Token yang dikirim ke Chat: $token");
     return token;
   }
 
@@ -38,9 +36,6 @@ class ChatService {
       },
       body: jsonEncode({'message': message}),
     );
-
-    print("Status Code: ${response.statusCode}");
-    print("Response Body: ${response.body}");
 
     if (response.statusCode == 200) {
       return Chat.fromJson(json.decode(response.body));

@@ -17,8 +17,7 @@ class AudioProvider with ChangeNotifier {
     try {
       final data = await _service.fetchAudios(category: category);
       _audios = data.map((item) => AudioMindfulness.fromJson(item)).toList();
-    } catch (e) {
-      debugPrint('Error Fetch Audio: $e');
+    } catch (_) {
     } finally {
       _isLoading = false;
       notifyListeners();

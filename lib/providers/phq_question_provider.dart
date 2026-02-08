@@ -19,8 +19,7 @@ class PhqQuestionProvider with ChangeNotifier {
 
     try {
       _questions = await _phqQuestionService.fetchQuestions();
-    } catch (e) {
-      debugPrint("Error Provider PHQ: $e");
+    } catch (_) {
     } finally {
       _isLoading = false;
       notifyListeners();

@@ -42,8 +42,7 @@ class MedicationProvider with ChangeNotifier {
           scheduledTime: _convertTimeOfDayToDateTime(entry.medication.time),
         );
       }
-    } catch (e) {
-      debugPrint("Error fetch: $e");
+    } catch (_) {
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -90,8 +89,7 @@ class MedicationProvider with ChangeNotifier {
       await _service.updateStatus(medicationId, newStatus);
       _todayEntries[index].isTaken = !_todayEntries[index].isTaken;
       notifyListeners();
-    } catch (e) {
-      debugPrint("Error toggle: $e");
+    } catch (_) {
     }
   }
 
@@ -101,8 +99,7 @@ class MedicationProvider with ChangeNotifier {
       await _service.deleteMedication(id);
       _todayEntries.removeWhere((e) => e.medication.id == id);
       notifyListeners();
-    } catch (e) {
-      debugPrint("Error delete: $e");
+    } catch (_) {
     }
   }
 

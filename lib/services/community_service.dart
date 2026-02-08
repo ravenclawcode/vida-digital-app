@@ -26,8 +26,6 @@ class CommunityService {
         headers: await _headers(),
       );
 
-      print("DEBUG FETCH Status: ${response.statusCode}");
-
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = json.decode(response.body);
         if (responseData.containsKey('data')) {
@@ -35,41 +33,23 @@ class CommunityService {
           return data.map((item) => AnonymousPost.fromJson(item)).toList();
         }
       } else {
-        print("DETAIL ERROR LARAVEL: ${response.body}");
       }
       throw Exception('Struktur data tidak sesuai');
-    } catch (e) {
-      print("DEBUG FETCH Error: $e");
+    } catch (_) {
       throw Exception('Gagal memuat postingan');
     }
   }
 
   Future<bool> storePost(String category, String content) async {
     try {
-      final token = await _getToken();
-      print("DEBUG: Mengirim Post dengan Token: ${token?.substring(0, 10)}...");
-
       final response = await http.post(
         Uri.parse(ApiConstants.community),
         headers: await _headers(),
         body: jsonEncode({'category': category, 'content': content}),
       );
 
-      print("DEBUG: Status Code: ${response.statusCode}");
-      print("DEBUG: Response Body: ${response.body}");
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        return true;
-      } else if (response.statusCode == 422) {
-        print("DEBUG: Validasi Gagal! Pastikan content > 5 karakter.");
-        return false;
-      } else if (response.statusCode == 401) {
-        print("DEBUG: Token Kadaluarsa / Tidak Terdeteksi.");
-        return false;
-      }
-      return false;
-    } catch (e) {
-      print("DEBUG: Terjadi Exception: $e");
+      return response.statusCode == 200 || response.statusCode == 201;
+    } catch (_) {
       return false;
     }
   }

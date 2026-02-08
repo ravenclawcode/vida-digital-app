@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:mindfullshelter/providers/phq_provider.dart';
 import 'package:mindfullshelter/providers/phq_question_provider.dart';
+import 'package:mindfullshelter/providers/soap_provider.dart';
 import 'package:mindfullshelter/providers/terms_conditions_provider.dart';
 import 'package:mindfullshelter/providers/anonymouse_provider.dart';
 import 'package:mindfullshelter/providers/audio_provider.dart';
@@ -45,9 +46,7 @@ void main() async {
 
   try {
     await initializeDateFormatting('id_ID', null);
-  } catch (e) {
-    debugPrint('Kesalahan saat menginisialisasi format tanggal: $e');
-  }
+  } catch (_) {}
 
   runApp(
     MultiProvider(
@@ -62,6 +61,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => AnonymousProvider()),
         ChangeNotifierProvider(create: (_) => PhqQuestionProvider()),
         ChangeNotifierProvider(create: (_) => PhqProvider()),
+        ChangeNotifierProvider(create: (_) => SoapProvider()),
       ],
       child: const VidaApp(),
     ),

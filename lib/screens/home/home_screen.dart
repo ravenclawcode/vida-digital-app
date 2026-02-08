@@ -128,7 +128,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ] else ...[
                 _buildCounselorPatientList(),
               ],
-              const SizedBox(height: 26),
+              const SizedBox(height: 20),
             ],
           ),
         ),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:mindfullshelter/providers/soap_provider.dart';
 import 'package:mindfullshelter/utils/app_colors.dart';
 import 'package:mindfullshelter/utils/app_theme.dart';
+import 'package:provider/provider.dart';
 
 class CustomInputFormPatient extends StatefulWidget {
   final TextEditingController controller;
@@ -12,18 +14,16 @@ class CustomInputFormPatient extends StatefulWidget {
 }
 
 class _CustomInputFormPatientState extends State<CustomInputFormPatient> {
-  final List<String> _genderOptions = ['Vida1', 'Vida2', 'Vida3'];
-
   @override
   Widget build(BuildContext context) {
-    String? currentValue = _genderOptions.contains(widget.controller.text)
-        ? widget.controller.text
-        : null;
+    final patients = context.watch<SoapProvider>().patients;
 
     return DropdownButtonFormField<String>(
-      initialValue: currentValue,
-      items: _genderOptions.map((String value) {
-        return DropdownMenuItem<String>(value: value, child: Text(value));
+      items: patients.map((patient) {
+        return DropdownMenuItem<String>(
+          value: patient['id'].toString(),
+          child: Text(patient['username']),
+        );
       }).toList(),
       style: AppTextStyles.textForm,
       icon: const Icon(Icons.arrow_drop_down, color: Colors.grey),

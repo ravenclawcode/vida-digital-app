@@ -23,8 +23,7 @@ class EducationProvider with ChangeNotifier {
 
     try {
       _allContents = await _service.fetchEducation();
-    } catch (e) {
-      debugPrint("Error initEducation: $e");
+    } catch (_) {
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -53,12 +52,10 @@ class EducationProvider with ChangeNotifier {
       } else {
         _allContents[index].isLiked = oldStatus;
         _allContents[index].likes = oldLikes;
-        debugPrint("Server rejected like. Rolling back UI.");
       }
     } catch (e) {
       _allContents[index].isLiked = oldStatus;
       _allContents[index].likes = oldLikes;
-      debugPrint("Exception in toggleLike: $e");
     } finally {
       notifyListeners();
     }

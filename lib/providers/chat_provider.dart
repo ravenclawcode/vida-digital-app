@@ -28,8 +28,7 @@ class ChatProvider with ChangeNotifier {
           ),
         );
       }
-    } catch (e) {
-      debugPrint("Error Load History: $e");
+    } catch (_) {
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -72,8 +71,7 @@ class ChatProvider with ChangeNotifier {
         ),
       );
       notifyListeners();
-    } catch (e) {
-      debugPrint("Error Delete All Chat: $e");
+    } catch (_) {
     }
   }
 }

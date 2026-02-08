@@ -30,8 +30,7 @@ class MoodProvider with ChangeNotifier {
           mood: moodDetail,
         );
       }).toList();
-    } catch (e) {
-      debugPrint("Error Provider Mood: $e");
+    } catch (_) {
     } finally {
       _isLoading = false;
       notifyListeners();

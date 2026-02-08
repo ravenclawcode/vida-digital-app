@@ -58,9 +58,7 @@ class _Phq9State extends State<Phq9> {
                 ),
                 const SizedBox(height: 18),
                 CustomButton1(
-                  onTap: phqProvider.isLoading
-                      ? () {}
-                      : () => phqProvider.createNewCode(),
+                  onTap: () => phqProvider.createNewCode(),
                   label: 'Buat Kode',
                 ),
                 AnimatedSize(

@@ -28,8 +28,7 @@ class EducationService {
       } else {
         throw Exception('Server Error: ${response.statusCode}');
       }
-    } catch (e) {
-      print('Fetch Education Error: $e');
+    } catch (_) {
       rethrow;
     }
   }
@@ -47,15 +46,11 @@ class EducationService {
         },
       );
 
-      print('Like Response Status: ${response.statusCode}');
-      print('Like Response Body: ${response.body}');
-
       if (response.statusCode == 200) {
         return json.decode(response.body);
       }
       return null;
-    } catch (e) {
-      print('Post Like Error: $e');
+    } catch (_) {
       return null;
     }
   }

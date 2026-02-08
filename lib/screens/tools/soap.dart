@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mindfullshelter/providers/auth_provider.dart';
+import 'package:mindfullshelter/providers/soap_provider.dart';
 import 'package:mindfullshelter/utils/app_assets.dart';
 import 'package:mindfullshelter/utils/app_colors.dart';
 import 'package:mindfullshelter/utils/app_theme.dart';
@@ -33,6 +33,7 @@ class _SoapState extends State<Soap> {
   @override
   void initState() {
     super.initState();
+    Future.microtask(() => context.read<SoapProvider>().fetchPatients());
     _patientController.addListener(() => setState(() {}));
     _subjectiveController.addListener(() => setState(() {}));
     _objectiveController.addListener(() => setState(() {}));
@@ -46,7 +47,11 @@ class _SoapState extends State<Soap> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
-            children: [const SizedBox(height: 16), _buildContent()],
+            children: [
+              const SizedBox(height: 16),
+              _buildContent(),
+              SizedBox(height: 20),
+            ],
           ),
         ),
       ),
@@ -112,13 +117,12 @@ class _SoapState extends State<Soap> {
           SizedBox(height: 12),
           CustomInputFormSoap(controller: _planController),
           SizedBox(height: 15),
-          Consumer<AuthProvider>(
-            builder: (context, auth, child) {
-              final disabled = !isFormFilled || auth.isLoading;
-              if (disabled) {
+          Consumer<SoapProvider>(
+            builder: (context, soapProv, child) {
+              if (!isFormFilled || soapProv.isLoading) {
                 return CustomButton4(
-                  label: auth.isLoading
-                      ? SizedBox(
+                  label: soapProv.isLoading
+                      ? const SizedBox(
                           width: 20,
                           height: 20,
                           child: CircularProgressIndicator(
@@ -132,7 +136,41 @@ class _SoapState extends State<Soap> {
                         ),
                 );
               }
-              return CustomButton1(onTap: () {}, label: 'Simpan Catatan SOAP');
+              return CustomButton1(
+                onTap: () async {
+                  if (_formKey.currentState!.validate()) {
+                    final success = await soapProv.saveSoap(
+                      patientId: _patientController.text,
+                      s: _subjectiveController.text,
+                      o: _objectiveController.text,
+                      a: _assessmentController.text,
+                      p: _planController.text,
+                    );
+
+                    if (success) {
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Catatan SOAP berhasil disimpan!'),
+                          ),
+                        );
+                        Navigator.pop(context);
+                      }
+                    } else {
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Gagal menyimpan catatan. Coba lagi.',
+                            ),
+                          ),
+                        );
+                      }
+                    }
+                  }
+                },
+                label: 'Simpan Catatan SOAP',
+              );
             },
           ),
         ],

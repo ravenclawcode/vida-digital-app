@@ -81,9 +81,6 @@ class AuthProvider with ChangeNotifier {
         tokenCode,
       );
 
-      print('Status Code: ${response.statusCode}');
-      print('Body: ${response.body}');
-
       _isLoading = false;
       notifyListeners();
       return response.statusCode == 201;
@@ -113,8 +110,7 @@ class AuthProvider with ChangeNotifier {
         notifyListeners();
         return true;
       }
-    } catch (e) {
-      print('Error Login: $e');
+    } catch (_) {
     }
     _isLoading = false;
     notifyListeners();
@@ -130,8 +126,7 @@ class AuthProvider with ChangeNotifier {
 
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove('auth_token');
-    } catch (e) {
-      print('Error during logout: $e');
+    } catch (_) {
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -144,7 +139,6 @@ class AuthProvider with ChangeNotifier {
 
     try {
       final response = await _authService.sendOtp(email);
-      print('Send OTP Response: ${response.body}');
 
       if (response.statusCode == 200) {
         _resetEmail = email;
@@ -152,8 +146,7 @@ class AuthProvider with ChangeNotifier {
         notifyListeners();
         return true;
       }
-    } catch (e) {
-      print('Error Send OTP: $e');
+    } catch (_) {
     }
 
     _isLoading = false;
@@ -169,7 +162,6 @@ class AuthProvider with ChangeNotifier {
 
     try {
       final response = await _authService.verifyOtp(_resetEmail!, otp);
-      print('Verify OTP Response: ${response.body}');
 
       if (response.statusCode == 200) {
         _validatedOtp = otp;
@@ -177,8 +169,7 @@ class AuthProvider with ChangeNotifier {
         notifyListeners();
         return true;
       }
-    } catch (e) {
-      print('Error Verify OTP: $e');
+    } catch (_) {
     }
 
     _isLoading = false;
@@ -199,8 +190,6 @@ class AuthProvider with ChangeNotifier {
         password: newPassword,
       );
 
-      print('Reset Password Response: ${response.body}');
-
       if (response.statusCode == 200) {
         _resetEmail = null;
         _validatedOtp = null;
@@ -209,8 +198,7 @@ class AuthProvider with ChangeNotifier {
         notifyListeners();
         return true;
       }
-    } catch (e) {
-      print('Error Reset Password: $e');
+    } catch (_) {
     }
 
     _isLoading = false;
@@ -255,8 +243,7 @@ class AuthProvider with ChangeNotifier {
         notifyListeners();
         return true;
       }
-    } catch (e) {
-      print('Update Profile Error: $e');
+    } catch (_) {
     }
     _isLoading = false;
     notifyListeners();
@@ -283,8 +270,7 @@ class AuthProvider with ChangeNotifier {
         _currentUser = User.fromJson(data['user']);
         notifyListeners();
       }
-    } catch (e) {
-      print('Error fetching profile: $e');
+    } catch (_) {
     }
   }
 }

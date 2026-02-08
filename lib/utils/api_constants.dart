@@ -51,4 +51,8 @@ class ApiConstants {
   // PHQ-9 Questions
   static const String getPhqQuestions = '$baseUrl/phq-questions';
   static const String postPhqResult = '$baseUrl/phq-results';
+
+  // SOAP Notes
+  static const String getPatients = '$baseUrl/counselor/patients';
+  static const String storeSoap = '$baseUrl/soap';
 }
