@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:mindfullshelter/models/medication_model.dart';
 import 'package:mindfullshelter/providers/auth_provider.dart';
+import 'package:mindfullshelter/providers/counselor_provider.dart';
 import 'package:mindfullshelter/providers/medication_provider.dart';
 import 'package:mindfullshelter/providers/mood_provider.dart';
 import 'package:mindfullshelter/utils/app_assets.dart';
 import 'package:mindfullshelter/utils/app_colors.dart';
 import 'package:mindfullshelter/utils/app_theme.dart';
 import 'package:mindfullshelter/utils/custom_circle_painter.dart';
+import 'package:mindfullshelter/utils/custom_search_form.dart';
 import 'package:mindfullshelter/utils/session_manager.dart';
 import 'package:provider/provider.dart';
 
@@ -18,6 +20,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final searchController = TextEditingController();
   int? role;
 
   @override
@@ -42,8 +45,9 @@ class _HomeScreenState extends State<HomeScreen> {
         context.read<MoodProvider>().fetchWeeklyMood();
       });
     } else {
-      // Jika konselor (0), fetch data daftar pasien (buat provider baru nanti)
-      // context.read<CounselorProvider>().fetchPatients();
+      Future.microtask(() {
+        context.read<CounselorProvider>().fetchPatients();
+      });
     }
   }
 
@@ -102,6 +106,41 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Map<String, dynamic> _getPatientStatusStyle(String status) {
+    switch (status) {
+      case 'Sangat Baik':
+        return {
+          'bgColor': const Color(0xFFD0FAE5),
+          'textColor': const Color(0xFF007A56),
+          'progressColor': const Color(0xFF00BC7D),
+        };
+      case 'Baik':
+        return {
+          'bgColor': const Color(0xFFD0FAE5), // Sesuai permintaan Anda
+          'textColor': const Color(0xFF007A56),
+          'progressColor': const Color(0xFF00BBA7),
+        };
+      case 'Perlu Perhatian':
+        return {
+          'bgColor': const Color(0xFFFEF3C6),
+          'textColor': const Color(0xFFBA4D00),
+          'progressColor': const Color(0xFFFE9900),
+        };
+      case 'Kritis':
+        return {
+          'bgColor': const Color(0xFFFEE4E6),
+          'textColor': const Color(0xFFC70036),
+          'progressColor': const Color(0xFFFF1F57),
+        };
+      default:
+        return {
+          'bgColor': const Color(0xFFF5F5F5),
+          'textColor': Colors.grey,
+          'progressColor': Colors.grey,
+        };
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (role == null) return const Center(child: CircularProgressIndicator());
@@ -126,7 +165,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: 16),
                 _buildFeatureGrid(context),
               ] else ...[
-                _buildCounselorPatientList(),
+                CustomSearchForm(controller: searchController),
+                const SizedBox(height: 20),
+                _buildListPatient(),
               ],
               const SizedBox(height: 20),
             ],
@@ -644,39 +685,171 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildCounselorPatientList() {
-    final patients = [
-      {'name': 'Vida1', 'status': 'Sangat Baik'},
-      {'name': 'Vida2', 'status': 'Perlu Perhatian'},
-    ];
+  Widget _buildListPatient() {
+    return Consumer<CounselorProvider>(
+      builder: (context, provider, _) {
+        if (provider.isLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Daftar Pasien (${provider.patients.length})',
+              style: AppTextStyles.headingMedication,
+            ),
+            const SizedBox(height: 16),
+            provider.patients.isEmpty
+                ? const Center(child: Text("Belum ada pasien terdaftar"))
+                : _buildCounselorPatientList(provider.patients),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildCounselorPatientList(List<dynamic> patients) {
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: patients.length,
       itemBuilder: (context, index) {
-        return Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          padding: const EdgeInsets.all(15),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(10),
-            boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 5)],
+        final patient = patients[index];
+        final style = _getPatientStatusStyle(patient['status'] ?? 'Baik');
+
+        double progressValue = (patient['progress'] ?? 0).toDouble();
+        String progressPercentage = "${(progressValue * 100).toInt()}%";
+
+        // Ambil jumlah unread, pastikan aman dari null
+        int unreadCount =
+            int.tryParse(patient['unread']?.toString() ?? '0') ?? 0;
+
+        return InkWell(
+          focusColor: Colors.transparent,
+          hoverColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          overlayColor: WidgetStateProperty.all(Colors.transparent),
+          onTap: () => Navigator.pushNamed(
+            context,
+            '/patient',
+            arguments: patient['id']
+                .toString(), // Pastikan dikirim sebagai String
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                patients[index]['name'] as String,
-                style: AppTextStyles.titleFeature,
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 5,
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 14),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.background,
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: [
+                BoxShadow(
+                  offset: const Offset(0, 3),
+                  blurRadius: 10,
+                  spreadRadius: 2,
+                  color: AppColors.shadow.withValues(alpha: 0.10),
                 ),
-              ),
-            ],
+              ],
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          // Gunakan Flexible agar nama yang panjang tidak mendorong elemen lain
+                          Flexible(
+                            child: Text(
+                              patient['name'] as String,
+                              style: AppTextStyles.namePatient,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          // Status Container
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: style['bgColor'],
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            child: Text(
+                              patient['status']!,
+                              style: AppTextStyles.categoryPatient.copyWith(
+                                color: style['textColor'],
+                                fontSize:
+                                    10, // Ukuran sedikit diperkecil agar aman
+                              ),
+                            ),
+                          ),
+
+                          // Logika: Hanya tampilkan badge jika unread > 0
+                          if (unreadCount > 0) ...[
+                            const SizedBox(width: 8),
+                            Container(
+                              width: 18,
+                              height: 18,
+                              decoration: const BoxDecoration(
+                                color: Color(0xFFEA4335),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  unreadCount.toString(),
+                                  style: AppTextStyles.unreadChat.copyWith(
+                                    fontSize: 10,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TweenAnimationBuilder<double>(
+                              tween: Tween<double>(
+                                begin: 0,
+                                end: progressValue,
+                              ),
+                              duration: const Duration(milliseconds: 500),
+                              builder: (context, value, _) {
+                                return ClipRRect(
+                                  // Memberikan radius pada progress bar
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: LinearProgressIndicator(
+                                    minHeight: 6,
+                                    value: value,
+                                    backgroundColor: const Color(0xFFF5F5F5),
+                                    valueColor: AlwaysStoppedAnimation(
+                                      style['progressColor'],
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Text(
+                            progressPercentage,
+                            style: AppTextStyles.percentage,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Image.asset(icNext, height: 14),
+              ],
+            ),
           ),
         );
       },

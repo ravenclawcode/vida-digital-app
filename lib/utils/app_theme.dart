@@ -14,16 +14,6 @@ class AppTheme {
       ),
       scaffoldBackgroundColor: AppColors.background,
       textTheme: GoogleFonts.poppinsTextTheme(),
-      // appBarTheme: AppBarTheme(
-      //   backgroundColor: const Color.fromARGB(0, 100, 64, 64),
-      //   elevation: 0,
-      //   iconTheme: const IconThemeData(color: AppColors.textPrimary),
-      //   titleTextStyle: GoogleFonts.poppins(
-      //     fontSize: 20,
-      //     fontWeight: FontWeight.w600,
-      //     color: AppColors.textPrimary,
-      //   ),
-      // ),
     );
   }
 }
@@ -616,6 +606,36 @@ class AppTextStyles {
     color: AppColors.textWhite,
   );
 
+  static TextStyle get profileChat => GoogleFonts.poppins(
+    fontSize: 18,
+    fontWeight: FontWeight.w700,
+    color: AppColors.textLight,
+  );
+
+  static TextStyle get titleChat => GoogleFonts.poppins(
+    fontSize: 14,
+    fontWeight: FontWeight.w700,
+    color: AppColors.textPrimary,
+  );
+
+  static TextStyle get subtitleChat => GoogleFonts.poppins(
+    fontSize: 12,
+    fontWeight: FontWeight.w400,
+    color: AppColors.textSecondary,
+  );
+
+  static TextStyle get timeChat => GoogleFonts.poppins(
+    fontSize: 11,
+    fontWeight: FontWeight.w400,
+    color: AppColors.textSecondary,
+  );
+
+  static TextStyle get unreadChat => GoogleFonts.poppins(
+    fontSize: 8,
+    fontWeight: FontWeight.w600,
+    color: AppColors.textWhite,
+  );
+
   //Font Test PHQ-9
   static TextStyle get headingTesPHQ => GoogleFonts.poppins(
     fontSize: 18,
@@ -663,5 +683,85 @@ class AppTextStyles {
     fontSize: 14,
     fontWeight: FontWeight.w600,
     color: AppColors.textPrimary,
+  );
+
+  //Font Home Counselor
+  static TextStyle get namePatient => GoogleFonts.poppins(
+    fontSize: 14,
+    fontWeight: FontWeight.w600,
+    color: AppColors.textPrimary,
+  );
+
+  static TextStyle get categoryPatient => GoogleFonts.poppins(
+    fontSize: 11,
+    fontWeight: FontWeight.w500,
+    color: AppColors.textPrimary,
+  );
+
+  static TextStyle get percentage => GoogleFonts.poppins(
+    fontSize: 12,
+    fontWeight: FontWeight.w400,
+    color: AppColors.textPrimary,
+  );
+
+  //Font Detail Patient
+  static TextStyle get percentageLarge => GoogleFonts.poppins(
+    fontSize: 24,
+    fontWeight: FontWeight.w600,
+    color: AppColors.textPrimary,
+  );
+
+  static TextStyle get actionPatient => GoogleFonts.poppins(
+    fontSize: 12,
+    fontWeight: FontWeight.w600,
+    color: AppColors.textPrimary,
+  );
+
+  static TextStyle get dayMedical => GoogleFonts.poppins(
+    fontSize: 14,
+    fontWeight: FontWeight.w600,
+    color: AppColors.textPrimary,
+  );
+
+  static TextStyle get drugName => GoogleFonts.poppins(
+    fontSize: 12,
+    fontWeight: FontWeight.w500,
+    color: AppColors.textPrimary,
+  );
+
+  static TextStyle get drugStatus => GoogleFonts.poppins(
+    fontSize: 11,
+    fontWeight: FontWeight.w600,
+    color: AppColors.textPrimary,
+  );
+
+  static TextStyle get titleTes => GoogleFonts.poppins(
+    fontSize: 12,
+    fontWeight: FontWeight.w500,
+    color: AppColors.textPrimary,
+  );
+
+  static TextStyle get poinTes => GoogleFonts.poppins(
+    fontSize: 30,
+    fontWeight: FontWeight.w600,
+    color: AppColors.textPrimary,
+  );
+
+  static TextStyle get poinAvatarTes => GoogleFonts.poppins(
+    fontSize: 14,
+    fontWeight: FontWeight.w700,
+    color: AppColors.textPrimary,
+  );
+
+  static TextStyle get dayTes => GoogleFonts.poppins(
+    fontSize: 10,
+    fontWeight: FontWeight.w400,
+    color: AppColors.textSecondary,
+  );
+
+  static TextStyle get chart => GoogleFonts.poppins(
+    fontSize: 11,
+    fontWeight: FontWeight.w500,
+    color: AppColors.textSecondary,
   );
 }

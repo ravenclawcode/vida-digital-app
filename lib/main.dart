@@ -2,8 +2,10 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:mindfullshelter/providers/counselor_provider.dart';
 import 'package:mindfullshelter/providers/phq_provider.dart';
 import 'package:mindfullshelter/providers/phq_question_provider.dart';
+import 'package:mindfullshelter/providers/private_chat_provider.dart';
 import 'package:mindfullshelter/providers/soap_provider.dart';
 import 'package:mindfullshelter/providers/terms_conditions_provider.dart';
 import 'package:mindfullshelter/providers/anonymouse_provider.dart';
@@ -62,6 +64,8 @@ void main() async {
         ChangeNotifierProvider(create: (_) => PhqQuestionProvider()),
         ChangeNotifierProvider(create: (_) => PhqProvider()),
         ChangeNotifierProvider(create: (_) => SoapProvider()),
+        ChangeNotifierProvider(create: (_) => PrivateChatProvider()),
+        ChangeNotifierProvider(create: (_) => CounselorProvider()),
       ],
       child: const VidaApp(),
     ),

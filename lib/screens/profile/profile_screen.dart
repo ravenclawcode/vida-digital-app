@@ -198,7 +198,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           hoverColor: Colors.transparent,
           highlightColor: Colors.transparent,
           overlayColor: WidgetStateProperty.all(Colors.transparent),
-          onTap: () => Navigator.pushNamed(context, menu['route'] as String),
+          // onTap: () => Navigator.pushNamed(context, menu['route'] as String),
           child: Padding(
             padding: EdgeInsets.fromLTRB(5, 8, 5, isLastItem ? 7 : 0),
             child: Column(

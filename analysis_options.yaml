@@ -18,6 +18,7 @@ analyzer:
     prefer_is_empty: ignore
     no_leading_underscores_for_local_identifiers: ignore
     deprecated_member_use: ignore
+    unnecessary_null_comparison: ignore
 include: package:flutter_lints/flutter.yaml
 
 linter:

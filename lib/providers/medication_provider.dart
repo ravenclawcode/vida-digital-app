@@ -89,8 +89,7 @@ class MedicationProvider with ChangeNotifier {
       await _service.updateStatus(medicationId, newStatus);
       _todayEntries[index].isTaken = !_todayEntries[index].isTaken;
       notifyListeners();
-    } catch (_) {
-    }
+    } catch (_) {}
   }
 
   Future<void> deleteMedication(String id) async {
@@ -99,8 +98,7 @@ class MedicationProvider with ChangeNotifier {
       await _service.deleteMedication(id);
       _todayEntries.removeWhere((e) => e.medication.id == id);
       notifyListeners();
-    } catch (_) {
-    }
+    } catch (_) {}
   }
 
   DateTime _convertTimeOfDayToDateTime(TimeOfDay time) {

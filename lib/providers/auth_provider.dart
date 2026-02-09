@@ -110,8 +110,7 @@ class AuthProvider with ChangeNotifier {
         notifyListeners();
         return true;
       }
-    } catch (_) {
-    }
+    } catch (_) {}
     _isLoading = false;
     notifyListeners();
     return false;
@@ -146,8 +145,7 @@ class AuthProvider with ChangeNotifier {
         notifyListeners();
         return true;
       }
-    } catch (_) {
-    }
+    } catch (_) {}
 
     _isLoading = false;
     notifyListeners();
@@ -169,8 +167,7 @@ class AuthProvider with ChangeNotifier {
         notifyListeners();
         return true;
       }
-    } catch (_) {
-    }
+    } catch (_) {}
 
     _isLoading = false;
     notifyListeners();
@@ -198,8 +195,7 @@ class AuthProvider with ChangeNotifier {
         notifyListeners();
         return true;
       }
-    } catch (_) {
-    }
+    } catch (_) {}
 
     _isLoading = false;
     notifyListeners();
@@ -243,8 +239,7 @@ class AuthProvider with ChangeNotifier {
         notifyListeners();
         return true;
       }
-    } catch (_) {
-    }
+    } catch (_) {}
     _isLoading = false;
     notifyListeners();
     return false;
@@ -270,7 +265,6 @@ class AuthProvider with ChangeNotifier {
         _currentUser = User.fromJson(data['user']);
         notifyListeners();
       }
-    } catch (_) {
-    }
+    } catch (_) {}
   }
 }

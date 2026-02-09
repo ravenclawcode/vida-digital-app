@@ -3,7 +3,7 @@ import 'package:mindfullshelter/providers/chat_provider.dart';
 import 'package:mindfullshelter/utils/app_assets.dart';
 import 'package:mindfullshelter/utils/custom_button6.dart';
 import 'package:mindfullshelter/utils/custom_button7.dart';
-import 'package:mindfullshelter/utils/custom_dialog_delete_chat.dart';
+import 'package:mindfullshelter/utils/custom_dialog_delete_chatbot.dart';
 import 'package:mindfullshelter/utils/custom_typing_indicator.dart';
 import 'package:provider/provider.dart';
 import '../../utils/app_colors.dart';
@@ -65,7 +65,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
     await showDialog(
       context: context,
       barrierDismissible: true,
-      builder: (_) => const CustomDialogDeleteChat(),
+      builder: (_) => const CustomDialogDeleteChatbot(),
     );
   }
 

@@ -7,6 +7,7 @@ import 'package:mindfullshelter/screens/auth/aktivation_account_screen.dart';
 import 'package:mindfullshelter/screens/auth/signin_screen.dart';
 import 'package:mindfullshelter/screens/auth/signup_screen.dart';
 import 'package:mindfullshelter/screens/audio/audio_mindfulness_screen.dart';
+import 'package:mindfullshelter/screens/chat/chat_message_screen.dart';
 import 'package:mindfullshelter/screens/chat/chat_screen.dart';
 import 'package:mindfullshelter/screens/education/detail_article_screen.dart';
 import 'package:mindfullshelter/screens/education/detail_video_screen.dart';
@@ -16,6 +17,7 @@ import 'package:mindfullshelter/screens/home/anonymous_comunity_screen.dart';
 import 'package:mindfullshelter/screens/home/medication_reminder_screen.dart';
 import 'package:mindfullshelter/screens/home/mood_tracker_screen.dart';
 import 'package:mindfullshelter/screens/home/main_screen.dart';
+import 'package:mindfullshelter/screens/home/patient_screen.dart';
 import 'package:mindfullshelter/screens/onboarding/get_started_screen.dart';
 import 'package:mindfullshelter/screens/onboarding/splash_screen.dart';
 import 'package:mindfullshelter/screens/home/home_screen.dart';
@@ -50,6 +52,8 @@ class Routes {
   static const String testPHQ = '/test-phq';
   static const String questionsPHQ = '/phq9-questions';
   static const String testResultPHQ = '/test-phq-result';
+  static const String chatMessage = '/chatmessage';
+  static const String patient = '/patient';
   static const String editProfile = '/editprofile';
   static const String medicationReminder = '/medicationreminder';
   static const String moodTracker = '/moodtracker';
@@ -125,6 +129,16 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       final score = settings.arguments as int? ?? 0;
       return MaterialPageRoute(
         builder: (_) => TestResultPhqScreen(score: score),
+      );
+    case Routes.chatMessage:
+      return MaterialPageRoute(
+        builder: (_) => const ChatMessageScreen(),
+        settings: settings,
+      );
+    case Routes.patient:
+      return MaterialPageRoute(
+        builder: (_) => const PatientScreen(),
+        settings: settings,
       );
     case Routes.editProfile:
       return MaterialPageRoute(builder: (_) => const EditProfileScreen());

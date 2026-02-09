@@ -21,8 +21,7 @@ class PhqProvider with ChangeNotifier {
         final data = jsonDecode(response.body);
         _currentCode = PhqCode.fromJson(data['data']);
       }
-    } catch (_) {
-    }
+    } catch (_) {}
     _isLoading = false;
     notifyListeners();
   }
@@ -52,7 +51,6 @@ class PhqProvider with ChangeNotifier {
   Future<void> burnCode(String code) async {
     try {
       await _service.useCode(code);
-    } catch (_) {
-    }
+    } catch (_) {}
   }
 }

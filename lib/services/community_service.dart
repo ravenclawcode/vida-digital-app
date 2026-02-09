@@ -32,8 +32,7 @@ class CommunityService {
           final List data = responseData['data'];
           return data.map((item) => AnonymousPost.fromJson(item)).toList();
         }
-      } else {
-      }
+      } else {}
       throw Exception('Struktur data tidak sesuai');
     } catch (_) {
       throw Exception('Gagal memuat postingan');

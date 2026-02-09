@@ -6,14 +6,15 @@ import 'package:mindfullshelter/utils/custom_button12.dart';
 import 'package:mindfullshelter/utils/custom_button2.dart';
 import 'package:provider/provider.dart';
 
-class CustomDialogDeleteChat extends StatefulWidget {
-  const CustomDialogDeleteChat({super.key});
+class CustomDialogDeleteChatbot extends StatefulWidget {
+  const CustomDialogDeleteChatbot({super.key});
 
   @override
-  State<CustomDialogDeleteChat> createState() => _CustomDialogDeleteChatState();
+  State<CustomDialogDeleteChatbot> createState() =>
+      _CustomDialogDeleteChatbotState();
 }
 
-class _CustomDialogDeleteChatState extends State<CustomDialogDeleteChat> {
+class _CustomDialogDeleteChatbotState extends State<CustomDialogDeleteChatbot> {
   void _submit() async {
     await context.read<ChatProvider>().deleteAllChat();
 

@@ -31,6 +31,7 @@ dependencies:
   audio_service: ^0.18.18
   audioplayers: ^6.1.0
   cupertino_icons: ^1.0.8
+  fl_chart: ^1.1.1
   flutter:
     sdk: flutter
   flutter_launcher_icons: ^0.14.4
