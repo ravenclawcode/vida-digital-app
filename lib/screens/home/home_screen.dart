@@ -106,38 +106,37 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Map<String, dynamic> _getPatientStatusStyle(String status) {
-    switch (status) {
-      case 'Sangat Baik':
-        return {
-          'bgColor': const Color(0xFFD0FAE5),
-          'textColor': const Color(0xFF007A56),
-          'progressColor': const Color(0xFF00BC7D),
-        };
-      case 'Baik':
-        return {
-          'bgColor': const Color(0xFFD0FAE5), // Sesuai permintaan Anda
-          'textColor': const Color(0xFF007A56),
-          'progressColor': const Color(0xFF00BBA7),
-        };
-      case 'Perlu Perhatian':
-        return {
-          'bgColor': const Color(0xFFFEF3C6),
-          'textColor': const Color(0xFFBA4D00),
-          'progressColor': const Color(0xFFFE9900),
-        };
-      case 'Kritis':
-        return {
-          'bgColor': const Color(0xFFFEE4E6),
-          'textColor': const Color(0xFFC70036),
-          'progressColor': const Color(0xFFFF1F57),
-        };
-      default:
-        return {
-          'bgColor': const Color(0xFFF5F5F5),
-          'textColor': Colors.grey,
-          'progressColor': Colors.grey,
-        };
+  Map<String, dynamic> _getPatientStatusStyle(double progress) {
+    double percentage = progress * 100;
+
+    if (percentage >= 80) {
+      return {
+        'status': 'Sangat Baik',
+        'bgColor': const Color(0xFFD0FAE5),
+        'textColor': const Color(0xFF007A56),
+        'progressColor': const Color(0xFF00BC7D),
+      };
+    } else if (percentage >= 60) {
+      return {
+        'status': 'Baik',
+        'bgColor': const Color(0xFFE0F2FE),
+        'textColor': const Color(0xFF0369A1),
+        'progressColor': const Color(0xFF0EA5E9),
+      };
+    } else if (percentage >= 40) {
+      return {
+        'status': 'Perlu Perhatian',
+        'bgColor': const Color(0xFFFEF3C6),
+        'textColor': const Color(0xFFBA4D00),
+        'progressColor': const Color(0xFFFE9900),
+      };
+    } else {
+      return {
+        'status': 'Kritis',
+        'bgColor': const Color(0xFFFEE4E6),
+        'textColor': const Color(0xFFC70036),
+        'progressColor': const Color(0xFFFF1F57),
+      };
     }
   }
 
@@ -701,7 +700,12 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 16),
             provider.patients.isEmpty
-                ? const Center(child: Text("Belum ada pasien terdaftar"))
+                ? Center(
+                    child: Text(
+                      'Belum ada pasien terdaftar',
+                      style: AppTextStyles.noContent,
+                    ),
+                  )
                 : _buildCounselorPatientList(provider.patients),
           ],
         );
@@ -716,12 +720,9 @@ class _HomeScreenState extends State<HomeScreen> {
       itemCount: patients.length,
       itemBuilder: (context, index) {
         final patient = patients[index];
-        final style = _getPatientStatusStyle(patient['status'] ?? 'Baik');
-
-        double progressValue = (patient['progress'] ?? 0).toDouble();
+        double progressValue = (patient['progress'] ?? 0.0).toDouble();
+        final style = _getPatientStatusStyle(progressValue);
         String progressPercentage = "${(progressValue * 100).toInt()}%";
-
-        // Ambil jumlah unread, pastikan aman dari null
         int unreadCount =
             int.tryParse(patient['unread']?.toString() ?? '0') ?? 0;
 
@@ -733,8 +734,7 @@ class _HomeScreenState extends State<HomeScreen> {
           onTap: () => Navigator.pushNamed(
             context,
             '/patient',
-            arguments: patient['id']
-                .toString(), // Pastikan dikirim sebagai String
+            arguments: patient['id'].toString(),
           ),
           child: Container(
             margin: const EdgeInsets.only(bottom: 14),
@@ -747,7 +747,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   offset: const Offset(0, 3),
                   blurRadius: 10,
                   spreadRadius: 2,
-                  color: AppColors.shadow.withValues(alpha: 0.10),
+                  color: AppColors.shadow.withOpacity(0.10),
                 ),
               ],
             ),
@@ -758,17 +758,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       Row(
                         children: [
-                          // Gunakan Flexible agar nama yang panjang tidak mendorong elemen lain
                           Flexible(
                             child: Text(
                               patient['name'] as String,
                               style: AppTextStyles.namePatient,
                               overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
                             ),
                           ),
                           const SizedBox(width: 8),
-                          // Status Container
                           Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 8,
@@ -779,16 +776,13 @@ class _HomeScreenState extends State<HomeScreen> {
                               borderRadius: BorderRadius.circular(15),
                             ),
                             child: Text(
-                              patient['status']!,
+                              style['status'],
                               style: AppTextStyles.categoryPatient.copyWith(
                                 color: style['textColor'],
-                                fontSize:
-                                    10, // Ukuran sedikit diperkecil agar aman
+                                fontSize: 10,
                               ),
                             ),
                           ),
-
-                          // Logika: Hanya tampilkan badge jika unread > 0
                           if (unreadCount > 0) ...[
                             const SizedBox(width: 8),
                             Container(
@@ -814,26 +808,16 @@ class _HomeScreenState extends State<HomeScreen> {
                       Row(
                         children: [
                           Expanded(
-                            child: TweenAnimationBuilder<double>(
-                              tween: Tween<double>(
-                                begin: 0,
-                                end: progressValue,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: LinearProgressIndicator(
+                                minHeight: 6,
+                                value: progressValue,
+                                backgroundColor: const Color(0xFFF5F5F5),
+                                valueColor: AlwaysStoppedAnimation(
+                                  style['progressColor'],
+                                ),
                               ),
-                              duration: const Duration(milliseconds: 500),
-                              builder: (context, value, _) {
-                                return ClipRRect(
-                                  // Memberikan radius pada progress bar
-                                  borderRadius: BorderRadius.circular(10),
-                                  child: LinearProgressIndicator(
-                                    minHeight: 6,
-                                    value: value,
-                                    backgroundColor: const Color(0xFFF5F5F5),
-                                    valueColor: AlwaysStoppedAnimation(
-                                      style['progressColor'],
-                                    ),
-                                  ),
-                                );
-                              },
                             ),
                           ),
                           const SizedBox(width: 16),

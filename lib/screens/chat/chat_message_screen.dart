@@ -285,11 +285,12 @@ class _ChatMessageScreenState extends State<ChatMessageScreen> {
                 hintText: 'Tuliskan pesan Anda...',
                 filled: true,
                 fillColor: AppColors.backgroundList,
+                hintStyle: AppTextStyles.bodyChatbot,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                   borderSide: BorderSide.none,
                 ),
-                contentPadding: const EdgeInsets.symmetric(
+                contentPadding: EdgeInsets.symmetric(
                   horizontal: 20,
                   vertical: 12,
                 ),

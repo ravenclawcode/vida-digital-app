@@ -18,9 +18,6 @@ class CounselorProvider with ChangeNotifier {
     notifyListeners();
     try {
       _patients = await _service.fetchPatients();
-      print("Jumlah pasien didapat: ${_patients.length}");
-    } catch (e) {
-      print("Koneksi gagal atau data format salah: $e");
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -34,12 +31,24 @@ class CounselorProvider with ChangeNotifier {
 
     try {
       final response = await _service.fetchPatientDetail(id);
+      
       _selectedPatient = response;
+      
     } catch (e) {
-      print("Gagal mengambil detail pasien: $e");
+      debugPrint("Gagal mengambil detail pasien: $e");
     } finally {
       _isLoading = false;
       notifyListeners();
+    }
+  }
+
+  Future<bool> submitPhqResult(String token, Map<int, int> answers) async {
+    try {
+      final response = await _service.postPhqResult(token, answers);
+      return response != null;
+    } catch (e) {
+      debugPrint("Gagal mengirim hasil PHQ: $e");
+      return false;
     }
   }
 }

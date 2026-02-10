@@ -142,31 +142,42 @@ class _QuestionTestPhqScreenState extends State<QuestionTestPhqScreen> {
           isAllAnswered
               ? CustomButton1(
                   onTap: () async {
-                    if (tokenCode == null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            'Error: Kode akses tidak ditemukan. Silakan masuk ulang.',
-                          ),
-                        ),
-                      );
-                      return;
-                    }
+                    if (tokenCode == null) return;
 
-                    final totalScore = provider.totalScore;
-
-                    await Provider.of<PhqProvider>(
+                    final phqProvider = Provider.of<PhqProvider>(
                       context,
                       listen: false,
-                    ).burnCode(tokenCode);
+                    );
+                    final questionProvider = Provider.of<PhqQuestionProvider>(
+                      context,
+                      listen: false,
+                    );
 
-                    if (mounted) {
-                      Navigator.pushNamedAndRemoveUntil(
-                        context,
-                        Routes.testResultPHQ,
-                        (route) => false,
-                        arguments: totalScore,
-                      );
+                    bool success = await questionProvider.submitResult(
+                      tokenCode,
+                    );
+
+                    if (success) {
+                      await phqProvider.burnCode(tokenCode);
+
+                      if (mounted) {
+                        Navigator.pushNamedAndRemoveUntil(
+                          context,
+                          Routes.testResultPHQ,
+                          (route) => false,
+                          arguments: questionProvider.totalScore,
+                        );
+                      }
+                    } else {
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Gagal menyimpan hasil tes ke server',
+                            ),
+                          ),
+                        );
+                      }
                     }
                   },
                   label: 'Kirim',

@@ -46,4 +46,35 @@ class CounselorService {
       throw Exception('Gagal mengambil detail pasien');
     }
   }
+
+  // TAMBAHKAN FUNGSI INI DI BAWAH
+  Future<Map<String, dynamic>> postPhqResult(String tokenCode, Map<int, int> answers) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+
+    try {
+      final response = await http.post(
+        Uri.parse(ApiConstants.postPhqResult),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'token_code': tokenCode,
+          'answers': answers,
+        }),
+      );
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        final errorData = jsonDecode(response.body);
+        throw Exception(errorData['message'] ?? 'Gagal mengirim hasil PHQ');
+      }
+    } catch (e) {
+      print("Error Post PHQ: $e");
+      rethrow;
+    }
+  }
 }

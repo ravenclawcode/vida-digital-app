@@ -22,7 +22,7 @@ class _CustomInputFormPatientState extends State<CustomInputFormPatient> {
       items: patients.map((patient) {
         return DropdownMenuItem<String>(
           value: patient['id'].toString(),
-          child: Text(patient['username']),
+          child: Text(patient['name'] ?? 'Tanpa Nama'),
         );
       }).toList(),
       style: AppTextStyles.textForm,
