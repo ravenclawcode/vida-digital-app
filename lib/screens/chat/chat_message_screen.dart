@@ -17,13 +17,15 @@ class ChatMessageScreen extends StatefulWidget {
   State<ChatMessageScreen> createState() => _ChatMessageScreenState();
 }
 
-class _ChatMessageScreenState extends State<ChatMessageScreen> {
+class _ChatMessageScreenState extends State<ChatMessageScreen>
+    with WidgetsBindingObserver {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   bool _hasText = false;
 
   String? receiverId;
   String? receiverName;
+  String? lastSeenDisplay;
   bool isOnline = false;
 
   late PrivateChatProvider _chatProvider;
@@ -31,11 +33,30 @@ class _ChatMessageScreenState extends State<ChatMessageScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+
     _messageController.addListener(() {
       if (mounted) {
         setState(() => _hasText = _messageController.text.trim().isNotEmpty);
       }
     });
+    _messageController.addListener(() {
+      if (mounted) {
+        setState(() => _hasText = _messageController.text.trim().isNotEmpty);
+      }
+    });
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (receiverId == null) return;
+
+    if (state == AppLifecycleState.resumed) {
+      _chatProvider.updateStatus(true);
+    } else if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive) {
+      _chatProvider.updateStatus(false);
+    }
   }
 
   @override
@@ -51,10 +72,12 @@ class _ChatMessageScreenState extends State<ChatMessageScreen> {
         receiverId = args['id'];
         receiverName = args['username'];
         isOnline = args['is_online'] ?? false;
+        lastSeenDisplay = args['last_seen_display'];
       });
 
       if (receiverId != null) {
         Future.microtask(() async {
+          await _chatProvider.updateStatus(true);
           await _chatProvider.loadMessages(receiverId!);
           _chatProvider.startPolling(receiverId!);
           _scrollToBottom();
@@ -83,6 +106,7 @@ class _ChatMessageScreenState extends State<ChatMessageScreen> {
 
     try {
       await _chatProvider.sendPrivateMessage(receiverId!, text);
+      await _chatProvider.loadContacts();
       _scrollToBottom();
     } catch (e) {
       if (mounted) {
@@ -104,6 +128,9 @@ class _ChatMessageScreenState extends State<ChatMessageScreen> {
 
   @override
   void dispose() {
+    _chatProvider.updateStatus(false);
+    WidgetsBinding.instance.removeObserver(this);
+
     _messageController.dispose();
     _scrollController.dispose();
     _chatProvider.stopPolling();
@@ -139,6 +166,24 @@ class _ChatMessageScreenState extends State<ChatMessageScreen> {
     required String icon,
     required VoidCallback onTap,
   }) {
+    final contactIndex = _chatProvider.contacts.indexWhere(
+      (c) => c['id'].toString() == receiverId,
+    );
+
+    bool currentOnline;
+    String statusText;
+
+    if (contactIndex != -1) {
+      final contact = _chatProvider.contacts[contactIndex];
+      currentOnline = contact['is_online'] == true || contact['is_online'] == 1;
+      statusText = currentOnline
+          ? 'Online'
+          : (contact['last_seen_display'] ?? '');
+    } else {
+      currentOnline = isOnline;
+      statusText = currentOnline ? 'Online' : (lastSeenDisplay ?? '');
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 25),
       child: Row(
@@ -164,12 +209,15 @@ class _ChatMessageScreenState extends State<ChatMessageScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(receiverName ?? 'Memuat...', style: AppTextStyles.heading),
+              Text(receiverName ?? 'User', style: AppTextStyles.heading),
               Text(
-                isOnline ? 'Online' : 'Offline',
-                style: AppTextStyles.bodyMediumChatbot.copyWith(
-                  color: isOnline ? Colors.green : Colors.grey,
+                statusText,
+                style: TextStyle(
                   fontSize: 12,
+                  fontWeight: FontWeight.w400,
+                  color: currentOnline
+                      ? const Color(0xFF66BB6A)
+                      : const Color(0xFFA8A8A8),
                 ),
               ),
             ],

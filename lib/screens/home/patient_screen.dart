@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:mindfullshelter/providers/counselor_provider.dart';
@@ -18,6 +20,24 @@ class _PatientScreenState extends State<PatientScreen> {
   bool _showMedicationDetail = false;
   bool _showPhqDetail = false;
   bool _isInit = true;
+  Timer? _statusTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _statusTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
+      final patientId = ModalRoute.of(context)?.settings.arguments as String?;
+      if (patientId != null && mounted) {
+        context.read<CounselorProvider>().fetchPatientDetail(patientId);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _statusTimer?.cancel();
+    super.dispose();
+  }
 
   @override
   void didChangeDependencies() {
@@ -167,7 +187,12 @@ class _PatientScreenState extends State<PatientScreen> {
                 onTap: () => Navigator.pushNamed(
                   context,
                   '/chatmessage',
-                  arguments: {'id': patient['id'], 'username': patient['name']},
+                  arguments: {
+                    'id': patient['id'].toString(),
+                    'username': patient['name'],
+                    'is_online': patient['is_online'] ?? false,
+                    'last_seen_display': patient['last_seen_display'],
+                  },
                 ),
                 icon: icComment,
                 label: 'Buka Obrolan',
@@ -201,6 +226,14 @@ class _PatientScreenState extends State<PatientScreen> {
     required VoidCallback onTap,
     required String patientName,
   }) {
+    final provider = context.watch<CounselorProvider>();
+    final patient = provider.selectedPatient;
+
+    bool currentOnline = patient?['is_online'] ?? false;
+    String statusText = currentOnline
+        ? 'Online'
+        : (patient?['last_seen_display'] ?? 'Offline');
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 25),
       child: Row(
@@ -228,9 +261,14 @@ class _PatientScreenState extends State<PatientScreen> {
                 children: [
                   Text(patientName, style: AppTextStyles.heading),
                   Text(
-                    'Offline',
+                    statusText,
                     style: AppTextStyles.bodyMediumChatbot.copyWith(
-                      color: AppColors.textLight,
+                      color: currentOnline
+                          ? const Color(0xFF66BB6A)
+                          : AppColors.textLight,
+                      fontWeight: currentOnline
+                          ? FontWeight.bold
+                          : FontWeight.w400,
                     ),
                   ),
                 ],

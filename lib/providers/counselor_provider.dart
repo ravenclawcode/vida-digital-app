@@ -51,4 +51,12 @@ class CounselorProvider with ChangeNotifier {
       return false;
     }
   }
+
+  void updateSelectedPatientStatus(bool isOnline, String lastSeen) {
+  if (_selectedPatient != null) {
+    _selectedPatient!['is_online'] = isOnline;
+    _selectedPatient!['last_seen_display'] = lastSeen;
+    notifyListeners();
+  }
+}
 }

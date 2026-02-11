@@ -18,6 +18,7 @@ class CustomDialogDeleteChatMessage extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 25),
         child: Material(
           borderRadius: BorderRadius.circular(10),
+          clipBehavior: Clip.antiAlias,
           child: Container(
             padding: const EdgeInsets.all(20),
             decoration: const BoxDecoration(color: AppColors.background),

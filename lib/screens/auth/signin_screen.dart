@@ -10,7 +10,6 @@ import 'package:mindfullshelter/utils/custom_button4.dart';
 import 'package:mindfullshelter/utils/custom_input_form_email.dart';
 import 'package:mindfullshelter/utils/custom_input_form_password.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class SignInScreen extends StatefulWidget {
   final String role;
@@ -69,10 +68,6 @@ class _SignInScreenState extends State<SignInScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final String role =
-        ModalRoute.of(context)?.settings.arguments as String? ?? 'pasien';
-    final bool isCounselor = role == 'konselor';
-
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: SafeArea(
@@ -86,9 +81,9 @@ class _SignInScreenState extends State<SignInScreen> {
                 onTap: () => Navigator.pop(context),
               ),
               SizedBox(height: 25),
-              _buildActionForm(isCounselor),
+              _buildActionForm(),
               SizedBox(height: 35),
-              _buildAnotherAction(isCounselor),
+              _buildAnotherAction(),
             ],
           ),
         ),
@@ -119,7 +114,7 @@ class _SignInScreenState extends State<SignInScreen> {
     );
   }
 
-  Widget _buildActionForm(bool isCounselor) {
+  Widget _buildActionForm() {
     return Form(
       key: _formKey,
       child: Column(
@@ -127,7 +122,6 @@ class _SignInScreenState extends State<SignInScreen> {
           CustomInputFormEmail(controller: emailController),
           SizedBox(height: 15),
           CustomInputFormPassword(controller: passwordController),
-          if (!isCounselor) ...[
             SizedBox(height: 10),
             Align(
               alignment: AlignmentGeometry.topRight,
@@ -145,7 +139,6 @@ class _SignInScreenState extends State<SignInScreen> {
                 ),
               ),
             ),
-          ],
           SizedBox(height: 28),
           Consumer<AuthProvider>(
             builder: (context, auth, child) {
@@ -172,7 +165,7 @@ class _SignInScreenState extends State<SignInScreen> {
     );
   }
 
-  Widget _buildAnotherAction(bool isCounselor) {
+  Widget _buildAnotherAction() {
     return Column(
       children: [
         Text.rich(
@@ -183,36 +176,11 @@ class _SignInScreenState extends State<SignInScreen> {
                 style: AppTextStyles.bodyMedium,
               ),
               TextSpan(
-                text: isCounselor ? 'Hubungi Tim Vida' : 'Aktivasi akun',
-                style: AppTextStyles.bodyMediumBold.copyWith(
-                  color: AppColors.primary,
-                ),
+                text: 'Aktivasi akun',
+                style: AppTextStyles.bodyMediumBold.copyWith(color: AppColors.primary),
                 recognizer: TapGestureRecognizer()
-                  ..onTap = () async {
-                    if (isCounselor) {
-                      final Uri url = Uri.parse(
-                        'https://www.instagram.com/vidadigital.ung/',
-                      );
-
-                      if (await canLaunchUrl(url)) {
-                        await launchUrl(
-                          url,
-                          mode: LaunchMode.externalApplication,
-                        );
-                      } else {
-                        if (!context.mounted) return;
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Tidak dapat membuka Instagram.'),
-                          ),
-                        );
-                      }
-                    } else {
-                      Navigator.pushNamed(
-                        context,
-                        Routes.activationAccountScreen,
-                      );
-                    }
+                  ..onTap = () {
+                    Navigator.pushNamed(context, Routes.activationAccountScreen);
                   },
               ),
             ],

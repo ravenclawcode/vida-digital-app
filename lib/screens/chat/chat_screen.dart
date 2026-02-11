@@ -103,6 +103,10 @@ class _ChatScreenState extends State<ChatScreen> {
     return Padding(
       padding: const EdgeInsets.only(left: 25, right: 25, bottom: 15),
       child: InkWell(
+        focusColor: Colors.transparent,
+        hoverColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+        overlayColor: WidgetStateProperty.all(Colors.transparent),
         onTap: () {
           Navigator.pushNamed(
             context,
@@ -111,8 +115,13 @@ class _ChatScreenState extends State<ChatScreen> {
               'id': user['id'].toString(),
               'username': user['username'],
               'is_online': user['is_online'] ?? false,
+              'last_seen_display': user['last_seen_display'],
             },
-          );
+          ).then((_) {
+            if (mounted) {
+              context.read<PrivateChatProvider>().loadContacts();
+            }
+          });
         },
         child: Container(
           decoration: BoxDecoration(
@@ -152,9 +161,9 @@ class _ChatScreenState extends State<ChatScreen> {
                         width: 12,
                         height: 12,
                         decoration: BoxDecoration(
-                          color: user['is_online'] == true
+                          color: user['is_online']
                               ? const Color(0xFF66BB6A)
-                              : const Color(0xFFE2E2E2),
+                              : const Color(0xFFA8A8A8),
                           shape: BoxShape.circle,
                           border: Border.all(
                             color: AppColors.background,
@@ -188,8 +197,8 @@ class _ChatScreenState extends State<ChatScreen> {
                       user['last_message_time'] ?? '',
                       style: AppTextStyles.timeChat,
                     ),
-                    const SizedBox(height: 6),
-                    if (user['unread_count'] > 0)
+                    if (user['unread_count'] <= 0) const SizedBox(height: 20),
+                    if (user['unread_count'] > 0) ...[
                       Container(
                         padding: const EdgeInsets.all(5),
                         decoration: const BoxDecoration(
@@ -197,19 +206,16 @@ class _ChatScreenState extends State<ChatScreen> {
                           shape: BoxShape.circle,
                         ),
                         constraints: const BoxConstraints(
-                          minWidth: 18,
-                          minHeight: 18,
+                          minWidth: 14,
+                          minHeight: 14,
                         ),
                         child: Text(
                           user['unread_count'].toString(),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: AppTextStyles.unreadChat,
                           textAlign: TextAlign.center,
                         ),
                       ),
+                    ],
                   ],
                 ),
               ],

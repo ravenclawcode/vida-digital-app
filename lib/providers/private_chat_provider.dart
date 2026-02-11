@@ -36,6 +36,9 @@ class PrivateChatProvider with ChangeNotifier {
       if (result != null) {
         final newMessage = PrivateChat.fromJson(result);
         _messages.add(newMessage);
+
+        await loadContacts();
+
         notifyListeners();
       }
     } catch (e) {
@@ -44,6 +47,10 @@ class PrivateChatProvider with ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  Future<void> updateStatus(bool isOnline) async {
+    await _service.updateOnlineStatus(isOnline);
   }
 
   Future<void> deleteMessages(String otherUserId) async {

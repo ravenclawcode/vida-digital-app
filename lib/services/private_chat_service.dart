@@ -49,6 +49,23 @@ class PrivateChatService {
     }
   }
 
+  Future<void> updateOnlineStatus(bool isOnline) async {
+    final token = await _getToken();
+    if (token == null) return;
+
+    try {
+      await http.post(
+        Uri.parse(ApiConstants.updateStatus),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({'is_online': isOnline}),
+      );
+    } catch (_) {}
+  }
+
   Future<bool> deleteChat(String otherUserId) async {
     final token = await _getToken();
     final response = await http.delete(

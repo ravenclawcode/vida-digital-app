@@ -54,22 +54,17 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
               child: CustomButton11(
                 onTap: () => Navigator.pushNamed(
                   context,
-                  Routes.signIn,
-                  arguments: 'pasien',
+                  Routes.activationAccountScreen,
                 ),
-                label: 'Pasien',
+                label: 'Daftar',
               ),
             ),
             SizedBox(height: 10),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 25),
               child: CustomButton1(
-                onTap: () => Navigator.pushNamed(
-                  context,
-                  Routes.signIn,
-                  arguments: 'konselor',
-                ),
-                label: 'Konselor',
+                onTap: () => Navigator.pushNamed(context, Routes.signIn),
+                label: 'Masuk',
               ),
             ),
             SizedBox(height: 60),

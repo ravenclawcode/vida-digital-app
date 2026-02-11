@@ -1,5 +1,5 @@
 class ApiConstants {
-  static const String baseUrl = 'http://192.168.1.9:8000/api';
+  static const String baseUrl = 'http://192.168.1.13:8000/api';
 
   static const String login = '$baseUrl/login';
   static const String register = '$baseUrl/register';
@@ -34,4 +34,5 @@ class ApiConstants {
   static const String chatContacts = '$baseUrl/chat/contacts';
   static const String privateMessages = '$baseUrl/chat/messages';
   static const String sendPrivateMessage = '$baseUrl/chat/send';
+  static const String updateStatus = '$baseUrl/user/status';
 }
