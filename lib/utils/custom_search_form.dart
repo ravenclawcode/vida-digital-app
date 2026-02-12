@@ -5,8 +5,9 @@ import 'package:mindfullshelter/utils/app_theme.dart';
 
 class CustomSearchForm extends StatefulWidget {
   final TextEditingController controller;
+  final Function(String)? onChanged;
 
-  const CustomSearchForm({super.key, required this.controller});
+  const CustomSearchForm({super.key, required this.controller, this.onChanged});
 
   @override
   State<CustomSearchForm> createState() => _CustomSearchFormState();
@@ -17,6 +18,7 @@ class _CustomSearchFormState extends State<CustomSearchForm> {
   Widget build(BuildContext context) {
     return TextFormField(
       controller: widget.controller,
+      onChanged: widget.onChanged,
       keyboardType: TextInputType.text,
       style: AppTextStyles.textForm,
       maxLines: 1,

@@ -77,9 +77,9 @@ class _CustomPostDialogState extends State<CustomPostDialog> {
 
     final provider = context.read<AnonymousProvider>();
 
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Berhasil mengunggah postingan')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Berhasil mengunggah postingan')),
+    );
 
     try {
       await provider.addPost(selectedCategory.label, content);

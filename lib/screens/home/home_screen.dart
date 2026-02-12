@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:mindfullshelter/models/medication_model.dart';
 import 'package:mindfullshelter/providers/auth_provider.dart';
@@ -22,6 +24,8 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final searchController = TextEditingController();
   int? role;
+  String _searchQuery = '';
+  Timer? _refreshTimer;
 
   @override
   void initState() {
@@ -31,6 +35,22 @@ class _HomeScreenState extends State<HomeScreen> {
       context.read<MoodProvider>().fetchWeeklyMood();
     });
     _checkSession();
+    _startHomePolling();
+  }
+
+  void _startHomePolling() {
+    _refreshTimer = Timer.periodic(const Duration(seconds: 15), (timer) {
+      if (mounted && role != 1) {
+        context.read<CounselorProvider>().fetchPatients(isSilent: true);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _refreshTimer?.cancel();
+    searchController.dispose();
+    super.dispose();
   }
 
   void _checkSession() async {
@@ -164,7 +184,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: 16),
                 _buildFeatureGrid(context),
               ] else ...[
-                CustomSearchForm(controller: searchController),
+                CustomSearchForm(
+                  controller: searchController,
+                  onChanged: (value) {
+                    setState(() {
+                      _searchQuery = value;
+                    });
+                  },
+                ),
                 const SizedBox(height: 20),
                 _buildListPatient(),
               ],
@@ -691,22 +718,29 @@ class _HomeScreenState extends State<HomeScreen> {
           return const Center(child: CircularProgressIndicator());
         }
 
+        final filteredPatients = provider.patients.where((patient) {
+          final name = (patient['name'] ?? '').toString().toLowerCase();
+          return name.contains(_searchQuery.toLowerCase());
+        }).toList();
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Daftar Pasien (${provider.patients.length})',
+              'Daftar Pasien (${filteredPatients.length})',
               style: AppTextStyles.headingMedication,
             ),
             const SizedBox(height: 16),
-            provider.patients.isEmpty
+            filteredPatients.isEmpty
                 ? Center(
                     child: Text(
-                      'Belum ada pasien terdaftar',
+                      _searchQuery.isEmpty
+                          ? 'Belum ada pasien terdaftar'
+                          : 'Pasien "$_searchQuery" tidak ditemukan',
                       style: AppTextStyles.noContent,
                     ),
                   )
-                : _buildCounselorPatientList(provider.patients),
+                : _buildCounselorPatientList(filteredPatients),
           ],
         );
       },
@@ -723,8 +757,7 @@ class _HomeScreenState extends State<HomeScreen> {
         double progressValue = (patient['progress'] ?? 0.0).toDouble();
         final style = _getPatientStatusStyle(progressValue);
         String progressPercentage = "${(progressValue * 100).toInt()}%";
-        int unreadCount =
-            int.tryParse(patient['unread']?.toString() ?? '0') ?? 0;
+        int unreadCount = int.tryParse(patient['unread'].toString()) ?? 0;
 
         return InkWell(
           focusColor: Colors.transparent,

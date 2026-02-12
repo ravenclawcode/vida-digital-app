@@ -28,7 +28,10 @@ class _PatientScreenState extends State<PatientScreen> {
     _statusTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
       final patientId = ModalRoute.of(context)?.settings.arguments as String?;
       if (patientId != null && mounted) {
-        context.read<CounselorProvider>().fetchPatientDetail(patientId);
+        context.read<CounselorProvider>().fetchPatientDetail(
+          patientId,
+          isSilent: true,
+        );
       }
     });
   }
@@ -61,30 +64,35 @@ class _PatientScreenState extends State<PatientScreen> {
       return {
         'category': 'Minimal',
         'bgColor': const Color(0xFFEFFDF4),
-        'labelColor': const Color(0xFF00BC7D),
+        'bgRoundColor': const Color(0xFFC8FFDB),
+        'labelColor': const Color(0xFF00A63E),
       };
     } else if (score <= 9) {
       return {
         'category': 'Ringan',
         'bgColor': const Color(0xFFEFF6FF),
+        'bgRoundColor': const Color(0xFFD5E8FF),
         'labelColor': const Color(0xFF165DFB),
       };
     } else if (score <= 14) {
       return {
         'category': 'Sedang',
         'bgColor': const Color(0xFFFEFCE8),
+        'bgRoundColor': const Color(0xFFFFE7C3),
         'labelColor': const Color(0xFFD18700),
       };
     } else if (score <= 19) {
       return {
         'category': 'Cukup Berat',
         'bgColor': const Color(0xFFFFF7ED),
+        'bgRoundColor': const Color(0xFFFFDDCF),
         'labelColor': const Color(0xFFF54900),
       };
     } else {
       return {
         'category': 'Berat',
         'bgColor': const Color(0xFFFEF3F2),
+        'bgRoundColor': const Color(0xFFFFD0D2),
         'labelColor': const Color(0xFFE7000B),
       };
     }
@@ -164,8 +172,12 @@ class _PatientScreenState extends State<PatientScreen> {
     final provider = context.watch<CounselorProvider>();
     final patient = provider.selectedPatient;
 
-    if (provider.isLoading || patient == null) {
+    if (patient == null && provider.isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    if (patient == null) {
+      return const Scaffold(body: Center(child: Text("Data tidak ditemukan")));
     }
 
     return Scaffold(
@@ -238,7 +250,14 @@ class _PatientScreenState extends State<PatientScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 25),
       child: Row(
         children: [
-          InkWell(onTap: onTap, child: Image.asset(icon, width: 10)),
+          InkWell(
+            focusColor: Colors.transparent,
+            hoverColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            overlayColor: WidgetStateProperty.all(Colors.transparent),
+            onTap: onTap,
+            child: Image.asset(icon, width: 10),
+          ),
           const SizedBox(width: 25),
           Row(
             children: [
@@ -336,6 +355,12 @@ class _PatientScreenState extends State<PatientScreen> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       InkWell(
+                        focusColor: Colors.transparent,
+                        hoverColor: Colors.transparent,
+                        highlightColor: Colors.transparent,
+                        overlayColor: WidgetStateProperty.all(
+                          Colors.transparent,
+                        ),
                         onTap: () =>
                             setState(() => _showMedicationDetail = true),
                         child: Text(
@@ -365,6 +390,12 @@ class _PatientScreenState extends State<PatientScreen> {
                         style: AppTextStyles.headingTesPHQ,
                       ),
                       InkWell(
+                        focusColor: Colors.transparent,
+                        hoverColor: Colors.transparent,
+                        highlightColor: Colors.transparent,
+                        overlayColor: WidgetStateProperty.all(
+                          Colors.transparent,
+                        ),
                         onTap: () =>
                             setState(() => _showMedicationDetail = false),
                         child: Text(
@@ -538,6 +569,12 @@ class _PatientScreenState extends State<PatientScreen> {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         InkWell(
+                          focusColor: Colors.transparent,
+                          hoverColor: Colors.transparent,
+                          highlightColor: Colors.transparent,
+                          overlayColor: WidgetStateProperty.all(
+                            Colors.transparent,
+                          ),
                           onTap: () => setState(() => _showPhqDetail = true),
                           child: Text(
                             'Detail',
@@ -567,6 +604,12 @@ class _PatientScreenState extends State<PatientScreen> {
                         style: AppTextStyles.headingTesPHQ,
                       ),
                       InkWell(
+                        focusColor: Colors.transparent,
+                        hoverColor: Colors.transparent,
+                        highlightColor: Colors.transparent,
+                        overlayColor: WidgetStateProperty.all(
+                          Colors.transparent,
+                        ),
                         onTap: () => setState(() => _showPhqDetail = false),
                         child: Text(
                           'Tutup',
@@ -602,6 +645,7 @@ class _PatientScreenState extends State<PatientScreen> {
   Widget _buildPhqHistoryItem(int score, String category, String date) {
     final config = _getPhqConfig(score);
     final Color dynamicBgColor = config['bgColor'];
+    final Color dynamicBgRoundColor = config['bgRoundColor'];
     final Color dynamicLabelColor = config['labelColor'];
 
     return Container(
@@ -616,7 +660,7 @@ class _PatientScreenState extends State<PatientScreen> {
             width: 32,
             height: 32,
             decoration: BoxDecoration(
-              color: dynamicLabelColor.withOpacity(0.2),
+              color: dynamicBgRoundColor,
               shape: BoxShape.circle,
             ),
             alignment: Alignment.center,

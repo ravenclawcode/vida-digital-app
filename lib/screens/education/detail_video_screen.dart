@@ -180,9 +180,7 @@ class _DetailVideoScreenState extends State<DetailVideoScreen> {
                       backgroundColor: Colors.white.withValues(alpha: 0.2),
                     ),
                   ),
-
                   const SizedBox(width: 15),
-
                   InkWell(
                     focusColor: Colors.transparent,
                     hoverColor: Colors.transparent,
@@ -228,6 +226,10 @@ class _DetailVideoScreenState extends State<DetailVideoScreen> {
               opacity: _controller.value.isPlaying ? 0.0 : 1.0,
               duration: const Duration(milliseconds: 300),
               child: InkWell(
+                focusColor: Colors.transparent,
+                hoverColor: Colors.transparent,
+                highlightColor: Colors.transparent,
+                overlayColor: WidgetStateProperty.all(Colors.transparent),
                 onTap: () {
                   setState(() {
                     _controller.value.isPlaying

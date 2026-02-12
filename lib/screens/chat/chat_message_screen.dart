@@ -188,7 +188,14 @@ class _ChatMessageScreenState extends State<ChatMessageScreen>
       padding: const EdgeInsets.symmetric(horizontal: 25),
       child: Row(
         children: [
-          InkWell(onTap: onTap, child: Image.asset(icon, width: 10)),
+          InkWell(
+            focusColor: Colors.transparent,
+            hoverColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            overlayColor: WidgetStateProperty.all(Colors.transparent),
+            onTap: onTap,
+            child: Image.asset(icon, width: 10),
+          ),
           const SizedBox(width: 25),
           Container(
             width: 40,
@@ -227,6 +234,10 @@ class _ChatMessageScreenState extends State<ChatMessageScreen>
             builder: (context, provider, _) {
               bool canDelete = provider.messages.isNotEmpty;
               return InkWell(
+                focusColor: Colors.transparent,
+                hoverColor: Colors.transparent,
+                highlightColor: Colors.transparent,
+                overlayColor: WidgetStateProperty.all(Colors.transparent),
                 onTap: canDelete ? _deleteChat : null,
                 child: Image.asset(
                   canDelete ? icDeleteActive : icDeleteNoactive,

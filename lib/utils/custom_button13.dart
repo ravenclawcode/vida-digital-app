@@ -31,7 +31,7 @@ class CustomButton13 extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset(icon, height: 13.5, color: AppColors.textWhite,),
+            Image.asset(icon, height: 13.5, color: AppColors.textWhite),
             SizedBox(width: 8),
             Text(
               label,

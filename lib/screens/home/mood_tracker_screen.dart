@@ -242,69 +242,71 @@ class _MoodTrackerScreenState extends State<MoodTrackerScreen> {
               ),
               SizedBox(height: 10),
               Row(
-  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  children: List.generate(7, (index) {
-    final entry = moodProvider.getMoodForDay(index);
-    final now = DateTime.now();
-    
-    // Cek apakah kolom ini adalah hari ini
-    // now.weekday bernilai 1 (Senin) sampai 7 (Minggu)
-    final bool isToday = (index + 1) == now.weekday;
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: List.generate(7, (index) {
+                  final entry = moodProvider.getMoodForDay(index);
+                  final now = DateTime.now();
 
-    return Stack(
-      clipBehavior: Clip.none,
-      alignment: Alignment.topCenter,
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
-          decoration: BoxDecoration(
-            // Warna background hanya muncul jika hari ini
-            color: isToday ? AppColors.backgroundList : Colors.transparent,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                days[index],
-                style: AppTextStyles.bodyMediumMood,
-              ),
-              const SizedBox(height: 5),
-              entry != null
-                  ? SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: entry.mood.emoji,
-                    )
-                  : CustomPaint(
-                      painter: CustomCirclePainter(),
-                      child: SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: Center(
-                          child: Text(
-                            '?',
-                            style: AppTextStyles.bodySmallMood,
-                          ),
+                  final bool isToday = (index + 1) == now.weekday;
+
+                  return Stack(
+                    clipBehavior: Clip.none,
+                    alignment: Alignment.topCenter,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isToday
+                              ? AppColors.backgroundList
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              days[index],
+                              style: AppTextStyles.bodyMediumMood,
+                            ),
+                            const SizedBox(height: 5),
+                            entry != null
+                                ? SizedBox(
+                                    width: 24,
+                                    height: 24,
+                                    child: entry.mood.emoji,
+                                  )
+                                : CustomPaint(
+                                    painter: CustomCirclePainter(),
+                                    child: SizedBox(
+                                      width: 24,
+                                      height: 24,
+                                      child: Center(
+                                        child: Text(
+                                          '?',
+                                          style: AppTextStyles.bodySmallMood,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                          ],
                         ),
                       ),
-                    ),
-            ],
-          ),
-        ),
-        if (entry != null && isToday)
-          Positioned(
-            top: -3,
-            right: -4,
-            child: GestureDetector(
-              onTap: () => _handleDeleteMood(entry.id),
-              child: Image.asset(icRemove, height: 12),
-            ),
-          ),
-      ],
-    );
-  }),
-),
+                      if (entry != null && isToday)
+                        Positioned(
+                          top: -3,
+                          right: -4,
+                          child: GestureDetector(
+                            onTap: () => _handleDeleteMood(entry.id),
+                            child: Image.asset(icRemove, height: 12),
+                          ),
+                        ),
+                    ],
+                  );
+                }),
+              ),
             ],
           ),
         ),

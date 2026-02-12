@@ -49,7 +49,11 @@ class _MainScreenState extends State<MainScreen> {
     }
 
     final List<Widget> screens = userRole == 0
-        ? [const HomeScreen(), const ToolsScreen(tabIndex: 0,), const ProfileScreen()]
+        ? [
+            const HomeScreen(),
+            const ToolsScreen(tabIndex: 0),
+            const ProfileScreen(),
+          ]
         : [const HomeScreen(), const ChatScreen(), const ProfileScreen()];
 
     return Scaffold(

@@ -12,32 +12,39 @@ class CounselorProvider with ChangeNotifier {
   Map<String, dynamic>? get selectedPatient => _selectedPatient;
   bool get isLoading => _isLoading;
 
-  Future<void> fetchPatients() async {
-    _isLoading = true;
-    _patients = [];
-    notifyListeners();
+  Future<void> fetchPatients({bool isSilent = false}) async {
+    if (!isSilent) {
+      _isLoading = true;
+      _patients = [];
+      notifyListeners();
+    }
+
     try {
       _patients = await _service.fetchPatients();
+    } catch (_) {
     } finally {
-      _isLoading = false;
+      if (!isSilent) {
+        _isLoading = false;
+      }
       notifyListeners();
     }
   }
 
-  Future<void> fetchPatientDetail(String id) async {
-    _isLoading = true;
-    _selectedPatient = null;
-    notifyListeners();
+  Future<void> fetchPatientDetail(String id, {bool isSilent = false}) async {
+    if (!isSilent) {
+      _isLoading = true;
+      _selectedPatient = null;
+      notifyListeners();
+    }
 
     try {
       final response = await _service.fetchPatientDetail(id);
-      
       _selectedPatient = response;
-      
-    } catch (e) {
-      debugPrint("Gagal mengambil detail pasien: $e");
+    } catch (_) {
     } finally {
-      _isLoading = false;
+      if (!isSilent) {
+        _isLoading = false;
+      }
       notifyListeners();
     }
   }
@@ -47,16 +54,15 @@ class CounselorProvider with ChangeNotifier {
       final response = await _service.postPhqResult(token, answers);
       return response != null;
     } catch (e) {
-      debugPrint("Gagal mengirim hasil PHQ: $e");
       return false;
     }
   }
 
   void updateSelectedPatientStatus(bool isOnline, String lastSeen) {
-  if (_selectedPatient != null) {
-    _selectedPatient!['is_online'] = isOnline;
-    _selectedPatient!['last_seen_display'] = lastSeen;
-    notifyListeners();
+    if (_selectedPatient != null) {
+      _selectedPatient!['is_online'] = isOnline;
+      _selectedPatient!['last_seen_display'] = lastSeen;
+      notifyListeners();
+    }
   }
-}
 }

@@ -18,7 +18,11 @@ class _CustomDialogLogoutState extends State<CustomDialogLogout> {
     await Provider.of<AuthProvider>(context, listen: false).logout();
 
     if (context.mounted) {
-      Navigator.pushNamedAndRemoveUntil(context, '/introduction', (route) => false);
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        '/introduction',
+        (route) => false,
+      );
     }
   }
 
