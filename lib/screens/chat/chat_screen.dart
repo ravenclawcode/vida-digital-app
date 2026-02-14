@@ -20,6 +20,20 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
+  Widget _buildProfileImage(String? photoPath, String username) {
+    if (photoPath != null && photoPath.isNotEmpty) {
+      if (photoPath.startsWith('assets/')) {
+        return Image.asset(photoPath, fit: BoxFit.cover);
+      }
+      if (photoPath.startsWith('http')) {
+        return Image.network(photoPath, fit: BoxFit.cover);
+      }
+    }
+    return Center(
+      child: Text(username[0].toUpperCase(), style: AppTextStyles.profileChat),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -100,6 +114,8 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _buildCounselorCard(dynamic user) {
+    bool isUserOnline = user['is_online'] == true || user['is_online'] == 1;
+
     return Padding(
       padding: const EdgeInsets.only(left: 25, right: 25, bottom: 15),
       child: InkWell(
@@ -114,8 +130,9 @@ class _ChatScreenState extends State<ChatScreen> {
             arguments: {
               'id': user['id'].toString(),
               'username': user['username'],
-              'is_online': user['is_online'] ?? false,
+              'is_online': isUserOnline,
               'last_seen_display': user['last_seen_display'],
+              'profile_photo_url': user['profile_photo_url'],
             },
           ).then((_) {
             if (mounted) {
@@ -148,10 +165,11 @@ class _ChatScreenState extends State<ChatScreen> {
                         color: Color(0xFFF5F5F5),
                         shape: BoxShape.circle,
                       ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        user['username'][0].toUpperCase(),
-                        style: AppTextStyles.profileChat,
+                      child: ClipOval(
+                        child: _buildProfileImage(
+                          user['profile_photo_url'],
+                          user['username'],
+                        ),
                       ),
                     ),
                     Positioned(
@@ -161,7 +179,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         width: 12,
                         height: 12,
                         decoration: BoxDecoration(
-                          color: user['is_online']
+                          color: isUserOnline
                               ? const Color(0xFF66BB6A)
                               : const Color(0xFFA8A8A8),
                           shape: BoxShape.circle,

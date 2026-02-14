@@ -1,5 +1,5 @@
 class ApiConstants {
-  static const String baseUrl = 'http://192.168.1.11:8000/api';
+  static const String baseUrl = 'http://192.168.18.247:8000/api';
 
   static const String login = '$baseUrl/login';
   static const String register = '$baseUrl/register';
@@ -35,4 +35,6 @@ class ApiConstants {
   static const String privateMessages = '$baseUrl/chat/messages';
   static const String sendPrivateMessage = '$baseUrl/chat/send';
   static const String updateStatus = '$baseUrl/user/status';
+  static String deleteSingleMessage(String id) =>
+      '$baseUrl/chat/messages/$id/delete';
 }

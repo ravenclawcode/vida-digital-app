@@ -23,6 +23,7 @@ class MedicationProvider with ChangeNotifier {
 
     try {
       final data = await _service.fetchTodayMedications();
+
       _todayEntries = data.map((item) {
         return MedicationEntry(
           id: item['id'],
@@ -33,16 +34,29 @@ class MedicationProvider with ChangeNotifier {
 
       await _notificationService.cancelAllNotifications();
 
-      for (var entry in _todayEntries) {
-        final safeId = entry.medication.id.hashCode.abs();
+      for (var item in data) {
+        if (item['status'] == 'pending') {
+          final timeStr = item['time'];
+          final timeParts = timeStr.split(':');
 
-        _notificationService.scheduleMedicationReminders(
-          id: safeId,
-          medicationName: entry.medication.name,
-          scheduledTime: _convertTimeOfDayToDateTime(entry.medication.time),
-        );
+          final now = DateTime.now();
+          final scheduledTime = DateTime(
+            now.year,
+            now.month,
+            now.day,
+            int.parse(timeParts[0]),
+            int.parse(timeParts[1]),
+          );
+
+          await _notificationService.scheduleMedicationReminders(
+            id: item['id'].hashCode.abs(),
+            medicationName: item['name'],
+            scheduledTime: scheduledTime,
+          );
+        }
       }
-    } catch (_) {
+    } catch (e) {
+      print("ERROR FETCHING: $e");
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -101,19 +115,7 @@ class MedicationProvider with ChangeNotifier {
     } catch (_) {}
   }
 
-  DateTime _convertTimeOfDayToDateTime(TimeOfDay time) {
-    final now = DateTime.now();
-    var scheduledDate = DateTime(
-      now.year,
-      now.month,
-      now.day,
-      time.hour,
-      time.minute,
-    );
-
-    if (scheduledDate.isBefore(now)) {
-      scheduledDate = scheduledDate.add(const Duration(days: 1));
-    }
-    return scheduledDate;
+  Future<void> testAlarm() async {
+    await _notificationService.testInstantAlarm();
   }
 }

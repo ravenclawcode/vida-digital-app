@@ -1,6 +1,7 @@
 class AnonymousPost {
   final String id;
   final String authorName;
+  final String? authorPhoto;
   final String categoryLabel;
   final String content;
   final int likesCount;
@@ -13,6 +14,7 @@ class AnonymousPost {
   AnonymousPost({
     required this.id,
     required this.authorName,
+    this.authorPhoto,
     required this.categoryLabel,
     required this.content,
     required this.likesCount,
@@ -27,6 +29,7 @@ class AnonymousPost {
     return AnonymousPost(
       id: json['id']?.toString() ?? '',
       authorName: json['author_name'] ?? 'Anonim',
+      authorPhoto: json['author_photo'],
       categoryLabel: json['category'] ?? 'Umum',
       content: json['content'] ?? '',
       likesCount: json['likes_count'] ?? 0,
@@ -45,12 +48,14 @@ class AnonymousComment {
   final String content;
   final String timeAgo;
   final String authorName;
+  final String? authorPhoto;
   final bool isMine;
 
   AnonymousComment({
     required this.content,
     required this.timeAgo,
     required this.authorName,
+    this.authorPhoto,
     required this.isMine,
   });
 
@@ -59,6 +64,7 @@ class AnonymousComment {
       content: json['comment'] ?? '',
       timeAgo: json['time_ago'] ?? '',
       authorName: json['author_name'] ?? 'Anonim',
+      authorPhoto: json['author_photo'],
       isMine: json['is_mine'] ?? false,
     );
   }

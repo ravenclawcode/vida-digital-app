@@ -31,27 +31,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   String? selectedAvatarUrl;
 
   bool get isDataChanged {
-    final auth = Provider.of<AuthProvider>(context, listen: false);
-    final user = auth.currentUser;
+    final user = Provider.of<AuthProvider>(context, listen: false).currentUser;
     if (user == null) return false;
 
-    final currentUsername = usernameController.text.trim();
-    final currentEmail = emailController.text.trim();
-    final currentGender = genderController.text.trim();
-
-    bool hasTextChanged =
-        currentUsername != user.username ||
-        currentEmail != user.email ||
-        currentGender != (user.gender ?? '');
-
-    bool hasNewImageFile = auth.imageFile != null;
-
-    bool hasNewAvatar =
-        selectedAvatarUrl != null && selectedAvatarUrl != user.profilePhotoUrl;
-
-    return (hasTextChanged || hasNewAvatar || hasNewImageFile) &&
-        currentUsername.isNotEmpty &&
-        currentEmail.isNotEmpty;
+    return usernameController.text.trim() != user.username ||
+        emailController.text.trim() != user.email ||
+        genderController.text.trim() != (user.gender ?? '') ||
+        Provider.of<AuthProvider>(context, listen: false).imageFile != null ||
+        (selectedAvatarUrl != null &&
+            selectedAvatarUrl != user.profilePhotoUrl);
   }
 
   @override
@@ -95,6 +83,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
+  Widget _buildDefaultAvatar(String username) {
+    String initial = username.isNotEmpty ? username[0].toUpperCase() : 'U';
+    return Container(
+      alignment: Alignment.center,
+      decoration: const BoxDecoration(color: Color(0xFFF5F5F5)),
+      child: Text(
+        initial,
+        style: AppTextStyles.profileChat.copyWith(fontSize: 35),
+      ),
+    );
+  }
+
   void _handleUpdate() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -121,23 +121,32 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
+  void _resetImageState() {
+    Provider.of<AuthProvider>(context, listen: false).setImage(null);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              const SizedBox(height: 11),
-              _buildHeader(
-                context: context,
-                icon: icBackLeft2,
-                onTap: () => Navigator.pop(context),
-                onPickImage: _pickImage,
-              ),
-              const SizedBox(height: 45),
-              _buildFormEdit(),
-            ],
+    return PopScope(
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) _resetImageState();
+      },
+      child: Scaffold(
+        body: SafeArea(
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                const SizedBox(height: 11),
+                _buildHeader(
+                  context: context,
+                  icon: icBackLeft2,
+                  onTap: () => Navigator.pop(context),
+                  onPickImage: _pickImage,
+                ),
+                const SizedBox(height: 45),
+                _buildFormEdit(),
+              ],
+            ),
           ),
         ),
       ),
@@ -213,6 +222,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Widget _getProfilePreview(AuthProvider auth) {
+    final String username = auth.currentUser?.username ?? 'User';
+
     if (selectedAvatarUrl != null) {
       return Image.asset(selectedAvatarUrl!, fit: BoxFit.cover);
     }
@@ -226,13 +237,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       if (dbPhoto.contains('assets/')) {
         return Image.asset(dbPhoto, fit: BoxFit.cover);
       }
-      return Image.network(dbPhoto, fit: BoxFit.cover);
+      return Image.network(
+        dbPhoto,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) =>
+            _buildDefaultAvatar(username),
+      );
     }
 
-    return Padding(
-      padding: const EdgeInsets.all(23),
-      child: Image.asset(icAnonymousProfile, fit: BoxFit.contain),
-    );
+    return _buildDefaultAvatar(username);
   }
 
   Widget _buildFormEdit() {

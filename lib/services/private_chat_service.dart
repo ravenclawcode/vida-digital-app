@@ -75,4 +75,26 @@ class PrivateChatService {
 
     return response.statusCode == 200;
   }
+
+  Future<Map<String, dynamic>> deleteMessage(
+    String messageId,
+    String type,
+  ) async {
+    try {
+      final token = await _getToken();
+      final response = await http.post(
+        Uri.parse(ApiConstants.deleteSingleMessage(messageId)),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: jsonEncode({'type': type}),
+      );
+
+      return jsonDecode(response.body);
+    } catch (e) {
+      throw Exception("Gagal menghapus pesan: $e");
+    }
+  }
 }

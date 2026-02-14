@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:mindfullshelter/services/private_chat_service.dart';
 import '../models/private_chat_model.dart';
-import '../services/private_chat_service.dart';
 
 class PrivateChatProvider with ChangeNotifier {
   final PrivateChatService _service = PrivateChatService();
@@ -61,6 +61,27 @@ class PrivateChatProvider with ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> deleteSingleMessage(String messageId, String type) async {
+    try {
+      final response = await _service.deleteMessage(messageId, type);
+
+      if (response['success']) {
+        int index = _messages.indexWhere((m) => m.id == messageId);
+        if (index != -1) {
+          if (type == 'everyone') {
+            _messages[index].isDeletedEveryone = true;
+          } else {
+            _messages.removeAt(index);
+          }
+          notifyListeners();
+        }
+      }
+    } catch (e) {
+      debugPrint("Error delete message: $e");
       rethrow;
     }
   }

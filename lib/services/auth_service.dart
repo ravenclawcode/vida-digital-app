@@ -84,7 +84,9 @@ class AuthService {
   Future<http.StreamedResponse> updateProfile({
     required String username,
     required String email,
+    required String gender,
     File? imageFile,
+    String? avatarUrl,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('auth_token');
@@ -101,13 +103,27 @@ class AuthService {
 
     request.fields['username'] = username;
     request.fields['email'] = email;
+    request.fields['gender'] = gender;
 
     if (imageFile != null) {
       request.files.add(
         await http.MultipartFile.fromPath('profile_photo', imageFile.path),
       );
+    } else if (avatarUrl != null) {
+      request.fields['profile_photo'] = avatarUrl;
     }
 
     return await request.send();
+  }
+
+  Future<void> updateOnlineStatus(bool isOnline) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+
+    await http.post(
+      Uri.parse(ApiConstants.updateStatus),
+      headers: {'Authorization': 'Bearer $token', 'Accept': 'application/json'},
+      body: {'is_online': isOnline ? '1' : '0'},
+    );
   }
 }

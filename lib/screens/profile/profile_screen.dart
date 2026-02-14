@@ -36,27 +36,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildProfileImage(AuthProvider auth) {
     final user = auth.currentUser;
     final String? photoUrl = user?.profilePhotoUrl;
+    final String username = user?.username ?? 'User';
 
-    if (auth.imageFile != null && auth.imageFile!.path.isNotEmpty) {
+    if (auth.imageFile != null) {
       return Image.file(auth.imageFile!, fit: BoxFit.cover);
     }
 
     if (photoUrl != null && photoUrl.isNotEmpty) {
-      if (photoUrl.contains('assets/')) {
-        return Image.asset(photoUrl, fit: BoxFit.cover);
+      if (photoUrl.startsWith('http')) {
+        return Image.network(
+          photoUrl,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => _buildDefaultAvatar(username),
+        );
       }
-
-      return Image.network(
-        photoUrl,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) =>
-            Image.asset(icAnonymousProfile),
-      );
+      return Image.asset(photoUrl, fit: BoxFit.cover);
     }
 
-    return Padding(
-      padding: const EdgeInsets.all(23),
-      child: Image.asset(icAnonymousProfile),
+    return _buildDefaultAvatar(username);
+  }
+
+  Widget _buildDefaultAvatar(String username, {double size = 88}) {
+    String initial = username.isNotEmpty ? username[0].toUpperCase() : 'U';
+    return Container(
+      width: size,
+      height: size,
+      decoration: const BoxDecoration(
+        color: Color(0xFFF5F5F5),
+        shape: BoxShape.circle,
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        initial,
+        style: AppTextStyles.profileChat.copyWith(fontSize: size * 0.4),
+      ),
     );
   }
 
@@ -198,7 +211,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           hoverColor: Colors.transparent,
           highlightColor: Colors.transparent,
           overlayColor: WidgetStateProperty.all(Colors.transparent),
-          // onTap: () => Navigator.pushNamed(context, menu['route'] as String),
           child: Padding(
             padding: EdgeInsets.fromLTRB(5, 8, 5, isLastItem ? 7 : 0),
             child: Column(

@@ -47,8 +47,10 @@ class CounselorService {
     }
   }
 
-  // TAMBAHKAN FUNGSI INI DI BAWAH
-  Future<Map<String, dynamic>> postPhqResult(String tokenCode, Map<int, int> answers) async {
+  Future<Map<String, dynamic>> postPhqResult(
+    String tokenCode,
+    Map<int, int> answers,
+  ) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('auth_token');
 
@@ -60,10 +62,7 @@ class CounselorService {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
         },
-        body: jsonEncode({
-          'token_code': tokenCode,
-          'answers': answers,
-        }),
+        body: jsonEncode({'token_code': tokenCode, 'answers': answers}),
       );
 
       if (response.statusCode == 201 || response.statusCode == 200) {

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mindfullshelter/data/dummy_data.dart';
 import 'package:mindfullshelter/models/mood_model.dart';
 import 'package:mindfullshelter/providers/mood_provider.dart';
 import 'package:mindfullshelter/utils/app_assets.dart';
@@ -56,6 +55,15 @@ class _MoodTrackerScreenState extends State<MoodTrackerScreen> {
       }
     }
   }
+
+  static final List<Mood> moods = [
+    Mood(id: '6', emoji: Image.asset(icHappy), label: 'Senang'),
+    Mood(id: '5', emoji: Image.asset(icCalm), label: 'Tenang'),
+    Mood(id: '4', emoji: Image.asset(icNormal), label: 'Biasa'),
+    Mood(id: '3', emoji: Image.asset(icTired), label: 'Lelah'),
+    Mood(id: '2', emoji: Image.asset(icSad), label: 'Sedih'),
+    Mood(id: '1', emoji: Image.asset(icAnxious), label: 'Cemas'),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -149,14 +157,14 @@ class _MoodTrackerScreenState extends State<MoodTrackerScreen> {
             GridView.builder(
               shrinkWrap: true,
               physics: NeverScrollableScrollPhysics(),
-              itemCount: DummyData.moods.length,
+              itemCount: moods.length,
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 3,
                 crossAxisSpacing: 18,
                 mainAxisSpacing: 18,
               ),
               itemBuilder: (context, index) {
-                final mood = DummyData.moods[index];
+                final mood = moods[index];
                 final isSelected = selectedMood?.id == mood.id;
 
                 return InkWell(

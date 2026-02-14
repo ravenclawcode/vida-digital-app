@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:mindfullshelter/models/patient_model.dart';
 import 'package:mindfullshelter/providers/counselor_provider.dart';
 import 'package:mindfullshelter/utils/app_assets.dart';
 import 'package:mindfullshelter/utils/app_colors.dart';
@@ -98,37 +99,67 @@ class _PatientScreenState extends State<PatientScreen> {
     }
   }
 
-  Map<String, dynamic> _getPatientStatusStyle(double progress) {
-    double percentage = progress * 100;
+  Map<String, dynamic> _getPatientStatusStyle(String status, double progress) {
+    Color progressColor;
 
-    if (percentage >= 80) {
-      return {
-        'status': 'Sangat Baik',
-        'bgColor': const Color(0xFFD0FAE5),
-        'textColor': const Color(0xFF007A56),
-        'progressColor': const Color(0xFF00BC7D),
-      };
-    } else if (percentage >= 60) {
-      return {
-        'status': 'Baik',
-        'bgColor': const Color(0xFFE0F2FE),
-        'textColor': const Color(0xFF0369A1),
-        'progressColor': const Color(0xFF0EA5E9),
-      };
-    } else if (percentage >= 40) {
-      return {
-        'status': 'Perlu Perhatian',
-        'bgColor': const Color(0xFFFEF3C6),
-        'textColor': const Color(0xFFBA4D00),
-        'progressColor': const Color(0xFFFE9900),
-      };
+    if (progress < 0) {
+      progressColor = const Color(0xFFE0E0E0);
     } else {
-      return {
-        'status': 'Kritis',
-        'bgColor': const Color(0xFFFEE4E6),
-        'textColor': const Color(0xFFC70036),
-        'progressColor': const Color(0xFFFF1F57),
-      };
+      double percentage = progress * 100;
+      if (percentage >= 80) {
+        progressColor = const Color(0xFF00BC7D);
+      } else if (percentage >= 60) {
+        progressColor = const Color(0xFF00BBA7);
+      } else if (percentage >= 40) {
+        progressColor = const Color(0xFFFE9900);
+      } else {
+        progressColor = const Color(0xFFFF1F57);
+      }
+    }
+
+    switch (status) {
+      case 'Sangat Baik':
+        return {
+          'status': 'Sangat Baik',
+          'bgColor': const Color(0xFFD0FAE5),
+          'textColor': const Color(0xFF007A56),
+          'progressColor': progressColor,
+        };
+      case 'Baik':
+        return {
+          'status': 'Baik',
+          'bgColor': const Color(0xFFCBFBF1),
+          'textColor': const Color(0xFF00786F),
+          'progressColor': progressColor,
+        };
+      case 'Perlu Perhatian':
+        return {
+          'status': 'Perlu Perhatian',
+          'bgColor': const Color(0xFFFEF3C6),
+          'textColor': const Color(0xFFBA4D00),
+          'progressColor': progressColor,
+        };
+      case 'Belum Ada Data':
+        return {
+          'status': 'Belum Ada Data',
+          'bgColor': const Color(0xFFF5F5F5),
+          'textColor': const Color(0xFF757575),
+          'progressColor': progressColor,
+        };
+      case 'Kritis':
+        return {
+          'status': 'Kritis',
+          'bgColor': const Color(0xFFFEE4E6),
+          'textColor': const Color(0xFFC70036),
+          'progressColor': progressColor,
+        };
+      default:
+        return {
+          'status': status.isEmpty ? 'Belum Ada Data' : status,
+          'bgColor': const Color(0xFFF5F5F5),
+          'textColor': const Color(0xFF707070),
+          'progressColor': progressColor,
+        };
     }
   }
 
@@ -167,6 +198,100 @@ class _PatientScreenState extends State<PatientScreen> {
     );
   }
 
+  Map<String, List<MedicationLog>> _groupLogsByDay(List<MedicationLog> logs) {
+    Map<String, List<MedicationLog>> grouped = {};
+    final dayOrder = [
+      'Senin',
+      'Selasa',
+      'Rabu',
+      'Kamis',
+      'Jumat',
+      'Sabtu',
+      'Minggu',
+    ];
+
+    for (var log in logs) {
+      String key = log.dayName;
+      if (key.isNotEmpty) {
+        if (!grouped.containsKey(key)) grouped[key] = [];
+        grouped[key]!.add(log);
+      }
+    }
+
+    var sortedKeys = grouped.keys.toList()
+      ..sort((a, b) => dayOrder.indexOf(a).compareTo(dayOrder.indexOf(b)));
+
+    return {for (var key in sortedKeys) key: grouped[key]!};
+  }
+
+  String _getEmojiForScore(double score) {
+    int s = score.toInt();
+    switch (s) {
+      case 6:
+        return '😊';
+      case 5:
+        return '😌';
+      case 4:
+        return '😐';
+      case 3:
+        return '😔';
+      case 2:
+        return '😟';
+      case 1:
+        return '😴';
+      default:
+        return '';
+    }
+  }
+
+  String _getInitials(String name) {
+    if (name.isEmpty) return "U";
+    List<String> names = name.trim().split(" ");
+    if (names.length >= 2) {
+      return "${names[0][0]}${names[1][0]}".toUpperCase();
+    }
+    return name[0].toUpperCase();
+  }
+
+  Widget _buildDefaultAvatar(String username) {
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: const BoxDecoration(
+        color: Color(0xFFF5F5F5),
+        shape: BoxShape.circle,
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        _getInitials(username),
+        style: AppTextStyles.profileChat.copyWith(fontSize: 18),
+      ),
+    );
+  }
+
+  Widget _buildPatientProfileImage(String? photoPath, String username) {
+    if (photoPath != null && photoPath.isNotEmpty) {
+      if (photoPath.startsWith('assets/')) {
+        return Image.asset(
+          photoPath,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) =>
+              _buildDefaultAvatar(username),
+        );
+      }
+
+      if (photoPath.startsWith('http')) {
+        return Image.network(
+          photoPath,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) =>
+              _buildDefaultAvatar(username),
+        );
+      }
+    }
+    return _buildDefaultAvatar(username);
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<CounselorProvider>();
@@ -190,7 +315,7 @@ class _PatientScreenState extends State<PatientScreen> {
               context: context,
               icon: icBackLeft2,
               onTap: () => Navigator.pop(context),
-              patientName: patient['name'] ?? 'Pasien',
+              patientName: patient.name,
             ),
             const SizedBox(height: 20),
             Padding(
@@ -200,10 +325,11 @@ class _PatientScreenState extends State<PatientScreen> {
                   context,
                   '/chatmessage',
                   arguments: {
-                    'id': patient['id'].toString(),
-                    'username': patient['name'],
-                    'is_online': patient['is_online'] ?? false,
-                    'last_seen_display': patient['last_seen_display'],
+                    'id': patient.id,
+                    'username': patient.name,
+                    'is_online': patient.isOnline,
+                    'last_seen_display': patient.lastSeenDisplay,
+                    'profile_photo_url': patient.profilePhotoUrl,
                   },
                 ),
                 icon: icComment,
@@ -212,17 +338,28 @@ class _PatientScreenState extends State<PatientScreen> {
             ),
             const SizedBox(height: 15),
             Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    const SizedBox(height: 5),
-                    _buildMedicalCard(context, patient),
-                    const SizedBox(height: 16),
-                    _buildChartMood(context, patient),
-                    const SizedBox(height: 16),
-                    _buildResultPHQ(context, patient),
-                    const SizedBox(height: 20),
-                  ],
+              child: RefreshIndicator(
+                onRefresh: () async {
+                  final patientId =
+                      ModalRoute.of(context)?.settings.arguments as String?;
+                  if (patientId != null) {
+                    await context.read<CounselorProvider>().fetchPatientDetail(
+                      patientId,
+                    );
+                  }
+                },
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 5),
+                      _buildMedicalCard(context, patient),
+                      const SizedBox(height: 16),
+                      _buildChartMood(context, patient),
+                      const SizedBox(height: 16),
+                      _buildResultPHQ(context, patient),
+                      const SizedBox(height: 20),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -241,37 +378,30 @@ class _PatientScreenState extends State<PatientScreen> {
     final provider = context.watch<CounselorProvider>();
     final patient = provider.selectedPatient;
 
-    bool currentOnline = patient?['is_online'] ?? false;
+    bool currentOnline = patient?.isOnline ?? false;
     String statusText = currentOnline
         ? 'Online'
-        : (patient?['last_seen_display'] ?? 'Offline');
+        : (patient?.lastSeenDisplay ?? 'Offline');
+
+    final String? patientPhoto = patient?.profilePhotoUrl;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 25),
       child: Row(
         children: [
-          InkWell(
-            focusColor: Colors.transparent,
-            hoverColor: Colors.transparent,
-            highlightColor: Colors.transparent,
-            overlayColor: WidgetStateProperty.all(Colors.transparent),
-            onTap: onTap,
-            child: Image.asset(icon, width: 10),
-          ),
+          InkWell(onTap: onTap, child: Image.asset(icon, width: 10)),
           const SizedBox(width: 25),
           Row(
             children: [
               Container(
                 width: 40,
                 height: 40,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   color: AppColors.accentLight,
                   shape: BoxShape.circle,
                 ),
-                alignment: Alignment.center,
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Image.asset(icAnonymousProfile),
+                child: ClipOval(
+                  child: _buildPatientProfileImage(patientPhoto, patientName),
                 ),
               ),
               const SizedBox(width: 10),
@@ -285,9 +415,6 @@ class _PatientScreenState extends State<PatientScreen> {
                       color: currentOnline
                           ? const Color(0xFF66BB6A)
                           : AppColors.textLight,
-                      fontWeight: currentOnline
-                          ? FontWeight.bold
-                          : FontWeight.w400,
                     ),
                   ),
                 ],
@@ -299,13 +426,16 @@ class _PatientScreenState extends State<PatientScreen> {
     );
   }
 
-  Widget _buildMedicalCard(BuildContext context, Map<String, dynamic> patient) {
-    final double progress = (patient['progress'] ?? 0.0).toDouble();
-    final String percentage = "${(progress * 100).toInt()}%";
-    final List<dynamic> logs = patient['medication_logs'] ?? [];
+  Widget _buildMedicalCard(BuildContext context, Patient patient) {
+    final double rawProgress = patient.progress;
+    final String percentage = rawProgress < 0
+        ? "0%"
+        : "${(rawProgress * 100).toInt()}%";
+    final double indicatorValue = rawProgress < 0 ? 0.0 : rawProgress;
 
-    final style = _getPatientStatusStyle(progress);
-    final Color progressColor = style['progressColor'];
+    final List<MedicationLog> logs = patient.medicationLogs ?? [];
+    final groupedLogs = _groupLogsByDay(logs);
+    final style = _getPatientStatusStyle(patient.status, rawProgress);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 25),
@@ -345,9 +475,11 @@ class _PatientScreenState extends State<PatientScreen> {
                     borderRadius: BorderRadius.circular(10),
                     child: LinearProgressIndicator(
                       minHeight: 10,
-                      value: progress,
+                      value: indicatorValue,
                       backgroundColor: const Color(0xFFF5F5F5),
-                      valueColor: AlwaysStoppedAnimation<Color>(progressColor),
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        style['progressColor'],
+                      ),
                     ),
                   ),
                   const SizedBox(height: 22),
@@ -355,12 +487,6 @@ class _PatientScreenState extends State<PatientScreen> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       InkWell(
-                        focusColor: Colors.transparent,
-                        hoverColor: Colors.transparent,
-                        highlightColor: Colors.transparent,
-                        overlayColor: WidgetStateProperty.all(
-                          Colors.transparent,
-                        ),
                         onTap: () =>
                             setState(() => _showMedicationDetail = true),
                         child: Text(
@@ -375,7 +501,6 @@ class _PatientScreenState extends State<PatientScreen> {
                 ],
               ),
             ),
-
             _buildAnimatedContent(
               show: _showMedicationDetail,
               child: Column(
@@ -390,12 +515,6 @@ class _PatientScreenState extends State<PatientScreen> {
                         style: AppTextStyles.headingTesPHQ,
                       ),
                       InkWell(
-                        focusColor: Colors.transparent,
-                        hoverColor: Colors.transparent,
-                        highlightColor: Colors.transparent,
-                        overlayColor: WidgetStateProperty.all(
-                          Colors.transparent,
-                        ),
                         onTap: () =>
                             setState(() => _showMedicationDetail = false),
                         child: Text(
@@ -406,37 +525,60 @@ class _PatientScreenState extends State<PatientScreen> {
                     ],
                   ),
                   const SizedBox(height: 18),
-                  logs.isEmpty
+                  groupedLogs.isEmpty
                       ? Center(
                           child: Text(
                             "Belum ada riwayat obat",
                             style: AppTextStyles.noContent,
                           ),
                         )
-                      : Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFFFAFC),
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: const Color(0xFFFFE5F0)),
-                          ),
-                          child: ListView.separated(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: logs.length,
-                            separatorBuilder: (_, __) =>
-                                const SizedBox(height: 8),
-                            itemBuilder: (context, i) {
-                              final log = logs[i];
-                              return _buildDrugRow(
-                                log['medication_name'] ?? 'Obat',
-                                log['is_taken'] == 1
-                                    ? icImplemented
-                                    : icNotImplemented,
-                                log['is_taken'] == 1 ? 'Diminum' : 'Terlewat',
-                              );
-                            },
-                          ),
+                      : Column(
+                          children: groupedLogs.entries.map((entry) {
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 14),
+                              child: Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFFFAFC),
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                    color: const Color(0xFFFFE5F0),
+                                  ),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          entry.key,
+                                          style: AppTextStyles.dayMedical,
+                                        ),
+                                        Text(
+                                          entry.value.isNotEmpty
+                                              ? entry.value.first.dateFormatted
+                                              : '-',
+                                          style: AppTextStyles.dayTes,
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 4),
+                                    ...entry.value.map(
+                                      (log) => _buildDrugRow(
+                                        log.medicationName,
+                                        log.isTaken
+                                            ? icImplemented
+                                            : icNotImplemented,
+                                        log.isTaken ? 'Diminum' : 'Terlewat',
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }).toList(),
                         ),
                 ],
               ),
@@ -451,28 +593,34 @@ class _PatientScreenState extends State<PatientScreen> {
     final Color statusColor = status == 'Diminum'
         ? const Color(0xFF00A63E)
         : const Color(0xFFEA4335);
-    return Container(
-      height: 40,
-      decoration: BoxDecoration(
-        color: AppColors.background,
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10),
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Container(
+        height: 44,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+        ),
         child: Row(
           children: [
             Expanded(
               child: Text(
                 name,
-                style: AppTextStyles.drugName,
+                style: AppTextStyles.drugName.copyWith(fontSize: 13),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            Image.asset(icon, height: 12),
-            const SizedBox(width: 4),
+            Image.asset(icon, height: 14),
+            const SizedBox(width: 6),
             Text(
               status,
-              style: AppTextStyles.drugStatus.copyWith(color: statusColor),
+              style: AppTextStyles.drugStatus.copyWith(
+                color: statusColor,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ],
         ),
@@ -480,12 +628,12 @@ class _PatientScreenState extends State<PatientScreen> {
     );
   }
 
-  Widget _buildResultPHQ(BuildContext context, Map<String, dynamic> patient) {
-    final int score = (patient['last_phq_score'] ?? 0).toInt();
-    final String date = patient['last_phq_date'] ?? '-';
+  Widget _buildResultPHQ(BuildContext context, Patient patient) {
+    final int score = (patient.lastPhqScore ?? 0).toInt();
+    final String date = patient.lastPhqDate ?? '-';
     final phqConfig = _getPhqConfig(score);
 
-    final List<dynamic> history = patient['phq_history'] ?? [];
+    final List<PhqHistory> history = patient.phqHistory ?? [];
     final bool isDataEmpty = date == '-';
 
     return Padding(
@@ -626,10 +774,9 @@ class _PatientScreenState extends State<PatientScreen> {
                     separatorBuilder: (_, __) => const SizedBox(height: 10),
                     itemBuilder: (context, index) {
                       final item = history[index];
-                      final int s = (item['score'] ?? 0).toInt();
-                      final String d = item['date'] ?? '-';
-                      final cat =
-                          item['category'] ?? _getPhqConfig(s)['category'];
+                      final int s = item.score;
+                      final String d = item.date;
+                      final cat = item.category;
                       return _buildPhqHistoryItem(s, cat, d);
                     },
                   ),
@@ -684,12 +831,9 @@ class _PatientScreenState extends State<PatientScreen> {
     );
   }
 
-  Widget _buildChartMood(BuildContext context, Map<String, dynamic> patient) {
-    final List<dynamic> rawMoods =
-        patient['weekly_moods'] ?? [0, 0, 0, 0, 0, 0, 0];
-    final List weeklyMoods = rawMoods
-        .map((e) => (e ?? 0.0).toDouble())
-        .toList();
+  Widget _buildChartMood(BuildContext context, Patient patient) {
+    final List<int> weeklyMoods = patient.weeklyMoods ?? [0, 0, 0, 0, 0, 0, 0];
+    final String rangeDate = patient.moodWeekRange ?? "-";
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 25),
@@ -703,16 +847,45 @@ class _PatientScreenState extends State<PatientScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Statistik Mood Mingguan', style: AppTextStyles.headingTesPHQ),
-            const SizedBox(height: 25),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Log Mood Mingguan', style: AppTextStyles.headingTesPHQ),
+                Text(
+                  rangeDate,
+                  style: AppTextStyles.dayTes.copyWith(fontSize: 12),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
             Padding(
               padding: const EdgeInsets.only(left: 20),
               child: AspectRatio(
-                aspectRatio: 1.9,
+                aspectRatio: 1.6,
                 child: BarChart(
                   BarChartData(
+                    barTouchData: BarTouchData(
+                      enabled: true,
+                      touchTooltipData: BarTouchTooltipData(
+                        getTooltipColor: (group) => Color(0xFFF5F5F5),
+                        tooltipBorderRadius: BorderRadius.circular(6),
+                        tooltipPadding: EdgeInsets.only(
+                          left: 8,
+                          right: 8,
+                          top: 6,
+                          bottom: 2,
+                        ),
+                        tooltipMargin: 6,
+                        getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                          return BarTooltipItem(
+                            _getEmojiForScore(rod.toY),
+                            TextStyle(fontSize: 18),
+                          );
+                        },
+                      ),
+                    ),
                     alignment: BarChartAlignment.spaceAround,
-                    maxY: 6,
+                    maxY: 6.5,
                     minY: 0,
                     gridData: FlGridData(
                       show: true,
@@ -759,8 +932,9 @@ class _PatientScreenState extends State<PatientScreen> {
                           reservedSize: 22,
                           interval: 1,
                           getTitlesWidget: (value, meta) {
-                            if (value == 0) return const SizedBox.shrink();
-                            if (value > 6) return const SizedBox.shrink();
+                            if (value == 0 || value > 6) {
+                              return const SizedBox.shrink();
+                            }
                             return Text(
                               value.toInt().toString(),
                               style: AppTextStyles.chart,
@@ -779,8 +953,8 @@ class _PatientScreenState extends State<PatientScreen> {
                     barGroups: List.generate(weeklyMoods.length, (i) {
                       return _makeGroupData(
                         i,
-                        weeklyMoods[i],
-                        _getMoodColor(weeklyMoods[i]),
+                        weeklyMoods[i].toDouble(),
+                        _getMoodColor(weeklyMoods[i].toDouble()),
                       );
                     }),
                   ),
@@ -800,7 +974,7 @@ class _PatientScreenState extends State<PatientScreen> {
         BarChartRodData(
           toY: y == 0 ? 0.1 : y,
           color: color,
-          width: 22,
+          width: 28,
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(6),
             topRight: Radius.circular(6),

@@ -2,10 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:mindfullshelter/models/medication_model.dart';
+import 'package:mindfullshelter/models/patient_model.dart';
 import 'package:mindfullshelter/providers/auth_provider.dart';
 import 'package:mindfullshelter/providers/counselor_provider.dart';
 import 'package:mindfullshelter/providers/medication_provider.dart';
 import 'package:mindfullshelter/providers/mood_provider.dart';
+import 'package:mindfullshelter/services/auth_service.dart';
 import 'package:mindfullshelter/utils/app_assets.dart';
 import 'package:mindfullshelter/utils/app_colors.dart';
 import 'package:mindfullshelter/utils/app_theme.dart';
@@ -21,7 +23,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   final searchController = TextEditingController();
   int? role;
   String _searchQuery = '';
@@ -30,12 +32,14 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
-      context.read<MedicationProvider>().fetchMedications();
-      context.read<MoodProvider>().fetchWeeklyMood();
-    });
+    WidgetsBinding.instance.addObserver(this);
     _checkSession();
     _startHomePolling();
+    _setOnlineStatus(true);
+  }
+
+  void _setOnlineStatus(bool isOnline) {
+    AuthService().updateOnlineStatus(isOnline);
   }
 
   void _startHomePolling() {
@@ -48,6 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _refreshTimer?.cancel();
     searchController.dispose();
     super.dispose();
@@ -84,79 +89,108 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildProfileImage(AuthProvider auth) {
     final user = auth.currentUser;
-    final String? photoPath = user?.profilePhotoUrl;
+    final String? photoUrl = user?.profilePhotoUrl;
+    final String username = user?.username ?? 'User';
 
     if (auth.imageFile != null && auth.imageFile!.path.isNotEmpty) {
       return Image.file(auth.imageFile!, fit: BoxFit.cover);
     }
 
-    if (photoPath != null && photoPath.isNotEmpty) {
-      if (photoPath.contains('assets/')) {
-        return Image.asset(
-          photoPath,
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) => _buildDefaultAvatar(),
-        );
+    if (photoUrl != null && photoUrl.isNotEmpty) {
+      // Tambahkan pengecekan ini untuk membaca asset dari DB
+      if (photoUrl.startsWith('assets/')) {
+        return Image.asset(photoUrl, fit: BoxFit.cover);
       }
 
-      return Image.network(
-        photoPath,
-        fit: BoxFit.cover,
-        loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) return child;
-          return const Center(
-            child: SizedBox(
-              width: 15,
-              height: 15,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            ),
-          );
-        },
-        errorBuilder: (context, error, stackTrace) => _buildDefaultAvatar(),
-      );
+      if (photoUrl.startsWith('http')) {
+        return Image.network(photoUrl, fit: BoxFit.cover);
+      }
     }
 
-    return _buildDefaultAvatar();
+    return _buildDefaultAvatar(username);
   }
 
-  Widget _buildDefaultAvatar() {
-    return Padding(
-      padding: const EdgeInsets.all(12),
-      child: Image.asset(icAnonymousProfile),
+  Widget _buildDefaultAvatar(String username) {
+    String initial = username.isNotEmpty ? username[0].toUpperCase() : 'U';
+
+    return Container(
+      width: 42,
+      height: 42,
+      decoration: const BoxDecoration(
+        color: Color(0xFFF5F5F5), // Warna abu-abu yang sama dengan ChatScreen
+        shape: BoxShape.circle,
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        initial,
+        style: AppTextStyles.profileChat.copyWith(
+          fontSize: 18,
+        ), // Gunakan style dari chat
+      ),
     );
   }
 
-  Map<String, dynamic> _getPatientStatusStyle(double progress) {
-    double percentage = progress * 100;
+  Map<String, dynamic> _getPatientStatusStyle(String status, double progress) {
+    Color progressColor;
 
-    if (percentage >= 80) {
-      return {
-        'status': 'Sangat Baik',
-        'bgColor': const Color(0xFFD0FAE5),
-        'textColor': const Color(0xFF007A56),
-        'progressColor': const Color(0xFF00BC7D),
-      };
-    } else if (percentage >= 60) {
-      return {
-        'status': 'Baik',
-        'bgColor': const Color(0xFFE0F2FE),
-        'textColor': const Color(0xFF0369A1),
-        'progressColor': const Color(0xFF0EA5E9),
-      };
-    } else if (percentage >= 40) {
-      return {
-        'status': 'Perlu Perhatian',
-        'bgColor': const Color(0xFFFEF3C6),
-        'textColor': const Color(0xFFBA4D00),
-        'progressColor': const Color(0xFFFE9900),
-      };
+    if (progress < 0) {
+      progressColor = const Color(0xFFE0E0E0);
     } else {
-      return {
-        'status': 'Kritis',
-        'bgColor': const Color(0xFFFEE4E6),
-        'textColor': const Color(0xFFC70036),
-        'progressColor': const Color(0xFFFF1F57),
-      };
+      double percentage = progress * 100;
+      if (percentage >= 80) {
+        progressColor = const Color(0xFF00BC7D);
+      } else if (percentage >= 60) {
+        progressColor = const Color(0xFF00BBA7);
+      } else if (percentage >= 40) {
+        progressColor = const Color(0xFFFE9900);
+      } else {
+        progressColor = const Color(0xFFFF1F57);
+      }
+    }
+
+    switch (status) {
+      case 'Sangat Baik':
+        return {
+          'status': 'Sangat Baik',
+          'bgColor': const Color(0xFFD0FAE5),
+          'textColor': const Color(0xFF007A56),
+          'progressColor': progressColor,
+        };
+      case 'Baik':
+        return {
+          'status': 'Baik',
+          'bgColor': const Color(0xFFCBFBF1),
+          'textColor': const Color(0xFF00786F),
+          'progressColor': progressColor,
+        };
+      case 'Perlu Perhatian':
+        return {
+          'status': 'Perlu Perhatian',
+          'bgColor': const Color(0xFFFEF3C6),
+          'textColor': const Color(0xFFBA4D00),
+          'progressColor': progressColor,
+        };
+      case 'Belum Ada Data':
+        return {
+          'status': 'Belum Ada Data',
+          'bgColor': const Color(0xFFF5F5F5),
+          'textColor': const Color(0xFF757575),
+          'progressColor': progressColor,
+        };
+      case 'Kritis':
+        return {
+          'status': 'Kritis',
+          'bgColor': const Color(0xFFFEE4E6),
+          'textColor': const Color(0xFFC70036),
+          'progressColor': progressColor,
+        };
+      default:
+        return {
+          'status': status,
+          'bgColor': const Color(0xFFF5F5F5),
+          'textColor': const Color(0xFF707070),
+          'progressColor': progressColor,
+        };
     }
   }
 
@@ -166,37 +200,47 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: 25),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildHeader(context),
-              const SizedBox(height: 22),
-              if (role == 1) ...[
-                _buildTesPHQ(context),
+        child: RefreshIndicator(
+          onRefresh: () async {
+            await context.read<AuthProvider>().fetchUserProfile();
+            if (role == 1) {
+              await context.read<MedicationProvider>().fetchMedications();
+            } else {
+              await context.read<CounselorProvider>().fetchPatients();
+            }
+          },
+          child: SingleChildScrollView(
+            padding: EdgeInsets.symmetric(horizontal: 25),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildHeader(context),
                 const SizedBox(height: 22),
-                _buildMedicationReminder(context),
-                const SizedBox(height: 22),
-                _buildQuickMoodCheck(context),
-                const SizedBox(height: 26),
-                Text('Fitur Utama', style: AppTextStyles.headingHome),
-                const SizedBox(height: 16),
-                _buildFeatureGrid(context),
-              ] else ...[
-                CustomSearchForm(
-                  controller: searchController,
-                  onChanged: (value) {
-                    setState(() {
-                      _searchQuery = value;
-                    });
-                  },
-                ),
+                if (role == 1) ...[
+                  _buildTesPHQ(context),
+                  const SizedBox(height: 22),
+                  _buildMedicationReminder(context),
+                  const SizedBox(height: 22),
+                  _buildQuickMoodCheck(context),
+                  const SizedBox(height: 26),
+                  Text('Fitur Utama', style: AppTextStyles.headingHome),
+                  const SizedBox(height: 16),
+                  _buildFeatureGrid(context),
+                ] else ...[
+                  CustomSearchForm(
+                    controller: searchController,
+                    onChanged: (value) {
+                      setState(() {
+                        _searchQuery = value;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  _buildListPatient(),
+                ],
                 const SizedBox(height: 20),
-                _buildListPatient(),
               ],
-              const SizedBox(height: 20),
-            ],
+            ),
           ),
         ),
       ),
@@ -718,9 +762,12 @@ class _HomeScreenState extends State<HomeScreen> {
           return const Center(child: CircularProgressIndicator());
         }
 
-        final filteredPatients = provider.patients.where((patient) {
-          final name = (patient['name'] ?? '').toString().toLowerCase();
-          return name.contains(_searchQuery.toLowerCase());
+        final List<Patient> filteredPatients = provider.patients.where((
+          patient,
+        ) {
+          return patient.name.toLowerCase().contains(
+            _searchQuery.toLowerCase(),
+          );
         }).toList();
 
         return Column(
@@ -747,28 +794,31 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildCounselorPatientList(List<dynamic> patients) {
+  Widget _buildCounselorPatientList(List<Patient> patients) {
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: patients.length,
       itemBuilder: (context, index) {
         final patient = patients[index];
-        double progressValue = (patient['progress'] ?? 0.0).toDouble();
-        final style = _getPatientStatusStyle(progressValue);
-        String progressPercentage = "${(progressValue * 100).toInt()}%";
-        int unreadCount = int.tryParse(patient['unread'].toString()) ?? 0;
+
+        final double rawProgress = patient.progress;
+        final style = _getPatientStatusStyle(patient.status, rawProgress);
+
+        final String progressPercentage = rawProgress < 0
+            ? "0%"
+            : "${(rawProgress * 100).toInt()}%";
+
+        final double indicatorValue = rawProgress < 0 ? 0.0 : rawProgress;
+        final int unreadCount = patient.unread;
 
         return InkWell(
           focusColor: Colors.transparent,
           hoverColor: Colors.transparent,
           highlightColor: Colors.transparent,
           overlayColor: WidgetStateProperty.all(Colors.transparent),
-          onTap: () => Navigator.pushNamed(
-            context,
-            '/patient',
-            arguments: patient['id'].toString(),
-          ),
+          onTap: () =>
+              Navigator.pushNamed(context, '/patient', arguments: patient.id),
           child: Container(
             margin: const EdgeInsets.only(bottom: 14),
             padding: const EdgeInsets.all(16),
@@ -793,7 +843,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           Flexible(
                             child: Text(
-                              patient['name'] as String,
+                              patient.name,
                               style: AppTextStyles.namePatient,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -809,7 +859,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               borderRadius: BorderRadius.circular(15),
                             ),
                             child: Text(
-                              style['status'],
+                              patient.status,
                               style: AppTextStyles.categoryPatient.copyWith(
                                 color: style['textColor'],
                                 fontSize: 10,
@@ -845,7 +895,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               borderRadius: BorderRadius.circular(10),
                               child: LinearProgressIndicator(
                                 minHeight: 6,
-                                value: progressValue,
+                                value: indicatorValue,
                                 backgroundColor: const Color(0xFFF5F5F5),
                                 valueColor: AlwaysStoppedAnimation(
                                   style['progressColor'],

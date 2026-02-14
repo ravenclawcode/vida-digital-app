@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/api_constants.dart';
@@ -28,13 +29,15 @@ class CommunityService {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = json.decode(response.body);
+
         if (responseData.containsKey('data')) {
           final List data = responseData['data'];
           return data.map((item) => AnonymousPost.fromJson(item)).toList();
         }
-      } else {}
-      throw Exception('Struktur data tidak sesuai');
-    } catch (_) {
+      }
+      return [];
+    } catch (e) {
+      debugPrint("Error: $e");
       throw Exception('Gagal memuat postingan');
     }
   }

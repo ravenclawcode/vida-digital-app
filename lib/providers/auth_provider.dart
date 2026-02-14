@@ -212,34 +212,30 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('auth_token');
-
-      final response = await http.post(
-        Uri.parse(ApiConstants.updateProfile),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Accept': 'application/json',
-        },
-        body: {
-          'username': username,
-          'email': email,
-          'gender': gender,
-          'profile_photo': avatarUrl ?? _currentUser?.profilePhotoUrl ?? "",
-        },
+      final streamedResponse = await _authService.updateProfile(
+        username: username,
+        email: email,
+        gender: gender,
+        imageFile: _imageFile,
+        avatarUrl: avatarUrl,
       );
+
+      final response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        if (data['user'] != null) {
-          _currentUser = User.fromJson(data['user']);
-          _imageFile = null;
-        }
+        _currentUser = User.fromJson(data['user']);
+        _imageFile = null;
         _isLoading = false;
         notifyListeners();
         return true;
+      } else {
+        print("Server Error: ${response.body}");
       }
-    } catch (_) {}
+    } catch (e) {
+      print("Exception: $e");
+    }
+
     _isLoading = false;
     notifyListeners();
     return false;

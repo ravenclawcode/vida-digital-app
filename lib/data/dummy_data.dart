@@ -1,8 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:mindfullshelter/models/terms_conditions_model.dart';
-import 'package:mindfullshelter/utils/app_assets.dart';
-
-import '../models/mood_model.dart';
 
 class DummyData {
   static final TermsAndConditions termsOfService = TermsAndConditions(
@@ -50,13 +46,4 @@ class DummyData {
       ),
     ],
   );
-
-  static final List<Mood> moods = [
-    Mood(id: '6', emoji: Image.asset(icHappy), label: 'Senang'),
-    Mood(id: '5', emoji: Image.asset(icCalm), label: 'Tenang'),
-    Mood(id: '4', emoji: Image.asset(icNormal), label: 'Biasa'),
-    Mood(id: '3', emoji: Image.asset(icTired), label: 'Lelah'),
-    Mood(id: '2', emoji: Image.asset(icSad), label: 'Sedih'),
-    Mood(id: '1', emoji: Image.asset(icAnxious), label: 'Cemas'),
-  ];
 }

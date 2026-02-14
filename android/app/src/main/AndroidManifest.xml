@@ -16,7 +16,9 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
-    
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <application
         android:label="VIDA Digital"
         android:name="${applicationName}"
@@ -51,6 +53,8 @@
 
         <activity
             android:name="com.ravenclawcode.vida.MainActivity"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true"
             android:exported="true"
             android:launchMode="singleTop"
             android:taskAffinity=""

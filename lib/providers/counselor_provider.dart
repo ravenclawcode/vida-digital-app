@@ -1,31 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:mindfullshelter/models/patient_model.dart';
 import '../services/counselor_service.dart';
 
 class CounselorProvider with ChangeNotifier {
   final CounselorService _service = CounselorService();
 
-  List<dynamic> _patients = [];
-  Map<String, dynamic>? _selectedPatient;
+  List<Patient> _patients = [];
+  Patient? _selectedPatient;
   bool _isLoading = false;
 
-  List<dynamic> get patients => _patients;
-  Map<String, dynamic>? get selectedPatient => _selectedPatient;
+  List<Patient> get patients => _patients;
+  Patient? get selectedPatient => _selectedPatient;
   bool get isLoading => _isLoading;
 
   Future<void> fetchPatients({bool isSilent = false}) async {
     if (!isSilent) {
       _isLoading = true;
-      _patients = [];
       notifyListeners();
     }
 
     try {
-      _patients = await _service.fetchPatients();
-    } catch (_) {
+      final List<dynamic> data = await _service.fetchPatients();
+      _patients = data.map((json) => Patient.fromJson(json)).toList();
+    } catch (e) {
+      debugPrint("Error Provider Fetch Patients: $e");
     } finally {
-      if (!isSilent) {
-        _isLoading = false;
-      }
+      _isLoading = false;
       notifyListeners();
     }
   }
@@ -33,18 +33,18 @@ class CounselorProvider with ChangeNotifier {
   Future<void> fetchPatientDetail(String id, {bool isSilent = false}) async {
     if (!isSilent) {
       _isLoading = true;
-      _selectedPatient = null;
       notifyListeners();
     }
 
     try {
-      final response = await _service.fetchPatientDetail(id);
-      _selectedPatient = response;
-    } catch (_) {
+      final Map<String, dynamic> response = await _service.fetchPatientDetail(
+        id,
+      );
+      _selectedPatient = Patient.fromJson(response);
+    } catch (e) {
+      debugPrint("Error Provider Fetch Detail: $e");
     } finally {
-      if (!isSilent) {
-        _isLoading = false;
-      }
+      _isLoading = false;
       notifyListeners();
     }
   }
@@ -54,15 +54,29 @@ class CounselorProvider with ChangeNotifier {
       final response = await _service.postPhqResult(token, answers);
       return response != null;
     } catch (e) {
+      debugPrint("Error Submit PHQ: $e");
       return false;
     }
   }
 
   void updateSelectedPatientStatus(bool isOnline, String lastSeen) {
-    if (_selectedPatient != null) {
-      _selectedPatient!['is_online'] = isOnline;
-      _selectedPatient!['last_seen_display'] = lastSeen;
-      notifyListeners();
-    }
+    _selectedPatient = _selectedPatient?.copyWith(
+      isOnline: isOnline,
+      lastSeenDisplay: lastSeen,
+    );
+    notifyListeners();
+  }
+
+  void updateUnreadCount(int count) {
+    _selectedPatient = _selectedPatient?.copyWith(unread: count);
+    notifyListeners();
+  }
+
+  void updateStatusOnline(bool online, String time) {
+    _selectedPatient = _selectedPatient?.copyWith(
+      isOnline: online,
+      lastSeenDisplay: time,
+    );
+    notifyListeners();
   }
 }

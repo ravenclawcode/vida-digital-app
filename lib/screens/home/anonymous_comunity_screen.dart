@@ -60,26 +60,18 @@ class _AnonymousComunityScreenState extends State<AnonymousComunityScreen> {
   }
 
   Widget _buildPostHeader(AnonymousPost post) {
+    final String displayName = post.isMine ? post.authorName : 'Anonim';
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          padding: EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: AppColors.accentLight,
-            shape: BoxShape.circle,
-          ),
-          child: Image.asset(icAnonymousProfile, height: 14),
-        ),
+        _buildAvatar(displayName, post.authorPhoto, post.isMine),
         SizedBox(width: 12),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                post.isMine ? post.authorName : 'Anonim',
-                style: AppTextStyles.namePost.copyWith(),
-              ),
+              Text(displayName, style: AppTextStyles.namePost),
               Text(post.timeAgo, style: AppTextStyles.datePost),
             ],
           ),
@@ -110,6 +102,50 @@ class _AnonymousComunityScreenState extends State<AnonymousComunityScreen> {
           },
         ),
       ],
+    );
+  }
+
+  Widget _buildAvatar(
+    String name,
+    String? photoUrl,
+    bool isMine, {
+    double size = 34,
+  }) {
+    if (isMine && photoUrl != null && photoUrl.isNotEmpty) {
+      return Container(
+        width: size,
+        height: size,
+        decoration: const BoxDecoration(shape: BoxShape.circle),
+        child: ClipOval(
+          child: photoUrl.contains('assets/')
+              ? Image.asset(photoUrl, fit: BoxFit.cover)
+              : Image.network(
+                  photoUrl,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) =>
+                      _buildInitialAvatar(name, size),
+                ),
+        ),
+      );
+    }
+
+    return _buildInitialAvatar(isMine ? name : 'Anonim', size);
+  }
+
+  Widget _buildInitialAvatar(String name, double size) {
+    String initial = name.isNotEmpty ? name[0].toUpperCase() : 'A';
+    return Container(
+      width: size,
+      height: size,
+      decoration: const BoxDecoration(
+        color: Color(0xFFF5F5F5),
+        shape: BoxShape.circle,
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        initial,
+        style: AppTextStyles.profileChat.copyWith(fontSize: size * 0.45),
+      ),
     );
   }
 
@@ -568,29 +604,27 @@ class _AnonymousComunityScreenState extends State<AnonymousComunityScreen> {
   }
 
   Widget _inlineComment(AnonymousComment comment) {
+    final String displayName = comment.isMine ? comment.authorName : 'Anonim';
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          padding: EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: AppColors.accentLight,
-            shape: BoxShape.circle,
-          ),
-          child: Image.asset(icAnonymousProfile, height: 12),
+        _buildAvatar(
+          displayName,
+          comment.authorPhoto,
+          comment.isMine,
+          size: 28,
         ),
-        SizedBox(width: 8),
+
+        const SizedBox(width: 8),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  Text(
-                    comment.isMine ? comment.authorName : 'Anonim',
-                    style: AppTextStyles.commentNamePost,
-                  ),
-                  SizedBox(width: 5),
+                  Text(displayName, style: AppTextStyles.commentNamePost),
+                  const SizedBox(width: 5),
                   Text(comment.timeAgo, style: AppTextStyles.commentDatePost),
                 ],
               ),
