@@ -61,12 +61,16 @@ class _ChatMessageScreenState extends State<ChatMessageScreen>
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
     if (args != null && receiverId == null) {
+      Future.microtask(() {
+        _chatProvider.clearMessages();
+      });
+
       setState(() {
-        receiverId = args['id'];
+        receiverId = args['id']?.toString();
         receiverName = args['username'];
-        isOnline = args['is_online'] ?? false;
-        lastSeenDisplay = args['last_seen_display'];
         profilePhotoUrl = args['profile_photo_url'];
+        isOnline = args['is_online'] == true || args['is_online'] == 1;
+        lastSeenDisplay = args['last_seen_display'];
       });
 
       if (receiverId != null) {
@@ -116,17 +120,26 @@ class _ChatMessageScreenState extends State<ChatMessageScreen>
             SizedBox(height: 25),
             if (!isDeleted)
               ListTile(
-                leading: Icon(Icons.copy),
-                title: Text('Salin Pesan'),
+                visualDensity: VisualDensity(vertical: -2),
+                leading: Image.asset(icCopyText, height: 22),
+                title: Text('Salin Pesan', style: AppTextStyles.optionChat),
+                focusColor: Colors.transparent,
+                hoverColor: Colors.transparent,
                 onTap: () {
                   Clipboard.setData(ClipboardData(text: msg.message));
                   Navigator.pop(context);
                 },
               ),
-
             ListTile(
-              leading: Icon(Icons.delete_outline),
-              title: Text('Hapus untuk saya'),
+              visualDensity: VisualDensity(vertical: -2),
+              leading: Image.asset(
+                icDelete,
+                height: 22,
+                color: AppColors.textPrimary,
+              ),
+              title: Text('Hapus untuk saya', style: AppTextStyles.optionChat),
+              focusColor: Colors.transparent,
+              hoverColor: Colors.transparent,
               onTap: () {
                 Navigator.pop(context);
                 _chatProvider.deleteSingleMessage(
@@ -136,14 +149,18 @@ class _ChatMessageScreenState extends State<ChatMessageScreen>
                 );
               },
             ),
-
             if (isMe && !isDeleted)
               ListTile(
-                leading: Icon(Icons.delete_forever, color: Colors.red),
+                visualDensity: VisualDensity(vertical: -2),
+                leading: Image.asset(icDelete, height: 22),
                 title: Text(
                   'Hapus untuk semua',
-                  style: TextStyle(color: Colors.red),
+                  style: AppTextStyles.optionChat.copyWith(
+                    color: Color(0xFFEA4335),
+                  ),
                 ),
+                focusColor: Colors.transparent,
+                hoverColor: Colors.transparent,
                 onTap: () {
                   Navigator.pop(context);
                   _chatProvider.deleteSingleMessage(
@@ -267,81 +284,69 @@ class _ChatMessageScreenState extends State<ChatMessageScreen>
     required String icon,
     required VoidCallback onTap,
   }) {
-    final contactIndex = _chatProvider.contacts.indexWhere(
-      (c) => c['id'].toString() == receiverId,
-    );
+    return Consumer<PrivateChatProvider>(
+      builder: (context, provider, child) {
+        final contact = provider.getContactStatus(receiverId ?? '');
 
-    bool currentOnline;
-    String statusText;
+        bool currentOnline = contact != null
+            ? (contact['is_online'] == true || contact['is_online'] == 1)
+            : isOnline;
 
-    if (contactIndex != -1) {
-      final contact = _chatProvider.contacts[contactIndex];
-      currentOnline = contact['is_online'] == true || contact['is_online'] == 1;
-      statusText = currentOnline
-          ? 'Online'
-          : (contact['last_seen_display'] ?? '');
-    } else {
-      currentOnline = isOnline;
-      statusText = currentOnline ? 'Online' : (lastSeenDisplay ?? '');
-    }
+        String statusText = currentOnline
+            ? 'Online'
+            : (contact?['last_seen_display'] ?? lastSeenDisplay ?? 'Offline');
 
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 25),
-      child: Row(
-        children: [
-          InkWell(
-            focusColor: Colors.transparent,
-            hoverColor: Colors.transparent,
-            highlightColor: Colors.transparent,
-            overlayColor: WidgetStateProperty.all(Colors.transparent),
-            onTap: onTap,
-            child: Image.asset(icon, width: 10),
-          ),
-          SizedBox(width: 25),
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: Color(0xFFF5F5F5),
-              shape: BoxShape.circle,
-            ),
-            child: ClipOval(
-              child: _buildPatientProfileImage(
-                profilePhotoUrl,
-                receiverName ?? '',
-              ),
-            ),
-          ),
-          SizedBox(width: 10),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        bool canDelete = provider.messages.isNotEmpty;
+
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 25),
+          child: Row(
             children: [
-              Text(receiverName ?? 'User', style: AppTextStyles.heading),
-              Text(
-                statusText,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w400,
-                  color: currentOnline ? Color(0xFF66BB6A) : Color(0xFFA8A8A8),
+              InkWell(onTap: onTap, child: Image.asset(icon, width: 10)),
+              const SizedBox(width: 25),
+              Container(
+                width: 40,
+                height: 40,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFF5F5F5),
+                  shape: BoxShape.circle,
+                ),
+                child: ClipOval(
+                  child: _buildPatientProfileImage(
+                    profilePhotoUrl,
+                    receiverName ?? '',
+                  ),
                 ),
               ),
-            ],
-          ),
-          Spacer(),
-          Consumer<PrivateChatProvider>(
-            builder: (context, provider, _) {
-              bool canDelete = provider.messages.isNotEmpty;
-              return InkWell(
+              const SizedBox(width: 10),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(receiverName ?? 'User', style: AppTextStyles.heading),
+                  Text(
+                    statusText,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w400,
+                      color: currentOnline
+                          ? const Color(0xFF66BB6A)
+                          : const Color(0xFFA8A8A8),
+                    ),
+                  ),
+                ],
+              ),
+              const Spacer(),
+              InkWell(
                 onTap: canDelete ? _deleteChat : null,
                 child: Image.asset(
                   canDelete ? icDeleteActive : icDeleteNoactive,
                   height: 20,
                 ),
-              );
-            },
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -349,6 +354,10 @@ class _ChatMessageScreenState extends State<ChatMessageScreen>
     return Consumer<PrivateChatProvider>(
       builder: (context, privateChat, _) {
         final messages = privateChat.messages;
+
+        if (privateChat.isLoading && messages.isEmpty) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
         return RefreshIndicator(
           onRefresh: () async {
@@ -359,9 +368,9 @@ class _ChatMessageScreenState extends State<ChatMessageScreen>
           },
           child: ListView.builder(
             controller: _scrollController,
-            physics: AlwaysScrollableScrollPhysics(),
+            physics: const AlwaysScrollableScrollPhysics(),
             cacheExtent: 1000,
-            padding: EdgeInsets.symmetric(horizontal: 25, vertical: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
             itemCount: messages.length,
             itemBuilder: (context, index) {
               final msg = messages[index];

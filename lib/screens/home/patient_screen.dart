@@ -4,6 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:mindfullshelter/models/patient_model.dart';
 import 'package:mindfullshelter/providers/counselor_provider.dart';
+import 'package:mindfullshelter/providers/private_chat_provider.dart';
 import 'package:mindfullshelter/utils/app_assets.dart';
 import 'package:mindfullshelter/utils/app_colors.dart';
 import 'package:mindfullshelter/utils/app_theme.dart';
@@ -26,11 +27,12 @@ class _PatientScreenState extends State<PatientScreen> {
   @override
   void initState() {
     super.initState();
-    _statusTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
-      final patientId = ModalRoute.of(context)?.settings.arguments as String?;
-      if (patientId != null && mounted) {
+    _statusTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
+      if (mounted) {
+        context.read<PrivateChatProvider>().loadContacts();
+        final patientId = ModalRoute.of(context)?.settings.arguments as String?;
         context.read<CounselorProvider>().fetchPatientDetail(
-          patientId,
+          patientId!,
           isSilent: true,
         );
       }
@@ -321,17 +323,29 @@ class _PatientScreenState extends State<PatientScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 25),
               child: CustomButton13(
-                onTap: () => Navigator.pushNamed(
-                  context,
-                  '/chatmessage',
-                  arguments: {
-                    'id': patient.id,
-                    'username': patient.name,
-                    'is_online': patient.isOnline,
-                    'last_seen_display': patient.lastSeenDisplay,
-                    'profile_photo_url': patient.profilePhotoUrl,
-                  },
-                ),
+                onTap: () {
+                  final chatProv = context.read<PrivateChatProvider>();
+                  final liveStatus = chatProv.getContactStatus(
+                    patient.id.toString(),
+                  );
+
+                  Navigator.pushNamed(
+                    context,
+                    '/chatmessage',
+                    arguments: {
+                      'id': patient.id.toString(),
+                      'username': patient.name,
+                      'is_online': liveStatus != null
+                          ? (liveStatus['is_online'] == true ||
+                                liveStatus['is_online'] == 1)
+                          : patient.isOnline,
+                      'last_seen_display':
+                          liveStatus?['last_seen_display'] ??
+                          patient.lastSeenDisplay,
+                      'profile_photo_url': patient.profilePhotoUrl,
+                    },
+                  );
+                },
                 icon: icComment,
                 label: 'Buka Obrolan',
               ),
@@ -376,54 +390,68 @@ class _PatientScreenState extends State<PatientScreen> {
     required VoidCallback onTap,
     required String patientName,
   }) {
-    final provider = context.watch<CounselorProvider>();
-    final patient = provider.selectedPatient;
+    return Consumer2<CounselorProvider, PrivateChatProvider>(
+      builder: (context, counselorProv, chatProv, child) {
+        final patient = counselorProv.selectedPatient;
+        final String patientId = patient?.id.toString() ?? '';
 
-    bool currentOnline = patient?.isOnline ?? false;
-    String statusText = currentOnline
-        ? 'Online'
-        : (patient?.lastSeenDisplay ?? 'Offline');
+        final liveStatus = chatProv.getContactStatus(patientId);
 
-    final String? patientPhoto = patient?.profilePhotoUrl;
+        bool currentOnline = liveStatus != null
+            ? (liveStatus['is_online'] == true || liveStatus['is_online'] == 1)
+            : (patient?.isOnline ?? false);
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 25),
-      child: Row(
-        children: [
-          InkWell(onTap: onTap, child: Image.asset(icon, width: 10)),
-          const SizedBox(width: 25),
-          Row(
+        String statusText = currentOnline
+            ? 'Online'
+            : (liveStatus?['last_seen_display'] ??
+                  patient?.lastSeenDisplay ??
+                  'Offline');
+
+        final String? patientPhoto = patient?.profilePhotoUrl;
+
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 25),
+          child: Row(
             children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: AppColors.accentLight,
-                  shape: BoxShape.circle,
-                ),
-                child: ClipOval(
-                  child: _buildPatientProfileImage(patientPhoto, patientName),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              InkWell(onTap: onTap, child: Image.asset(icon, width: 10)),
+              const SizedBox(width: 25),
+              Row(
                 children: [
-                  Text(patientName, style: AppTextStyles.heading),
-                  Text(
-                    statusText,
-                    style: AppTextStyles.bodyMediumChatbot.copyWith(
-                      color: currentOnline
-                          ? const Color(0xFF66BB6A)
-                          : AppColors.textLight,
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: AppColors.accentLight,
+                      shape: BoxShape.circle,
                     ),
+                    child: ClipOval(
+                      child: _buildPatientProfileImage(
+                        patientPhoto,
+                        patientName,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(patientName, style: AppTextStyles.heading),
+                      Text(
+                        statusText,
+                        style: AppTextStyles.bodyMediumChatbot.copyWith(
+                          color: currentOnline
+                              ? const Color(0xFF66BB6A)
+                              : AppColors.textLight,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 

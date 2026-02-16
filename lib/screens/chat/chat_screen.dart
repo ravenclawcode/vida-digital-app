@@ -59,11 +59,35 @@ class _ChatScreenState extends State<ChatScreen> {
                       );
                     }
 
+                    final List<dynamic> sortedContacts = List.from(
+                      provider.contacts,
+                    );
+
+                    sortedContacts.sort((a, b) {
+                      String? timeAStr = a['last_message_at'];
+                      String? timeBStr = b['last_message_at'];
+
+                      if (timeAStr != null && timeBStr != null) {
+                        DateTime timeA = DateTime.parse(timeAStr);
+                        DateTime timeB = DateTime.parse(timeBStr);
+                        return timeB.compareTo(timeA);
+                      }
+
+                      if (timeAStr != null && timeBStr == null) return -1;
+                      if (timeAStr == null && timeBStr != null) return 1;
+
+                      String nameA =
+                          a['username']?.toString().toLowerCase() ?? '';
+                      String nameB =
+                          b['username']?.toString().toLowerCase() ?? '';
+                      return nameA.compareTo(nameB);
+                    });
+
                     return ListView.builder(
-                      itemCount: provider.contacts.length,
+                      itemCount: sortedContacts.length,
                       padding: const EdgeInsets.only(bottom: 20),
                       itemBuilder: (context, index) {
-                        final user = provider.contacts[index];
+                        final user = sortedContacts[index];
                         return _buildCounselorCard(user);
                       },
                     );

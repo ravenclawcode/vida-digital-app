@@ -549,7 +549,7 @@ class AppTextStyles {
   );
 
   static TextStyle get versionApp => GoogleFonts.poppins(
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: FontWeight.w400,
     color: AppColors.textLight,
   );
@@ -634,6 +634,12 @@ class AppTextStyles {
     fontSize: 8,
     fontWeight: FontWeight.w600,
     color: AppColors.textWhite,
+  );
+
+  static TextStyle get optionChat => GoogleFonts.poppins(
+    fontSize: 16,
+    fontWeight: FontWeight.w500,
+    color: AppColors.textPrimary,
   );
 
   //Font Test PHQ-9

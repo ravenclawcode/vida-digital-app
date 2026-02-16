@@ -125,12 +125,36 @@ class PrivateChatProvider with ChangeNotifier {
 
   void startPolling(String otherUserId) {
     _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
-      loadMessages(otherUserId);
+    _timer = Timer.periodic(const Duration(seconds: 10), (timer) async {
+      await loadMessages(otherUserId);
+      await loadContacts();
+      notifyListeners();
     });
   }
 
   void stopPolling() {
     _timer?.cancel();
   }
+
+  Map<String, dynamic>? getContactStatus(String userId) {
+    try {
+      return contacts.firstWhere(
+        (c) => c['id'].toString() == userId.toString(),
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
+  void startGlobalContactsPolling() {
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
+      loadContacts();
+    });
+  }
+
+  void clearMessages() {
+  _messages = [];
+  notifyListeners();
+}
 }

@@ -7,6 +7,7 @@ import 'package:mindfullshelter/providers/auth_provider.dart';
 import 'package:mindfullshelter/providers/counselor_provider.dart';
 import 'package:mindfullshelter/providers/medication_provider.dart';
 import 'package:mindfullshelter/providers/mood_provider.dart';
+import 'package:mindfullshelter/providers/private_chat_provider.dart';
 import 'package:mindfullshelter/services/auth_service.dart';
 import 'package:mindfullshelter/utils/app_assets.dart';
 import 'package:mindfullshelter/utils/app_colors.dart';
@@ -38,24 +39,29 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     _setOnlineStatus(true);
   }
 
-  void _setOnlineStatus(bool isOnline) {
-    AuthService().updateOnlineStatus(isOnline);
-  }
-
-  void _startHomePolling() {
-    _refreshTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (mounted && role != 1) {
-        context.read<CounselorProvider>().fetchPatients(isSilent: true);
-      }
-    });
-  }
-
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _refreshTimer?.cancel();
     searchController.dispose();
     super.dispose();
+  }
+
+  void _setOnlineStatus(bool isOnline) {
+    AuthService().updateOnlineStatus(isOnline);
+  }
+
+  void _startHomePolling() {
+    _refreshTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
+      if (mounted) {
+        if (role != 1) {
+          context.read<CounselorProvider>().fetchPatients(isSilent: true);
+          context.read<PrivateChatProvider>().loadContacts();
+        } else {
+          context.read<PrivateChatProvider>().loadContacts();
+        }
+      }
+    });
   }
 
   void _checkSession() async {

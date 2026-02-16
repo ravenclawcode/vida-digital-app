@@ -87,6 +87,7 @@ const icKey = 'assets/icons/ic_key.png';
 const icTools = 'assets/icons/ic_tools.png';
 const icStethoscope = 'assets/icons/ic_stethoscope.png';
 const icCopy = 'assets/icons/ic_copy.png';
+const icCopyText = 'assets/icons/ic_copy_text.png';
 const icNotes = 'assets/icons/ic_notes.png';
 const icSearch = 'assets/icons/ic_search.png';
 const icImplemented = 'assets/icons/ic_implemented.png';
