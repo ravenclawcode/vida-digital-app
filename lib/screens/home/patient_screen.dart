@@ -349,6 +349,7 @@ class _PatientScreenState extends State<PatientScreen> {
                   }
                 },
                 child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
                   child: Column(
                     children: [
                       const SizedBox(height: 5),

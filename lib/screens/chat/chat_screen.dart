@@ -47,23 +47,28 @@ class _ChatScreenState extends State<ChatScreen> {
             _buildContentTop(),
             const SizedBox(height: 30),
             Expanded(
-              child: Consumer<PrivateChatProvider>(
-                builder: (context, provider, child) {
-                  if (provider.contacts.isEmpty) {
-                    return const Center(
-                      child: Text('Belum ada percakapan tersedia'),
-                    );
-                  }
-
-                  return ListView.builder(
-                    itemCount: provider.contacts.length,
-                    padding: const EdgeInsets.only(bottom: 20),
-                    itemBuilder: (context, index) {
-                      final user = provider.contacts[index];
-                      return _buildCounselorCard(user);
-                    },
-                  );
+              child: RefreshIndicator(
+                onRefresh: () async {
+                  await context.read<PrivateChatProvider>().loadContacts();
                 },
+                child: Consumer<PrivateChatProvider>(
+                  builder: (context, provider, child) {
+                    if (provider.contacts.isEmpty) {
+                      return const Center(
+                        child: Text('Belum ada percakapan tersedia'),
+                      );
+                    }
+
+                    return ListView.builder(
+                      itemCount: provider.contacts.length,
+                      padding: const EdgeInsets.only(bottom: 20),
+                      itemBuilder: (context, index) {
+                        final user = provider.contacts[index];
+                        return _buildCounselorCard(user);
+                      },
+                    );
+                  },
+                ),
               ),
             ),
           ],
@@ -200,7 +205,22 @@ class _ChatScreenState extends State<ChatScreen> {
                       Text(user['username'], style: AppTextStyles.titleChat),
                       Text(
                         user['last_message'] ?? 'Ketuk untuk memulai chat',
-                        style: AppTextStyles.subtitleChat,
+                        style: AppTextStyles.subtitleChat.copyWith(
+                          fontStyle:
+                              (user['last_message']?.contains('menghapus') ??
+                                      false) ||
+                                  (user['last_message']?.contains('dihapus') ??
+                                      false)
+                              ? FontStyle.italic
+                              : FontStyle.normal,
+                          color:
+                              (user['last_message']?.contains('menghapus') ??
+                                      false) ||
+                                  (user['last_message']?.contains('dihapus') ??
+                                      false)
+                              ? AppColors.textLight
+                              : AppColors.textSecondary,
+                        ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),

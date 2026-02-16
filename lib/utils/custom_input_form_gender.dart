@@ -53,12 +53,12 @@ class _CustomInputFormGenderState extends State<CustomInputFormGender> {
           borderSide: BorderSide(width: 2, color: AppColors.borderErrorColor),
         ),
       ),
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Jenis kelamin harus diisi';
-        }
-        return null;
-      },
+      // validator: (value) {
+      //   if (value == null || value.isEmpty) {
+      //     return 'Jenis kelamin harus diisi';
+      //   }
+      //   return null;
+      // },
       onChanged: (String? value) {
         setState(() {
           widget.controller.text = value ?? '';

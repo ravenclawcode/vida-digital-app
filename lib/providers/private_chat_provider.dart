@@ -21,9 +21,36 @@ class PrivateChatProvider with ChangeNotifier {
   }
 
   Future<void> loadMessages(String otherUserId) async {
-    final data = await _service.fetchMessages(otherUserId);
-    _messages = data.map((json) => PrivateChat.fromJson(json)).toList();
-    notifyListeners();
+    try {
+      final data = await _service.fetchMessages(otherUserId);
+      List<PrivateChat> serverMessages = data
+          .map((json) => PrivateChat.fromJson(json))
+          .toList();
+
+      bool isChanged = false;
+
+      if (serverMessages.length != _messages.length) {
+        isChanged = true;
+      } else if (_messages.isNotEmpty && serverMessages.isNotEmpty) {
+        if (_messages.last.id != serverMessages.last.id ||
+            _messages.any((m) => m.isDeletedEveryone) !=
+                serverMessages.any((m) => m.isDeletedEveryone)) {
+          isChanged = true;
+        }
+      } else if (_messages.isEmpty && serverMessages.isNotEmpty) {
+        isChanged = true;
+      }
+
+      if (isChanged) {
+        _messages = serverMessages;
+        notifyListeners();
+      }
+
+      final newContacts = await _service.fetchContacts();
+      _contacts = newContacts;
+    } catch (e) {
+      debugPrint("Error loadMessages: $e");
+    }
   }
 
   Future<void> sendPrivateMessage(String receiverId, String text) async {
@@ -32,17 +59,15 @@ class PrivateChatProvider with ChangeNotifier {
 
     try {
       final result = await _service.sendMessage(receiverId, text);
-
       if (result != null) {
         final newMessage = PrivateChat.fromJson(result);
-        _messages.add(newMessage);
+
+        if (!_messages.any((m) => m.id == newMessage.id)) {
+          _messages.add(newMessage);
+        }
 
         await loadContacts();
-
-        notifyListeners();
       }
-    } catch (e) {
-      rethrow;
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -56,33 +81,45 @@ class PrivateChatProvider with ChangeNotifier {
   Future<void> deleteMessages(String otherUserId) async {
     try {
       final success = await _service.deleteChat(otherUserId);
+
       if (success) {
         _messages.clear();
+
         notifyListeners();
+
+        await loadContacts();
       }
     } catch (e) {
+      debugPrint("Error Clear Chat: $e");
       rethrow;
     }
   }
 
-  Future<void> deleteSingleMessage(String messageId, String type) async {
+  Future<void> deleteSingleMessage({
+    required String messageId,
+    required String type,
+    required String otherUserId,
+  }) async {
     try {
       final response = await _service.deleteMessage(messageId, type);
 
-      if (response['success']) {
-        int index = _messages.indexWhere((m) => m.id == messageId);
-        if (index != -1) {
-          if (type == 'everyone') {
+      if (response['success'] == true) {
+        if (type == 'everyone') {
+          int index = _messages.indexWhere((m) => m.id == messageId);
+          if (index != -1) {
             _messages[index].isDeletedEveryone = true;
-          } else {
-            _messages.removeAt(index);
           }
-          notifyListeners();
+        } else {
+          _messages.removeWhere((m) => m.id == messageId);
         }
+
+        notifyListeners();
+
+        await loadMessages(otherUserId);
+        await loadContacts();
       }
     } catch (e) {
-      debugPrint("Error delete message: $e");
-      rethrow;
+      debugPrint("Error Delete: $e");
     }
   }
 

@@ -168,7 +168,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             padding: EdgeInsets.symmetric(horizontal: 5, vertical: 10),
             child: _buildOptionMenu(context),
           ),
-          SizedBox(height: 15),
+          SizedBox(height: 18),
           Text('VIDA Digital v1.0.0', style: AppTextStyles.versionApp),
         ],
       ),
@@ -217,21 +217,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 Row(
                   children: [
-                    Padding(
-                      padding: EdgeInsets.only(left: 6),
-                      child: Container(
-                        width: 36,
-                        height: 36,
-                        decoration: BoxDecoration(
-                          color: AppColors.accentLight,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Padding(
-                          padding: EdgeInsets.all(9),
-                          child: Image.asset(menu['icon'] as String),
-                        ),
-                      ),
-                    ),
+                    // Padding(
+                    //   padding: EdgeInsets.only(left: 6),
+                    //   child: Container(
+                    //     width: 36,
+                    //     height: 36,
+                    //     decoration: BoxDecoration(
+                    //       color: AppColors.accentLight,
+                    //       borderRadius: BorderRadius.circular(10),
+                    //     ),
+                    //     child: Padding(
+                    //       padding: EdgeInsets.all(9),
+                    //       child: Image.asset(menu['icon'] as String),
+                    //     ),
+                    //   ),
+                    // ),
                     SizedBox(width: 10),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

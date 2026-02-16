@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:mindfullshelter/providers/auth_provider.dart';
 import 'package:mindfullshelter/providers/private_chat_provider.dart';
 import 'package:mindfullshelter/utils/app_assets.dart';
 import 'package:mindfullshelter/utils/custom_button6.dart';
 import 'package:mindfullshelter/utils/custom_button7.dart';
 import 'package:mindfullshelter/utils/custom_dialog_delete_chat_message.dart';
-import 'package:mindfullshelter/utils/custom_typing_indicator.dart';
 import 'package:provider/provider.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_theme.dart';
@@ -22,13 +23,11 @@ class _ChatMessageScreenState extends State<ChatMessageScreen>
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   bool _hasText = false;
-
+  bool isOnline = false;
   String? receiverId;
   String? receiverName;
   String? lastSeenDisplay;
   String? profilePhotoUrl;
-  bool isOnline = false;
-
   late PrivateChatProvider _chatProvider;
 
   @override
@@ -81,45 +80,121 @@ class _ChatMessageScreenState extends State<ChatMessageScreen>
     }
   }
 
+  @override
+  void dispose() {
+    _chatProvider.updateStatus(false);
+    WidgetsBinding.instance.removeObserver(this);
+    _messageController.dispose();
+    _scrollController.dispose();
+    _chatProvider.stopPolling();
+    super.dispose();
+  }
+
   void _showDeleteOptions(dynamic msg) {
-    bool isMe = msg.senderId != receiverId;
+    final otherId = receiverId ?? '';
+    bool isMe = msg.senderId.toString() != receiverId.toString();
+    bool isDeleted = msg.isDeletedEveryone ?? false;
 
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
       ),
       builder: (context) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            SizedBox(height: 8),
+            Container(
+              width: 50,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Color(0xFFD9D9D9),
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            SizedBox(height: 25),
+            if (!isDeleted)
+              ListTile(
+                leading: Icon(Icons.copy),
+                title: Text('Salin Pesan'),
+                onTap: () {
+                  Clipboard.setData(ClipboardData(text: msg.message));
+                  Navigator.pop(context);
+                },
+              ),
+
             ListTile(
-              leading: const Icon(Icons.delete_outline),
-              title: const Text('Hapus untuk saya'),
+              leading: Icon(Icons.delete_outline),
+              title: Text('Hapus untuk saya'),
               onTap: () {
                 Navigator.pop(context);
-                _chatProvider.deleteSingleMessage(msg.id.toString(), 'me');
+                _chatProvider.deleteSingleMessage(
+                  messageId: msg.id.toString(),
+                  type: 'me',
+                  otherUserId: otherId,
+                );
               },
             ),
-            if (isMe && !msg.isDeletedEveryone)
+
+            if (isMe && !isDeleted)
               ListTile(
-                leading: const Icon(Icons.delete_forever, color: Colors.red),
-                title: const Text(
+                leading: Icon(Icons.delete_forever, color: Colors.red),
+                title: Text(
                   'Hapus untuk semua',
                   style: TextStyle(color: Colors.red),
                 ),
                 onTap: () {
                   Navigator.pop(context);
                   _chatProvider.deleteSingleMessage(
-                    msg.id.toString(),
-                    'everyone',
+                    messageId: msg.id.toString(),
+                    type: 'everyone',
+                    otherUserId: otherId,
                   );
                 },
               ),
-            const SizedBox(height: 10),
+            SizedBox(height: 10),
           ],
         ),
       ),
+    );
+  }
+
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
+
+  void _sendMessage() async {
+    final text = _messageController.text.trim();
+    if (text.isEmpty || receiverId == null) return;
+
+    _messageController.clear();
+
+    _chatProvider.stopPolling();
+
+    try {
+      await _chatProvider.sendPrivateMessage(receiverId!, text);
+      _scrollToBottom();
+    } finally {
+      Future.delayed(Duration(milliseconds: 500), () {
+        if (mounted) _chatProvider.startPolling(receiverId!);
+      });
+    }
+  }
+
+  void _deleteChat() async {
+    if (receiverId == null) return;
+    showDialog(
+      context: context,
+      builder: (_) => CustomDialogDeleteChatMessage(receiverId: receiverId!),
     );
   }
 
@@ -140,72 +215,48 @@ class _ChatMessageScreenState extends State<ChatMessageScreen>
     );
   }
 
-  void _scrollToBottom() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_scrollController.hasClients) {
-        _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
-      }
-    });
-  }
-
-  void _sendMessage() async {
-    final text = _messageController.text.trim();
-    if (text.isEmpty || receiverId == null) return;
-    _messageController.clear();
-    try {
-      await _chatProvider.sendPrivateMessage(receiverId!, text);
-      await _chatProvider.loadContacts();
-      _scrollToBottom();
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("Gagal mengirim: $e")));
-      }
-    }
-  }
-
-  void _deleteChat() async {
-    if (receiverId == null) return;
-    showDialog(
-      context: context,
-      builder: (_) => CustomDialogDeleteChatMessage(receiverId: receiverId!),
-    );
-  }
-
-  @override
-  void dispose() {
-    _chatProvider.updateStatus(false);
-    WidgetsBinding.instance.removeObserver(this);
-    _messageController.dispose();
-    _scrollController.dispose();
-    _chatProvider.stopPolling();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      resizeToAvoidBottomInset: true,
-      body: SafeArea(
-        child: Column(
-          children: [
-            const SizedBox(height: 11),
-            _buildHeader(
-              context: context,
-              icon: icBackLeft2,
-              onTap: () => Navigator.pop(context),
-            ),
-            const SizedBox(height: 4),
-            const Divider(color: Color(0xFFE9E9E9), thickness: 0.5),
-            Expanded(child: _buildMessagesList()),
-            _buildMessageInput(),
-          ],
+    final authUser = context.watch<AuthProvider>().currentUser;
+    final bool isCounselor = authUser?.roleId == 2;
+
+    return PopScope(
+      canPop: !isCounselor,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+
+        if (isCounselor) {
+          Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+        }
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        resizeToAvoidBottomInset: true,
+        body: SafeArea(
+          child: Column(
+            children: [
+              SizedBox(height: 11),
+              _buildHeader(
+                context: context,
+                icon: icBackLeft2,
+                onTap: () {
+                  if (isCounselor) {
+                    Navigator.pushNamedAndRemoveUntil(
+                      context,
+                      '/',
+                      (route) => false,
+                    );
+                  } else {
+                    Navigator.pop(context);
+                  }
+                },
+              ),
+              SizedBox(height: 4),
+              Divider(color: Color(0xFFE9E9E9), thickness: 0.5),
+              Expanded(child: _buildMessagesList()),
+              _buildMessageInput(),
+            ],
+          ),
         ),
       ),
     );
@@ -235,7 +286,7 @@ class _ChatMessageScreenState extends State<ChatMessageScreen>
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 25),
+      padding: EdgeInsets.symmetric(horizontal: 25),
       child: Row(
         children: [
           InkWell(
@@ -246,11 +297,11 @@ class _ChatMessageScreenState extends State<ChatMessageScreen>
             onTap: onTap,
             child: Image.asset(icon, width: 10),
           ),
-          const SizedBox(width: 25),
+          SizedBox(width: 25),
           Container(
             width: 40,
             height: 40,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: Color(0xFFF5F5F5),
               shape: BoxShape.circle,
             ),
@@ -261,7 +312,7 @@ class _ChatMessageScreenState extends State<ChatMessageScreen>
               ),
             ),
           ),
-          const SizedBox(width: 10),
+          SizedBox(width: 10),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -271,14 +322,12 @@ class _ChatMessageScreenState extends State<ChatMessageScreen>
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w400,
-                  color: currentOnline
-                      ? const Color(0xFF66BB6A)
-                      : const Color(0xFFA8A8A8),
+                  color: currentOnline ? Color(0xFF66BB6A) : Color(0xFFA8A8A8),
                 ),
               ),
             ],
           ),
-          const Spacer(),
+          Spacer(),
           Consumer<PrivateChatProvider>(
             builder: (context, provider, _) {
               bool canDelete = provider.messages.isNotEmpty;
@@ -300,46 +349,53 @@ class _ChatMessageScreenState extends State<ChatMessageScreen>
     return Consumer<PrivateChatProvider>(
       builder: (context, privateChat, _) {
         final messages = privateChat.messages;
-        return ListView.builder(
-          controller: _scrollController,
-          padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
-          itemCount: messages.length + (privateChat.isLoading ? 1 : 0),
-          itemBuilder: (context, index) {
-            if (index == messages.length) {
-              return const Padding(
-                padding: EdgeInsets.symmetric(vertical: 10),
-                child: CustomTypingIndicator(),
-              );
+
+        return RefreshIndicator(
+          onRefresh: () async {
+            if (receiverId != null) {
+              await privateChat.loadMessages(receiverId!);
+              _scrollToBottom();
             }
-            final msg = messages[index];
-            bool isMe = msg.senderId != receiverId;
-            return _buildChatBubble(msg, isMe);
           },
+          child: ListView.builder(
+            controller: _scrollController,
+            physics: AlwaysScrollableScrollPhysics(),
+            cacheExtent: 1000,
+            padding: EdgeInsets.symmetric(horizontal: 25, vertical: 20),
+            itemCount: messages.length,
+            itemBuilder: (context, index) {
+              final msg = messages[index];
+              bool isMe = msg.senderId.toString() != receiverId.toString();
+
+              return _buildChatBubble(msg, isMe, key: ValueKey(msg.id));
+            },
+          ),
         );
       },
     );
   }
 
-  Widget _buildChatBubble(dynamic msg, bool isMe) {
+  Widget _buildChatBubble(dynamic msg, bool isMe, {Key? key}) {
     bool isDeleted = msg.isDeletedEveryone ?? false;
 
     return GestureDetector(
       onLongPress: () => _showDeleteOptions(msg),
       child: Align(
+        key: key,
         alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
         child: Container(
-          margin: const EdgeInsets.only(bottom: 15),
-          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+          margin: EdgeInsets.only(bottom: 15),
+          padding: EdgeInsets.symmetric(horizontal: 15, vertical: 12),
           constraints: BoxConstraints(
             maxWidth: MediaQuery.of(context).size.width * 0.75,
           ),
           decoration: BoxDecoration(
             color: isDeleted
-                ? const Color(0xFFEEEEEE)
-                : (isMe ? AppColors.primary : AppColors.borderTabbar),
+                ? Color(0xFFF5F5F5)
+                : (isMe ? AppColors.primary : Color(0xFFF5F5F5)),
             borderRadius: BorderRadius.only(
-              topLeft: const Radius.circular(15),
-              topRight: const Radius.circular(15),
+              topLeft: Radius.circular(15),
+              topRight: Radius.circular(15),
               bottomLeft: Radius.circular(isMe ? 15 : 2.5),
               bottomRight: Radius.circular(isMe ? 2.5 : 15),
             ),
@@ -357,17 +413,18 @@ class _ChatMessageScreenState extends State<ChatMessageScreen>
                     : msg.message,
                 style: AppTextStyles.bodyMedium.copyWith(
                   color: isDeleted
-                      ? Colors.grey
-                      : (isMe ? Colors.white : AppColors.textPrimary),
+                      ? AppColors.textLight
+                      : (isMe ? AppColors.textWhite : AppColors.textPrimary),
                   fontStyle: isDeleted ? FontStyle.italic : FontStyle.normal,
                 ),
               ),
-              const SizedBox(height: 4),
+              SizedBox(height: 4),
               Text(
                 DateFormat('HH:mm').format(msg.timestamp),
                 style: AppTextStyles.bodyMediumChatbot.copyWith(
-                  color: isMe ? Colors.white70 : AppColors.textLight,
-                  fontSize: 10,
+                  color: isDeleted
+                      ? AppColors.textLight
+                      : (isMe ? AppColors.textWhite : AppColors.textLight),
                 ),
               ),
             ],
@@ -379,14 +436,14 @@ class _ChatMessageScreenState extends State<ChatMessageScreen>
 
   Widget _buildMessageInput() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
       decoration: BoxDecoration(
         color: AppColors.background,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
             blurRadius: 10,
-            offset: const Offset(0, -5),
+            offset: Offset(0, -5),
           ),
         ],
       ),
@@ -407,7 +464,7 @@ class _ChatMessageScreenState extends State<ChatMessageScreen>
                   borderRadius: BorderRadius.circular(10),
                   borderSide: BorderSide.none,
                 ),
-                contentPadding: const EdgeInsets.symmetric(
+                contentPadding: EdgeInsets.symmetric(
                   horizontal: 20,
                   vertical: 12,
                 ),
@@ -415,7 +472,7 @@ class _ChatMessageScreenState extends State<ChatMessageScreen>
               onSubmitted: (_) => _sendMessage(),
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           _hasText
               ? CustomButton6(onTap: _sendMessage, icon: icSendMessage)
               : CustomButton7(icon: icSendMessage),

@@ -43,7 +43,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   void _startHomePolling() {
-    _refreshTimer = Timer.periodic(const Duration(seconds: 15), (timer) {
+    _refreshTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (mounted && role != 1) {
         context.read<CounselorProvider>().fetchPatients(isSilent: true);
       }
@@ -210,7 +210,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             }
           },
           child: SingleChildScrollView(
-            padding: EdgeInsets.symmetric(horizontal: 25),
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 25),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -424,7 +425,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       child: Text(
                         'Belum ada obat ditambahkan',
                         style: AppTextStyles.noContent.copyWith(
-                          fontSize: 10,
+                          fontSize: 11,
                           color: AppColors.textSecondary,
                         ),
                       ),
@@ -879,7 +880,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                 child: Text(
                                   unreadCount.toString(),
                                   style: AppTextStyles.unreadChat.copyWith(
-                                    fontSize: 10,
+                                    fontSize: 11,
                                   ),
                                 ),
                               ),

@@ -480,7 +480,7 @@ class AppTextStyles {
   );
 
   static TextStyle get descAddPost => GoogleFonts.poppins(
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: FontWeight.w400,
     color: AppColors.textSecondary,
   );
@@ -504,7 +504,7 @@ class AppTextStyles {
   );
 
   static TextStyle get tabbarCategory =>
-      GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w400);
+      GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w400);
 
   static TextStyle get titleGuidline => GoogleFonts.poppins(
     fontSize: 15,
@@ -532,24 +532,24 @@ class AppTextStyles {
   );
 
   static TextStyle get actionProfile => GoogleFonts.poppins(
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: FontWeight.w500,
     color: AppColors.textPrimary,
   );
 
   static TextStyle get titleMenu => GoogleFonts.poppins(
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: FontWeight.w500,
     color: AppColors.textPrimary,
   );
   static TextStyle get subtitleMenu => GoogleFonts.poppins(
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: FontWeight.w400,
     color: AppColors.textSecondary,
   );
 
   static TextStyle get versionApp => GoogleFonts.poppins(
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: FontWeight.w400,
     color: AppColors.textLight,
   );

@@ -62,7 +62,9 @@ class _CustomAddMedicationDialogState extends State<CustomAddMedicationDialog> {
 
       if (widget.entry == null) {
         await provider.addMedication(name, timeRaw, isEveryday: isAgreed);
+
         if (mounted) {
+          Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Obat baru berhasil ditambahkan!')),
           );
@@ -74,19 +76,23 @@ class _CustomAddMedicationDialogState extends State<CustomAddMedicationDialog> {
           timeRaw,
           isEveryday: isAgreed,
         );
+
         if (mounted) {
+          Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Perubahan obat berhasil disimpan!')),
           );
         }
       }
-
-      if (mounted) Navigator.pop(context);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal memproses data. Coba lagi.')),
-        );
+        Navigator.pop(context);
+
+        String errorMessage = e.toString().replaceAll('Exception: ', '');
+
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(errorMessage)));
       }
     }
   }

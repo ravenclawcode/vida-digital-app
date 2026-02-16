@@ -118,9 +118,9 @@ class _CustomPostDialogState extends State<CustomPostDialog> {
                   SizedBox(height: 20),
                   Align(
                     alignment: Alignment.centerLeft,
-                    child: Text('Kategori', style: AppTextStyles.bodyPost),
+                    child: Text('Kategori', style: AppTextStyles.bodyPost.copyWith(fontSize: 14)),
                   ),
-                  SizedBox(height: 8),
+                  SizedBox(height: 10),
                   Align(
                     alignment: AlignmentGeometry.centerLeft,
                     child: Wrap(
@@ -167,20 +167,21 @@ class _CustomPostDialogState extends State<CustomPostDialog> {
                       }).toList(),
                     ),
                   ),
-                  SizedBox(height: 16),
+                  SizedBox(height: 22),
                   Align(
                     alignment: Alignment.centerLeft,
-                    child: Text('Ceritamu', style: AppTextStyles.bodyPost),
+                    child: Text('Ceritamu', style: AppTextStyles.bodyPost.copyWith(fontSize: 14)),
                   ),
-                  SizedBox(height: 8),
+                  SizedBox(height: 10),
                   TextField(
                     controller: _controller,
                     maxLines: 3,
-                    style: AppTextStyles.addStory,
+                    style: AppTextStyles.addStory.copyWith(fontSize: 14),
                     textInputAction: TextInputAction.done,
                     decoration: InputDecoration(
                       hintText: 'Tulis ceritamu...',
                       hintStyle: AppTextStyles.addStory.copyWith(
+                        fontSize: 14,
                         color: AppColors.textLight,
                       ),
                       filled: true,

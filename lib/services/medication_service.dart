@@ -27,7 +27,11 @@ class MedicationService {
       headers: await _getHeaders(),
       body: {'name': name, 'time': time, 'is_everyday': isEveryday ? '1' : '0'},
     );
-    if (response.statusCode != 200 && response.statusCode != 201) {
+
+    if (response.statusCode == 422) {
+      final Map<String, dynamic> errorData = jsonDecode(response.body);
+      throw Exception(errorData['message'] ?? 'Waktu sudah terlewat');
+    } else if (response.statusCode != 200 && response.statusCode != 201) {
       throw Exception('Gagal menambah obat');
     }
   }
