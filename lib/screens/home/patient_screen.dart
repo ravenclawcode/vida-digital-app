@@ -413,7 +413,14 @@ class _PatientScreenState extends State<PatientScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 25),
           child: Row(
             children: [
-              InkWell(onTap: onTap, child: Image.asset(icon, width: 10)),
+              InkWell(
+                focusColor: Colors.transparent,
+                hoverColor: Colors.transparent,
+                highlightColor: Colors.transparent,
+                overlayColor: WidgetStateProperty.all(Colors.transparent),
+                onTap: onTap,
+                child: Image.asset(icon, width: 10),
+              ),
               const SizedBox(width: 25),
               Row(
                 children: [
@@ -516,6 +523,12 @@ class _PatientScreenState extends State<PatientScreen> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       InkWell(
+                        focusColor: Colors.transparent,
+                        hoverColor: Colors.transparent,
+                        highlightColor: Colors.transparent,
+                        overlayColor: WidgetStateProperty.all(
+                          Colors.transparent,
+                        ),
                         onTap: () =>
                             setState(() => _showMedicationDetail = true),
                         child: Text(
@@ -544,6 +557,12 @@ class _PatientScreenState extends State<PatientScreen> {
                         style: AppTextStyles.headingTesPHQ,
                       ),
                       InkWell(
+                        focusColor: Colors.transparent,
+                        hoverColor: Colors.transparent,
+                        highlightColor: Colors.transparent,
+                        overlayColor: WidgetStateProperty.all(
+                          Colors.transparent,
+                        ),
                         onTap: () =>
                             setState(() => _showMedicationDetail = false),
                         child: Text(

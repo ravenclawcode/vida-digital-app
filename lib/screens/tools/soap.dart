@@ -101,19 +101,19 @@ class _SoapState extends State<Soap> {
           SizedBox(height: 12),
           CustomInputFormPatient(controller: _patientController),
           SizedBox(height: 16),
-          Text('Subjective', style: AppTextStyles.subTesPHQ),
+          Text('Subjective (Subjektif)', style: AppTextStyles.subTesPHQ),
           SizedBox(height: 12),
           CustomInputFormSoap(controller: _subjectiveController),
           SizedBox(height: 16),
-          Text('Objective', style: AppTextStyles.subTesPHQ),
+          Text('Objective (Objektif)', style: AppTextStyles.subTesPHQ),
           SizedBox(height: 12),
           CustomInputFormSoap(controller: _objectiveController),
           SizedBox(height: 16),
-          Text('Assessment', style: AppTextStyles.subTesPHQ),
+          Text('Assessment (Penilaian)', style: AppTextStyles.subTesPHQ),
           SizedBox(height: 12),
           CustomInputFormSoap(controller: _assessmentController),
           SizedBox(height: 16),
-          Text('Plan', style: AppTextStyles.subTesPHQ),
+          Text('Plan (Rencana)', style: AppTextStyles.subTesPHQ),
           SizedBox(height: 12),
           CustomInputFormSoap(controller: _planController),
           SizedBox(height: 15),
@@ -139,6 +139,10 @@ class _SoapState extends State<Soap> {
               return CustomButton1(
                 onTap: () async {
                   if (_formKey.currentState!.validate()) {
+                    // Simpan context sebelum async
+                    final navigator = Navigator.of(context);
+                    final scaffoldMessenger = ScaffoldMessenger.of(context);
+
                     final success = await soapProv.saveSoap(
                       patientId: _patientController.text,
                       s: _subjectiveController.text,
@@ -148,24 +152,25 @@ class _SoapState extends State<Soap> {
                     );
 
                     if (success) {
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Catatan SOAP berhasil disimpan!'),
-                          ),
-                        );
-                        Navigator.pop(context);
-                      }
+                      _patientController.clear();
+                      _subjectiveController.clear();
+                      _objectiveController.clear();
+                      _assessmentController.clear();
+                      _planController.clear();
+
+                      scaffoldMessenger.showSnackBar(
+                        const SnackBar(
+                          content: Text('Catatan SOAP berhasil disimpan!'),
+                        ),
+                      );
+
+                      navigator.pushNamedAndRemoveUntil('/', (route) => false);
                     } else {
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              'Gagal menyimpan catatan. Coba lagi.',
-                            ),
-                          ),
-                        );
-                      }
+                      scaffoldMessenger.showSnackBar(
+                        const SnackBar(
+                          content: Text('Gagal menyimpan catatan. Coba lagi.'),
+                        ),
+                      );
                     }
                   }
                 },
