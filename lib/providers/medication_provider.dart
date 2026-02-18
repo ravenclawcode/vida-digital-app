@@ -114,8 +114,4 @@ class MedicationProvider with ChangeNotifier {
       notifyListeners();
     } catch (_) {}
   }
-
-  Future<void> testAlarm() async {
-    await _notificationService.testInstantAlarm();
-  }
 }

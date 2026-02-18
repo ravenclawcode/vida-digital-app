@@ -19,7 +19,7 @@ class NotificationService {
       final String currentTimeZone =
           (await FlutterTimezone.getLocalTimezone()) as String;
       tz.setLocalLocation(tz.getLocation(currentTimeZone));
-    } catch (e) {
+    } catch (_) {
       tz.setLocalLocation(tz.getLocation('Asia/Makassar'));
     }
 
@@ -30,15 +30,12 @@ class NotificationService {
       android: androidSettings,
     );
 
-    await _notificationsPlugin.initialize(
-      initSettings,
-      onDidReceiveNotificationResponse: (details) {},
-    );
+    await _notificationsPlugin.initialize(initSettings);
 
-    const AndroidNotificationChannel alarmChannel = AndroidNotificationChannel(
-      'med_alarm_channel',
+    const AndroidNotificationChannel alarm = AndroidNotificationChannel(
+      'med_alarm',
       'Alarm Obat',
-      description: 'Channel untuk alarm minum obat dengan suara keras',
+      description: 'Alarm utama waktu minum obat',
       importance: Importance.max,
       playSound: true,
       sound: RawResourceAndroidNotificationSound('alarm_sound'),
@@ -46,98 +43,26 @@ class NotificationService {
       enableLights: true,
     );
 
-    const AndroidNotificationChannel reminderChannel =
-        AndroidNotificationChannel(
-          'med_reminder_channel',
-          'Pengingat Obat',
-          description: 'Channel untuk pengingat persiapan minum obat',
-          importance: Importance.high,
-          playSound: true,
-          enableVibration: true,
-        );
+    const AndroidNotificationChannel reminder = AndroidNotificationChannel(
+      'med_reminder',
+      'Pengingat Obat',
+      description: 'Pengingat sebelum waktu minum obat',
+      importance: Importance.high,
+      playSound: true,
+      enableVibration: true,
+    );
 
     final androidPlugin = _notificationsPlugin
         .resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin
         >();
 
-    await androidPlugin?.createNotificationChannel(alarmChannel);
-    await androidPlugin?.createNotificationChannel(reminderChannel);
-    await checkExactAlarmPermission();
+    await androidPlugin?.createNotificationChannel(alarm);
+    await androidPlugin?.createNotificationChannel(reminder);
   }
 
   Future<void> cancelAllNotifications() async {
     await _notificationsPlugin.cancelAll();
-  }
-
-  Future<void> scheduleMedicationReminders({
-    required int id,
-    required String medicationName,
-    required DateTime scheduledTime,
-  }) async {
-    final now = tz.TZDateTime.now(tz.local);
-    final tzScheduledTime = tz.TZDateTime.from(scheduledTime, tz.local);
-
-    print("--- DEBUG SCHEDULING ---");
-    print("Nama Obat: $medicationName");
-    print("Waktu Sekarang (TZ): $now");
-    print("Waktu Jadwal (TZ): $tzScheduledTime");
-
-    if (tzScheduledTime.isAfter(now)) {
-      await _schedule(
-        id: id + 300,
-        title: 'Waktunya Minum Obat!',
-        body: 'Segera minum $medicationName sekarang!',
-        time: scheduledTime,
-        isAlarm: true,
-      );
-      print("✅ Berhasil dijadwalkan!");
-    } else {
-      print("❌ Gagal: Waktu sudah lewat.");
-    }
-  }
-
-  Future<void> _schedule({
-    required int id,
-    required String title,
-    required String body,
-    required DateTime time,
-    bool isAlarm = false,
-  }) async {
-    final scheduledDate = tz.TZDateTime.from(time, tz.local);
-
-    await _notificationsPlugin.zonedSchedule(
-      id,
-      title,
-      body,
-      scheduledDate,
-      NotificationDetails(
-        android: AndroidNotificationDetails(
-          isAlarm ? 'med_alarm_channel' : 'med_reminder_channel',
-          isAlarm ? 'Alarm Obat' : 'Pengingat Obat',
-          importance: Importance.max,
-          priority: Priority.high,
-          playSound: true,
-          sound: isAlarm
-              ? const RawResourceAndroidNotificationSound('alarm_sound')
-              : null,
-          fullScreenIntent: isAlarm,
-          category: isAlarm
-              ? AndroidNotificationCategory.alarm
-              : AndroidNotificationCategory.reminder,
-          visibility: NotificationVisibility.public,
-          ticker: 'ticker',
-          ongoing: isAlarm,
-          styleInformation: BigTextStyleInformation(''),
-        ),
-      ),
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      matchDateTimeComponents: DateTimeComponents.time,
-    );
-
-    print(
-      "Berhasil jadwalkan ${isAlarm ? 'ALARM' : 'Notif'} ID: $id pada $scheduledDate",
-    );
   }
 
   Future<void> cancelReminder(int id) async {
@@ -152,46 +77,94 @@ class NotificationService {
     }
   }
 
-  Future<void> testInstantAlarm() async {
-    print("Menjalankan Test Alarm Instan...");
+  Future<void> scheduleMedicationReminders({
+    required int id,
+    required String medicationName,
+    required DateTime scheduledTime,
+  }) async {
+    final now = tz.TZDateTime.now(tz.local);
+    final mainTime = tz.TZDateTime.from(scheduledTime, tz.local);
 
-    const AndroidNotificationDetails androidDetails =
-        AndroidNotificationDetails(
-          'med_alarm_channel',
+    final reminder30 = mainTime.subtract(const Duration(minutes: 30));
+    final reminder5 = mainTime.subtract(const Duration(minutes: 5));
+
+    if (reminder30.isAfter(now)) {
+      await _scheduleReminder(
+        id: id + 100,
+        medicationName: medicationName,
+        time: reminder30,
+        message: '30 menit lagi waktunya minum obat $medicationName',
+      );
+    }
+
+    if (reminder5.isAfter(now)) {
+      await _scheduleReminder(
+        id: id + 200,
+        medicationName: medicationName,
+        time: reminder5,
+        message: '5 menit lagi waktunya minum obat $medicationName',
+      );
+    }
+
+    if (mainTime.isAfter(now)) {
+      await _scheduleAlarm(
+        id: id + 300,
+        medicationName: medicationName,
+        time: mainTime,
+      );
+    }
+  }
+
+  Future<void> _scheduleReminder({
+    required int id,
+    required String medicationName,
+    required tz.TZDateTime time,
+    required String message,
+  }) async {
+    await _notificationsPlugin.zonedSchedule(
+      id,
+      'Pengingat Obat',
+      message,
+      time,
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'med_reminder',
+          'Pengingat Obat',
+          channelDescription: 'Pengingat sebelum waktu minum obat',
+          importance: Importance.high,
+          priority: Priority.high,
+          playSound: true,
+          enableVibration: true,
+        ),
+      ),
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+    );
+  }
+
+  Future<void> _scheduleAlarm({
+    required int id,
+    required String medicationName,
+    required tz.TZDateTime time,
+  }) async {
+    await _notificationsPlugin.zonedSchedule(
+      id,
+      'Waktunya Minum Obat!',
+      'Segera minum $medicationName sekarang!',
+      time,
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'med_alarm',
           'Alarm Obat',
-          channelDescription: 'Channel untuk suara alarm obat',
+          channelDescription: 'Alarm utama waktu minum obat',
           importance: Importance.max,
           priority: Priority.high,
           playSound: true,
           sound: RawResourceAndroidNotificationSound('alarm_sound'),
+          enableVibration: true,
           fullScreenIntent: true,
-        );
-
-    const NotificationDetails platformDetails = NotificationDetails(
-      android: androidDetails,
+        ),
+      ),
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
     );
-
-    await _notificationsPlugin.show(
-      999,
-      'TES ALARM VIDA',
-      'Jika kamu mendengar suara, berarti sistem audio sudah benar!',
-      platformDetails,
-    );
-  }
-
-  Future<void> checkExactAlarmPermission() async {
-    final platform = _notificationsPlugin
-        .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin
-        >();
-
-    if (platform != null) {
-      final bool? granted = await platform.requestNotificationsPermission();
-      final bool? canSchedule = await platform.canScheduleExactNotifications();
-
-      print("--- HASIL DIAGNOSA SISTEM ---");
-      print("Izin Notifikasi Diberikan: $granted");
-      print("Izin Exact Alarm (Tepat Waktu): $canSchedule");
-    }
   }
 }

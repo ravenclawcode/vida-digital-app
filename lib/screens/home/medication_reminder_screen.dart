@@ -106,17 +106,6 @@ class _MedicationReminderScreenState extends State<MedicationReminderScreen> {
                     const SizedBox(height: 20),
                     _buildTips(),
                     const SizedBox(height: 15),
-                    const SizedBox(height: 10),
-                    // TextButton.icon(
-                    //   onPressed: () {
-                    //     context.read<MedicationProvider>().testAlarm();
-                    //   },
-                    //   icon: const Icon(Icons.volume_up, color: Colors.blue),
-                    //   label: const Text(
-                    //     'Cek Suara Alarm',
-                    //     style: TextStyle(color: Colors.blue),
-                    //   ),
-                    // ),
                   ],
                 ),
               ),
