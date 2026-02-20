@@ -13,7 +13,7 @@ import 'package:mindfullshelter/utils/app_assets.dart';
 import 'package:mindfullshelter/utils/app_colors.dart';
 import 'package:mindfullshelter/utils/app_theme.dart';
 import 'package:mindfullshelter/utils/custom_circle_painter.dart';
-import 'package:mindfullshelter/utils/custom_search_form.dart';
+import 'package:mindfullshelter/utils/custom_search_form_patient.dart';
 import 'package:mindfullshelter/utils/session_manager.dart';
 import 'package:provider/provider.dart';
 
@@ -234,7 +234,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   const SizedBox(height: 16),
                   _buildFeatureGrid(context),
                 ] else ...[
-                  CustomSearchForm(
+                  _buildAnonymousCommunityCard(),
+                  SizedBox(height: 34),
+                  CustomSearchFormPatient(
                     controller: searchController,
                     onChanged: (value) {
                       setState(() {
@@ -777,27 +779,84 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           );
         }).toList();
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Daftar Pasien (${filteredPatients.length})',
-              style: AppTextStyles.headingMedication,
-            ),
-            const SizedBox(height: 16),
-            filteredPatients.isEmpty
-                ? Center(
-                    child: Text(
-                      _searchQuery.isEmpty
-                          ? 'Belum ada pasien terdaftar'
-                          : 'Pasien "$_searchQuery" tidak ditemukan',
-                      style: AppTextStyles.noContent,
-                    ),
-                  )
-                : _buildCounselorPatientList(filteredPatients),
-          ],
+        return Center(
+          child: filteredPatients.isEmpty
+              ? Text(
+                  _searchQuery.isEmpty
+                      ? 'Belum ada pasien terdaftar'
+                      : 'Pasien "$_searchQuery" tidak ditemukan',
+                  style: AppTextStyles.noContent,
+                )
+              : _buildCounselorPatientList(filteredPatients),
         );
+
+        // return Column(
+        //   crossAxisAlignment: CrossAxisAlignment.start,
+        //   children: [
+        //     Text(
+        //       'Daftar Pasien (${filteredPatients.length})',
+        //       style: AppTextStyles.headingMedication,
+        //     ),
+        //     const SizedBox(height: 16),
+        //     filteredPatients.isEmpty
+        //         ? Center(
+        //             child: Text(
+        //               _searchQuery.isEmpty
+        //                   ? 'Belum ada pasien terdaftar'
+        //                   : 'Pasien "$_searchQuery" tidak ditemukan',
+        //               style: AppTextStyles.noContent,
+        //             ),
+        //           )
+        //         : _buildCounselorPatientList(filteredPatients),
+        //   ],
+        // );
       },
+    );
+  }
+
+  Widget _buildAnonymousCommunityCard() {
+    return InkWell(
+      focusColor: Colors.transparent,
+      hoverColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      overlayColor: WidgetStateProperty.all(Colors.transparent),
+      onTap: () => Navigator.pushNamed(context, '/anonymouscomunity'),
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: AppColors.primary,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            BoxShadow(
+              offset: const Offset(0, 3),
+              color: const Color(0xFFFAB1C6).withOpacity(0.80),
+              blurRadius: 10,
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Komunitas Anonim', style: AppTextStyles.headingChat),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Pantau dan awasi postingan pasien',
+                      style: AppTextStyles.bodyChat,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 4),
+              Image.asset(icMedicalAnonymous, height: 53),
+            ],
+          ),
+        ),
+      ),
     );
   }
 

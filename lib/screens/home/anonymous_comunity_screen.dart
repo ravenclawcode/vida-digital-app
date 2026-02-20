@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mindfullshelter/providers/anonymouse_provider.dart';
+import 'package:mindfullshelter/utils/custom_dialog_delete_post.dart';
+import 'package:mindfullshelter/utils/custom_search_form_community.dart';
+import 'package:mindfullshelter/utils/session_manager.dart';
 import 'package:provider/provider.dart';
 import 'package:mindfullshelter/utils/app_assets.dart';
 import 'package:mindfullshelter/utils/custom_button10.dart';
@@ -21,13 +24,17 @@ class AnonymousComunityScreen extends StatefulWidget {
 class _AnonymousComunityScreenState extends State<AnonymousComunityScreen> {
   final GlobalKey _menuKey = GlobalKey();
   final TextEditingController _commentController = TextEditingController();
+  final searchController = TextEditingController();
   bool _hasText = false;
   int? expandedPostIndex;
+  int? role;
   OverlayEntry? overlayEntry;
+  String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
+    _loadRole();
     Future.microtask(() => context.read<AnonymousProvider>().loadPosts());
     _commentController.addListener(() {
       final hasText = _commentController.text.trim().isNotEmpty;
@@ -37,11 +44,31 @@ class _AnonymousComunityScreenState extends State<AnonymousComunityScreen> {
     });
   }
 
+  void _loadRole() async {
+    final sessionRole = await SessionManager().getRole();
+    setState(() {
+      role = sessionRole;
+    });
+  }
+
   void _openCreatePostDialog() {
     showDialog(context: context, builder: (_) => CustomPostDialog()).then((_) {
       setState(() {
         expandedPostIndex = null;
       });
+    });
+  }
+
+  void _deleteChat(AnonymousPost post) async {
+    showDialog(
+      context: context,
+      builder: (_) => CustomDialogDeletePost(post.id, postId: post.id),
+    ).then((confirmed) {
+      if (confirmed == true) {
+        setState(() {
+          expandedPostIndex = null;
+        });
+      }
     });
   }
 
@@ -60,12 +87,14 @@ class _AnonymousComunityScreenState extends State<AnonymousComunityScreen> {
   }
 
   Widget _buildPostHeader(AnonymousPost post) {
-    final String displayName = post.isMine ? post.authorName : 'Anonim';
+    final String displayName = (role != 1 || post.isMine)
+        ? post.authorName
+        : 'Anonim';
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildAvatar(displayName, post.authorPhoto, post.isMine),
+        _buildAvatar(displayName, post.authorPhoto, post.isMine || role != 1),
         SizedBox(width: 12),
         Expanded(
           child: Column(
@@ -84,23 +113,33 @@ class _AnonymousComunityScreenState extends State<AnonymousComunityScreen> {
           ),
           child: Text(post.categoryLabel, style: AppTextStyles.categoryPost),
         ),
-        SizedBox(width: 8),
-        Builder(
-          builder: (context) {
-            return InkWell(
-              focusColor: Colors.transparent,
-              hoverColor: Colors.transparent,
-              highlightColor: Colors.transparent,
-              overlayColor: WidgetStateProperty.all(Colors.transparent),
-              onTap: () {
-                final renderBox = context.findRenderObject() as RenderBox;
-                final position = renderBox.localToGlobal(Offset.zero);
-                _showPostMenuAtPosition(position, post);
-              },
-              child: Icon(Icons.more_vert, size: 20),
-            );
-          },
-        ),
+        if (role != 1) SizedBox(width: 14) else SizedBox(width: 8),
+        if (role != 1)
+          InkWell(
+            focusColor: Colors.transparent,
+            hoverColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            overlayColor: WidgetStateProperty.all(Colors.transparent),
+            onTap: () => _deleteChat(post),
+            child: Image.asset(icDelete1, height: 18),
+          )
+        else
+          Builder(
+            builder: (context) {
+              return InkWell(
+                focusColor: Colors.transparent,
+                hoverColor: Colors.transparent,
+                highlightColor: Colors.transparent,
+                overlayColor: WidgetStateProperty.all(Colors.transparent),
+                onTap: () {
+                  final renderBox = context.findRenderObject() as RenderBox;
+                  final position = renderBox.localToGlobal(Offset.zero);
+                  _showPostMenuAtPosition(position, post);
+                },
+                child: Icon(Icons.more_vert, size: 20),
+              );
+            },
+          ),
       ],
     );
   }
@@ -108,10 +147,10 @@ class _AnonymousComunityScreenState extends State<AnonymousComunityScreen> {
   Widget _buildAvatar(
     String name,
     String? photoUrl,
-    bool isMine, {
+    bool showRealPhoto, {
     double size = 34,
   }) {
-    if (isMine && photoUrl != null && photoUrl.isNotEmpty) {
+    if (showRealPhoto && photoUrl != null && photoUrl.isNotEmpty) {
       return Container(
         width: size,
         height: size,
@@ -128,8 +167,7 @@ class _AnonymousComunityScreenState extends State<AnonymousComunityScreen> {
         ),
       );
     }
-
-    return _buildInitialAvatar(isMine ? name : 'Anonim', size);
+    return _buildInitialAvatar(showRealPhoto ? name : 'Anonim', size);
   }
 
   Widget _buildInitialAvatar(String name, double size) {
@@ -264,6 +302,7 @@ class _AnonymousComunityScreenState extends State<AnonymousComunityScreen> {
 
   @override
   void dispose() {
+    searchController.dispose();
     _commentController.dispose();
     overlayEntry?.remove();
     overlayEntry = null;
@@ -297,14 +336,29 @@ class _AnonymousComunityScreenState extends State<AnonymousComunityScreen> {
                       physics: const AlwaysScrollableScrollPhysics(),
                       child: Column(
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 25),
-                            child: CustomButton8(
-                              onTap: _openCreatePostDialog,
-                              icon: icComment,
-                              label: 'Buat Postingan Anonim',
+                          if (role == 1)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 25,
+                              ),
+                              child: CustomButton8(
+                                onTap: _openCreatePostDialog,
+                                icon: icComment,
+                                label: 'Buat Postingan Anonim',
+                              ),
+                            )
+                          else
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 25),
+                              child: CustomSearchFormCommunity(
+                                controller: searchController,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _searchQuery = value;
+                                  });
+                                },
+                              ),
                             ),
-                          ),
                           const SizedBox(height: 20),
                           provider.posts.isEmpty
                               ? Center(
@@ -351,20 +405,38 @@ class _AnonymousComunityScreenState extends State<AnonymousComunityScreen> {
   }
 
   Widget _buildPostsList(List<AnonymousPost> posts) {
+    final filteredPosts = posts.where((post) {
+      final String name = post.authorName.toLowerCase();
+      final String content = post.content.toLowerCase();
+      final String query = _searchQuery.toLowerCase();
+
+      return name.contains(query) || content.contains(query);
+    }).toList();
+
+    if (filteredPosts.isEmpty) {
+      return Center(
+        child: Text(
+          _searchQuery.isEmpty
+              ? 'Postingan tidak ditemukan'
+              : 'Postingan "$_searchQuery" tidak ditemukan',
+          style: AppTextStyles.noContent,
+        ),
+      );
+    }
+
     return ListView.builder(
-      key: ValueKey(posts.length),
-      padding: EdgeInsets.symmetric(horizontal: 25),
+      key: ValueKey('list_$_searchQuery'),
+      padding: const EdgeInsets.symmetric(horizontal: 25),
       shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
-      itemCount: posts.length,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: filteredPosts.length,
       itemBuilder: (context, index) {
-        final post = posts[index];
-        final isLast = index == posts.length - 1;
+        final post = filteredPosts[index];
         return _buildPostCard(
           post,
           isExpanded: expandedPostIndex == index,
           index: index,
-          isLast: isLast,
+          isLast: index == filteredPosts.length - 1,
         );
       },
     );
@@ -437,7 +509,7 @@ class _AnonymousComunityScreenState extends State<AnonymousComunityScreen> {
                             ),
                           ),
                         SizedBox(height: 10),
-                        _buildCommentInputField(post.id),
+                        if (role == 1) _buildCommentInputField(post.id),
                       ],
                     )
                   : SizedBox(),
@@ -604,7 +676,7 @@ class _AnonymousComunityScreenState extends State<AnonymousComunityScreen> {
   }
 
   Widget _inlineComment(AnonymousComment comment) {
-    final String displayName = comment.isMine ? comment.authorName : 'Anonim';
+    final String displayName = comment.authorName;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -612,10 +684,9 @@ class _AnonymousComunityScreenState extends State<AnonymousComunityScreen> {
         _buildAvatar(
           displayName,
           comment.authorPhoto,
-          comment.isMine,
+          displayName != 'Anonim',
           size: 28,
         ),
-
         const SizedBox(width: 8),
         Expanded(
           child: Column(

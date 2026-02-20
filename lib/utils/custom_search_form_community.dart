@@ -3,17 +3,22 @@ import 'package:mindfullshelter/utils/app_assets.dart';
 import 'package:mindfullshelter/utils/app_colors.dart';
 import 'package:mindfullshelter/utils/app_theme.dart';
 
-class CustomSearchForm extends StatefulWidget {
+class CustomSearchFormCommunity extends StatefulWidget {
   final TextEditingController controller;
   final Function(String)? onChanged;
 
-  const CustomSearchForm({super.key, required this.controller, this.onChanged});
+  const CustomSearchFormCommunity({
+    super.key,
+    required this.controller,
+    this.onChanged,
+  });
 
   @override
-  State<CustomSearchForm> createState() => _CustomSearchFormState();
+  State<CustomSearchFormCommunity> createState() =>
+      _CustomSearchFormCommunityState();
 }
 
-class _CustomSearchFormState extends State<CustomSearchForm> {
+class _CustomSearchFormCommunityState extends State<CustomSearchFormCommunity> {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
@@ -33,7 +38,7 @@ class _CustomSearchFormState extends State<CustomSearchForm> {
           child: Image.asset(icSearch, height: 16, width: 16),
         ),
         prefixIconConstraints: BoxConstraints(minWidth: 30),
-        hintText: 'Cari pasien',
+        hintText: 'Cari berdasarkan nama...',
         hintStyle: AppTextStyles.hintForm,
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(8)),

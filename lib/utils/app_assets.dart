@@ -92,3 +92,6 @@ const icNotes = 'assets/icons/ic_notes.png';
 const icSearch = 'assets/icons/ic_search.png';
 const icImplemented = 'assets/icons/ic_implemented.png';
 const icNotImplemented = 'assets/icons/ic_not_implemented.png';
+const icMedicalChat = 'assets/icons/ic_medical_chat.png';
+const icMedicalAnonymous = 'assets/icons/ic_medical_anonymous.png';
+  

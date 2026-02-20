@@ -42,16 +42,34 @@ class AnonymousProvider extends ChangeNotifier {
   }
 
   Future<void> toggleLike(String postId) async {
-    final success = await _service.toggleLike(postId);
-    if (success != null) {
-      await loadPosts();
+    final index = _posts.indexWhere((p) => p.id == postId);
+    if (index == -1) return;
+
+    final oldPost = _posts[index];
+
+    final isNowLiked = !oldPost.isLiked;
+    _posts[index] = oldPost.copyWith(
+      isLiked: isNowLiked,
+      likesCount: isNowLiked ? oldPost.likesCount + 1 : oldPost.likesCount - 1,
+    );
+    notifyListeners();
+
+    try {
+      final result = await _service.toggleLike(postId);
+
+      if (result == null) {
+        throw Exception("Gagal update server");
+      }
+    } catch (e) {
+      _posts[index] = oldPost;
+      notifyListeners();
     }
   }
 
-  Future<void> addComment(String postId, String comment) async {
-    if (comment.isEmpty) return;
+  Future<void> addComment(String postId, String commentText) async {
+    if (commentText.isEmpty) return;
 
-    final success = await _service.storeComment(postId, comment);
+    final success = await _service.storeComment(postId, commentText);
     if (success) {
       await loadPosts();
     }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mindfullshelter/providers/private_chat_provider.dart';
+import 'package:mindfullshelter/utils/app_assets.dart';
 import 'package:mindfullshelter/utils/app_colors.dart';
 import 'package:mindfullshelter/utils/app_theme.dart';
 import 'package:provider/provider.dart';
@@ -126,15 +127,23 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Row(
             children: [
-              Text('Ruang Berbagi', style: AppTextStyles.headingChat),
-              const SizedBox(height: 4),
-              Text(
-                'Teman VIDA siap mendampingi Anda dengan aman dan privat',
-                style: AppTextStyles.bodyChat,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Teman Vida', style: AppTextStyles.headingChat),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Berbagi dengan aman dan privat bersama Teman VIDA',
+                      style: AppTextStyles.bodyChat,
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(width: 4),
+              Image.asset(icMedicalChat, height: 68),
             ],
           ),
         ),

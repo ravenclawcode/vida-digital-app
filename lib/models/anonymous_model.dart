@@ -25,6 +25,34 @@ class AnonymousPost {
     required this.comments,
   });
 
+  AnonymousPost copyWith({
+    String? id,
+    String? authorName,
+    String? authorPhoto,
+    String? categoryLabel,
+    String? content,
+    int? likesCount,
+    int? commentsCount,
+    bool? isLiked,
+    bool? isMine,
+    String? timeAgo,
+    List<AnonymousComment>? comments,
+  }) {
+    return AnonymousPost(
+      id: id ?? this.id,
+      authorName: authorName ?? this.authorName,
+      authorPhoto: authorPhoto ?? this.authorPhoto,
+      categoryLabel: categoryLabel ?? this.categoryLabel,
+      content: content ?? this.content,
+      likesCount: likesCount ?? this.likesCount,
+      commentsCount: commentsCount ?? this.commentsCount,
+      isLiked: isLiked ?? this.isLiked,
+      isMine: isMine ?? this.isMine,
+      timeAgo: timeAgo ?? this.timeAgo,
+      comments: comments ?? this.comments,
+    );
+  }
+
   factory AnonymousPost.fromJson(Map<String, dynamic> json) {
     return AnonymousPost(
       id: json['id']?.toString() ?? '',
