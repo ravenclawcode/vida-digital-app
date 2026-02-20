@@ -8,17 +8,6 @@ import 'package:provider/provider.dart';
 class GetStartedScreen extends StatelessWidget {
   const GetStartedScreen({super.key});
 
-  String _capitalizeEachWord(String text) {
-    if (text.isEmpty) return 'User';
-    return text
-        .split(' ')
-        .map((word) {
-          if (word.isEmpty) return "";
-          return word[0].toUpperCase() + word.substring(1).toLowerCase();
-        })
-        .join(' ');
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,9 +20,8 @@ class GetStartedScreen extends StatelessWidget {
               Consumer<AuthProvider>(
                 builder: (context, auth, child) {
                   final String rawName = auth.currentUser?.username ?? 'User';
-                  final String formattedUsername = _capitalizeEachWord(rawName);
 
-                  return _buildContent(formattedUsername);
+                  return _buildContent(rawName);
                 },
               ),
               const SizedBox(height: 40),

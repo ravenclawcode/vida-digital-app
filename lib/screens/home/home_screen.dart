@@ -82,17 +82,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     }
   }
 
-  String _capitalizeEachWord(String text) {
-    if (text.isEmpty) return 'User';
-    return text
-        .split(' ')
-        .map((word) {
-          if (word.isEmpty) return "";
-          return word[0].toUpperCase() + word.substring(1).toLowerCase();
-        })
-        .join(' ');
-  }
-
   Widget _buildProfileImage(AuthProvider auth) {
     final user = auth.currentUser;
     final String? photoUrl = user?.profilePhotoUrl;
@@ -266,7 +255,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             Consumer<AuthProvider>(
               builder: (context, auth, child) {
                 final String rawName = auth.currentUser?.username ?? 'User';
-                final String formattedName = _capitalizeEachWord(rawName);
 
                 return Text.rich(
                   TextSpan(
@@ -276,7 +264,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                         style: AppTextStyles.welcomeHome,
                       ),
                       TextSpan(
-                        text: '\n$formattedName',
+                        text: '\n$rawName',
                         style: AppTextStyles.nameHome,
                       ),
                     ],

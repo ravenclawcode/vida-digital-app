@@ -10,12 +10,22 @@ class PrivateChatService {
   }
 
   Future<List<dynamic>> fetchContacts() async {
-    final token = await _getToken();
-    final response = await http.get(
-      Uri.parse(ApiConstants.chatContacts),
-      headers: {'Authorization': 'Bearer $token', 'Accept': 'application/json'},
-    );
-    return response.statusCode == 200 ? json.decode(response.body) : [];
+    try {
+      final token = await _getToken();
+      final response = await http
+          .get(
+            Uri.parse(ApiConstants.chatContacts),
+            headers: {
+              'Authorization': 'Bearer $token',
+              'Accept': 'application/json',
+            },
+          )
+          .timeout(const Duration(seconds: 5));
+
+      return response.statusCode == 200 ? json.decode(response.body) : [];
+    } catch (e) {
+      return [];
+    }
   }
 
   Future<List<dynamic>> fetchMessages(String otherUserId) async {

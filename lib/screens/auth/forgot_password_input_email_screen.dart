@@ -44,9 +44,11 @@ class _ForgotPasswordInputEmailScreenState
       );
       Navigator.pushNamed(context, '/forgotpassword-inputotp');
     } else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Email tidak ditemukan')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Email tidak ditemukan atau server error'),
+        ),
+      );
     }
   }
 

@@ -14,17 +14,6 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  String _capitalizeEachWord(String text) {
-    if (text.isEmpty) return 'User';
-    return text
-        .split(' ')
-        .map((word) {
-          if (word.isEmpty) return "";
-          return word[0].toUpperCase() + word.substring(1).toLowerCase();
-        })
-        .join(' ');
-  }
-
   void _showLogoutDialog(BuildContext context) async {
     await showDialog(
       context: context,
@@ -129,9 +118,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Consumer<AuthProvider>(
             builder: (context, auth, child) {
               final user = auth.currentUser;
-              final String displayUsername = _capitalizeEachWord(
-                user?.username ?? 'User',
-              );
+              final String displayUsername = user?.username ?? 'User';
+
               final String displayEmail = user?.email ?? 'email@example.com';
 
               return Column(
