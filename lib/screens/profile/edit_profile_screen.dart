@@ -136,7 +136,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                const SizedBox(height: 11),
+                const SizedBox(height: 12),
                 _buildHeader(
                   context: context,
                   icon: icBackLeft2,

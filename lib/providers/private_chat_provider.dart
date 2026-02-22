@@ -20,56 +20,40 @@ class PrivateChatProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> loadMessages(String otherUserId) async {
+  Future<void> loadMessages(String otherUserId, {bool isSilent = false}) async {
+    if (!isSilent) {
+      _isLoading = true;
+      notifyListeners();
+    }
+
     try {
       final data = await _service.fetchMessages(otherUserId);
       List<PrivateChat> serverMessages = data
           .map((json) => PrivateChat.fromJson(json))
           .toList();
 
-      bool isChanged = false;
+      _messages = serverMessages;
 
-      if (serverMessages.length != _messages.length) {
-        isChanged = true;
-      } else if (_messages.isNotEmpty && serverMessages.isNotEmpty) {
-        if (_messages.last.id != serverMessages.last.id ||
-            _messages.any((m) => m.isDeletedEveryone) !=
-                serverMessages.any((m) => m.isDeletedEveryone)) {
-          isChanged = true;
-        }
-      } else if (_messages.isEmpty && serverMessages.isNotEmpty) {
-        isChanged = true;
-      }
-
-      if (isChanged) {
-        _messages = serverMessages;
-        notifyListeners();
-      }
-
-      final newContacts = await _service.fetchContacts();
-      _contacts = newContacts;
+      _contacts = await _service.fetchContacts();
     } catch (e) {
       debugPrint("Error loadMessages: $e");
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
   }
 
   Future<void> sendPrivateMessage(String receiverId, String text) async {
-    _isLoading = true;
-    notifyListeners();
-
     try {
       final result = await _service.sendMessage(receiverId, text);
       if (result != null) {
         final newMessage = PrivateChat.fromJson(result);
-
         if (!_messages.any((m) => m.id == newMessage.id)) {
           _messages.add(newMessage);
         }
-
         await loadContacts();
       }
     } finally {
-      _isLoading = false;
       notifyListeners();
     }
   }
@@ -101,22 +85,22 @@ class PrivateChatProvider with ChangeNotifier {
     required String otherUserId,
   }) async {
     try {
+      if (type == 'everyone') {
+        int index = _messages.indexWhere((m) => m.id == messageId);
+        if (index != -1) {
+          _messages[index].isDeletedEveryone = true;
+          notifyListeners();
+        }
+      } else {
+        _messages.removeWhere((m) => m.id == messageId);
+        notifyListeners();
+      }
+
       final response = await _service.deleteMessage(messageId, type);
 
       if (response['success'] == true) {
-        if (type == 'everyone') {
-          int index = _messages.indexWhere((m) => m.id == messageId);
-          if (index != -1) {
-            _messages[index].isDeletedEveryone = true;
-          }
-        } else {
-          _messages.removeWhere((m) => m.id == messageId);
-        }
-
-        notifyListeners();
-
-        await loadMessages(otherUserId);
-        await loadContacts();
+        await Future.delayed(const Duration(seconds: 1));
+        await loadMessages(otherUserId, isSilent: true);
       }
     } catch (e) {
       debugPrint("Error Delete: $e");
@@ -126,9 +110,7 @@ class PrivateChatProvider with ChangeNotifier {
   void startPolling(String otherUserId) {
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 10), (timer) async {
-      await loadMessages(otherUserId);
-      await loadContacts();
-      notifyListeners();
+      await loadMessages(otherUserId, isSilent: true);
     });
   }
 
@@ -154,7 +136,7 @@ class PrivateChatProvider with ChangeNotifier {
   }
 
   void clearMessages() {
-  _messages = [];
-  notifyListeners();
-}
+    _messages = [];
+    notifyListeners();
+  }
 }

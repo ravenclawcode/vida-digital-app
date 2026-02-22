@@ -69,7 +69,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              SizedBox(height: 11),
+              SizedBox(height: 12),
               _buildHeader(context),
               SizedBox(height: 20),
             ],
@@ -177,14 +177,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
         'title': 'Privasi & Keamanan',
         'subtitle': 'Kontrol privasi dan keamana data',
         'color': AppColors.accentLight,
-        'route': '/privacy&security',
+        'route': '/privacy-security',
       },
       {
         'icon': icFAQ,
         'title': 'Bantuan & Dukungan',
         'subtitle': 'FAQ dan hubungi tim support',
         'color': AppColors.accentLight,
-        'route': '/help&support',
+        'route': '/help-support',
       },
     ];
     return ListView.builder(
@@ -199,6 +199,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           hoverColor: Colors.transparent,
           highlightColor: Colors.transparent,
           overlayColor: WidgetStateProperty.all(Colors.transparent),
+          onTap: () => Navigator.pushNamed(context, menu['route'] as String),
           child: Padding(
             padding: EdgeInsets.fromLTRB(5, 8, 5, isLastItem ? 7 : 0),
             child: Column(

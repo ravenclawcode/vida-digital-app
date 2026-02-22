@@ -323,9 +323,10 @@ class _AnonymousComunityScreenState extends State<AnonymousComunityScreen> {
               child: Consumer<AnonymousProvider>(
                 builder: (context, provider, child) {
                   if (provider.isLoading && provider.posts.isEmpty) {
-                    return const Center(
-                      child: CircularProgressIndicator(
-                        color: AppColors.primary,
+                    return Center(
+                      child: Text(
+                        'Mohon tunggu...',
+                        style: AppTextStyles.textLoading,
                       ),
                     );
                   }

@@ -23,6 +23,7 @@ class _PatientScreenState extends State<PatientScreen> {
   bool _showPhqDetail = false;
   bool _isInit = true;
   Timer? _statusTimer;
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -52,14 +53,35 @@ class _PatientScreenState extends State<PatientScreen> {
       final patientId = ModalRoute.of(context)?.settings.arguments as String?;
 
       if (patientId != null) {
-        Future.microtask(() {
-          if (mounted) {
-            context.read<CounselorProvider>().fetchPatientDetail(patientId);
-          }
-        });
+        _loadPatientData(patientId);
+      } else {
+        setState(() => _isLoading = false);
       }
       _isInit = false;
     }
+  }
+
+  Future<void> _loadPatientData(String id) async {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+
+      context.read<CounselorProvider>().clearSelectedPatient();
+
+      setState(() => _isLoading = true);
+
+      try {
+        await Future.wait([
+          context.read<CounselorProvider>().fetchPatientDetail(id),
+          context.read<PrivateChatProvider>().loadContacts(),
+        ]);
+      } catch (e) {
+        debugPrint("Error loading patient: $e");
+      } finally {
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
+      }
+    });
   }
 
   Map<String, dynamic> _getPhqConfig(int score) {
@@ -299,12 +321,21 @@ class _PatientScreenState extends State<PatientScreen> {
     final provider = context.watch<CounselorProvider>();
     final patient = provider.selectedPatient;
 
-    if (patient == null && provider.isLoading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    if (_isLoading) {
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Mohon tunggu...', style: AppTextStyles.textLoading),
+            ],
+          ),
+        ),
+      );
     }
 
     if (patient == null) {
-      return const Scaffold(body: Center(child: Text("Data tidak ditemukan")));
+      return Scaffold(body: Center(child: Text('Data tidak ditemukan')));
     }
 
     return Scaffold(
@@ -312,7 +343,7 @@ class _PatientScreenState extends State<PatientScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            const SizedBox(height: 11),
+            const SizedBox(height: 12),
             _buildHeader(
               context: context,
               icon: icBackLeft2,

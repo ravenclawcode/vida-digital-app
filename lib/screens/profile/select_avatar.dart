@@ -99,11 +99,7 @@ class _SelectAvatarState extends State<SelectAvatar> {
             ),
             const SizedBox(height: 15),
             if (isLoading)
-              const Center(
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
-                ),
-              )
+              const Center(child: CircularProgressIndicator(strokeWidth: 2))
             else
               GridView.builder(
                 shrinkWrap: true,

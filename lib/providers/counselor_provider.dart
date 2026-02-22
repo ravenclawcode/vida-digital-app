@@ -30,10 +30,17 @@ class CounselorProvider with ChangeNotifier {
     }
   }
 
+  void clearSelectedPatient() {
+    if (_selectedPatient == null) return;
+    _selectedPatient = null;
+    notifyListeners();
+  }
+
   Future<void> fetchPatientDetail(String id, {bool isSilent = false}) async {
     if (!isSilent) {
       _isLoading = true;
-      notifyListeners();
+
+      Future.microtask(() => notifyListeners());
     }
 
     try {

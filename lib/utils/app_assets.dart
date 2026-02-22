@@ -7,6 +7,7 @@ const illustration5 = 'assets/images/illustration5.png';
 const illustration6 = 'assets/images/illustration6.png';
 const illustration7 = 'assets/images/illustration7.png';
 const illustration8 = 'assets/images/illustration8.png';
+const illustration9 = 'assets/images/illustration9.png';
 const vector1 = 'assets/images/vector1.png';
 const thumbnail1 = 'assets/images/thumbnail1.png';
 const thumbnail2 = 'assets/images/thumbnail2.png';
@@ -94,4 +95,8 @@ const icImplemented = 'assets/icons/ic_implemented.png';
 const icNotImplemented = 'assets/icons/ic_not_implemented.png';
 const icMedicalChat = 'assets/icons/ic_medical_chat.png';
 const icMedicalAnonymous = 'assets/icons/ic_medical_anonymous.png';
+const icGmail = 'assets/icons/ic_gmail.png';
+const icInstagram = 'assets/icons/ic_instagram.png';
+const icTop = 'assets/icons/ic_top.png';
+const icBottom = 'assets/icons/ic_bottom.png';
   

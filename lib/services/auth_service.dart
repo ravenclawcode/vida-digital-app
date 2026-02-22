@@ -126,4 +126,32 @@ class AuthService {
       body: {'is_online': isOnline ? '1' : '0'},
     );
   }
+
+  Future<http.Response> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+
+    return await http.post(
+      Uri.parse(ApiConstants.changePassword),
+      headers: {'Accept': 'application/json', 'Authorization': 'Bearer $token'},
+      body: {
+        'current_password': currentPassword,
+        'new_password': newPassword,
+        'new_password_confirmation': newPassword,
+      },
+    );
+  }
+
+  Future<http.Response> deleteAccount() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+
+    return await http.delete(
+      Uri.parse(ApiConstants.deleteAccount),
+      headers: {'Accept': 'application/json', 'Authorization': 'Bearer $token'},
+    );
+  }
 }

@@ -45,7 +45,11 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     if (userRole == null) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return Scaffold(
+        body: Center(
+          child: Text('Mohon tunggu...', style: AppTextStyles.textLoading),
+        ),
+      );
     }
 
     final List<Widget> screens = userRole == 0
@@ -68,13 +72,17 @@ class _MainScreenState extends State<MainScreen> {
           type: BottomNavigationBarType.fixed,
           currentIndex: selectedIndex,
           onTap: onNavItemSelected,
-          selectedLabelStyle: AppTextStyles.labelSelectNav,
-          unselectedLabelStyle: AppTextStyles.labelUnselectNav,
+          selectedLabelStyle: AppTextStyles.labelSelectNav.copyWith(
+            height: 2.5,
+          ),
+          unselectedLabelStyle: AppTextStyles.labelUnselectNav.copyWith(
+            height: 2.5,
+          ),
           elevation: 1,
           items: [
             BottomNavigationBarItem(
               icon: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 5),
+                padding: const EdgeInsets.only(top: 5),
                 child: Image.asset(
                   icHome,
                   color: onIconSelected(0),
@@ -85,7 +93,7 @@ class _MainScreenState extends State<MainScreen> {
             ),
             BottomNavigationBarItem(
               icon: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 5),
+                padding: const EdgeInsets.only(top: 5),
                 child: Image.asset(
                   userRole == 0 ? icTools : icChat,
                   color: onIconSelected(1),
@@ -96,7 +104,7 @@ class _MainScreenState extends State<MainScreen> {
             ),
             BottomNavigationBarItem(
               icon: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 5),
+                padding: const EdgeInsets.only(top: 5),
                 child: Image.asset(
                   icProfile,
                   color: onIconSelected(2),

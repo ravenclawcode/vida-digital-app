@@ -94,23 +94,29 @@ class AuthProvider with ChangeNotifier {
   Future<bool> login(String email, String password) async {
     _isLoading = true;
     notifyListeners();
+
     try {
       final response = await _authService.login(email, password);
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        final int rawRoleId = data['user']['role_id'];
 
-        int sessionRole = (rawRoleId == 2) ? 0 : 1;
+        if (data['user'] != null) {
+          final dynamic rawRoleId = data['user']['role_id'];
 
-        await SessionManager().saveSession(data['access_token'], sessionRole);
+          int sessionRole = (rawRoleId.toString() == '2') ? 0 : 1;
 
-        _currentUser = User.fromJson(data['user']);
-        _isLoading = false;
-        notifyListeners();
-        return true;
+          await SessionManager().saveSession(data['access_token'], sessionRole);
+
+          _currentUser = User.fromJson(data['user']);
+
+          _isLoading = false;
+          notifyListeners();
+          return true;
+        }
       }
     } catch (_) {}
+
     _isLoading = false;
     notifyListeners();
     return false;
@@ -122,12 +128,17 @@ class AuthProvider with ChangeNotifier {
 
     try {
       await _authService.logout();
-
+    } catch (e) {
+      debugPrint("Logout API Error: $e");
+    } finally {
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove('auth_token');
-    } catch (_) {
-    } finally {
+
+      await SessionManager().clearSession();
+
+      _currentUser = null;
       _isLoading = false;
+
       notifyListeners();
     }
   }
@@ -262,5 +273,54 @@ class AuthProvider with ChangeNotifier {
         notifyListeners();
       }
     } catch (_) {}
+  }
+
+  Future<bool> changePasswordProfile({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final response = await _authService.changePassword(
+        currentPassword: currentPassword,
+        newPassword: newPassword,
+      );
+
+      _isLoading = false;
+      notifyListeners();
+      return response.statusCode == 200;
+    } catch (e) {
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> removeAccount() async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final response = await _authService.deleteAccount();
+
+      if (response.statusCode == 200) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.remove('auth_token');
+        await SessionManager().clearSession();
+
+        _currentUser = null;
+        _isLoading = false;
+        notifyListeners();
+        return true;
+      }
+    } catch (e) {
+      debugPrint("Delete Account Error: $e");
+    }
+
+    _isLoading = false;
+    notifyListeners();
+    return false;
   }
 }

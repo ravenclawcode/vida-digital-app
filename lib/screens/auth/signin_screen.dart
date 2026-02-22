@@ -48,9 +48,6 @@ class _SignInScreenState extends State<SignInScreen> {
     if (!mounted) return;
 
     if (success) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Login Berhasil!')));
       Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -122,23 +119,23 @@ class _SignInScreenState extends State<SignInScreen> {
           CustomInputFormEmail(controller: emailController),
           SizedBox(height: 15),
           CustomInputFormPassword(controller: passwordController),
-            SizedBox(height: 10),
-            Align(
-              alignment: AlignmentGeometry.topRight,
-              child: InkWell(
-                splashColor: Colors.transparent,
-                highlightColor: Colors.transparent,
-                hoverColor: Colors.transparent,
-                focusColor: Colors.transparent,
-                overlayColor: WidgetStateProperty.all(Colors.transparent),
-                onTap: () =>
-                    Navigator.pushNamed(context, '/forgotpassword-inputemail'),
-                child: Text(
-                  'Lupa Kata Sandi?',
-                  style: AppTextStyles.bodyMediumColors.copyWith(fontSize: 13),
-                ),
+          SizedBox(height: 10),
+          Align(
+            alignment: AlignmentGeometry.topRight,
+            child: InkWell(
+              splashColor: Colors.transparent,
+              highlightColor: Colors.transparent,
+              hoverColor: Colors.transparent,
+              focusColor: Colors.transparent,
+              overlayColor: WidgetStateProperty.all(Colors.transparent),
+              onTap: () =>
+                  Navigator.pushNamed(context, '/forgotpassword-inputemail'),
+              child: Text(
+                'Lupa Kata Sandi?',
+                style: AppTextStyles.bodyMediumColors.copyWith(fontSize: 13),
               ),
             ),
+          ),
           SizedBox(height: 28),
           Consumer<AuthProvider>(
             builder: (context, auth, child) {
@@ -177,10 +174,15 @@ class _SignInScreenState extends State<SignInScreen> {
               ),
               TextSpan(
                 text: 'Aktivasi akun',
-                style: AppTextStyles.bodyMediumBold.copyWith(color: AppColors.primary),
+                style: AppTextStyles.bodyMediumBold.copyWith(
+                  color: AppColors.primary,
+                ),
                 recognizer: TapGestureRecognizer()
                   ..onTap = () {
-                    Navigator.pushNamed(context, Routes.activationAccountScreen);
+                    Navigator.pushNamed(
+                      context,
+                      Routes.activationAccountScreen,
+                    );
                   },
               ),
             ],

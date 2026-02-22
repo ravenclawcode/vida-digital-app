@@ -197,6 +197,12 @@ class AppTextStyles {
     color: AppColors.textPrimary,
   );
 
+  static TextStyle get textLoading => GoogleFonts.poppins(
+    fontSize: 14,
+    fontWeight: FontWeight.w400,
+    color: AppColors.textPrimary,
+  );
+
   //Font Header Home
   static TextStyle get headingHome => GoogleFonts.poppins(
     fontSize: 16,

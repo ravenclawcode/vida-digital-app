@@ -1,5 +1,5 @@
 class ApiConstants {
-  static const String baseUrl = 'http://192.168.1.2:8000/api';
+  static const String baseUrl = 'https://vidadigital.id/api';
 
   static const String login = '$baseUrl/login';
   static const String register = '$baseUrl/register';
@@ -37,4 +37,5 @@ class ApiConstants {
   static const String updateStatus = '$baseUrl/user/status';
   static String deleteSingleMessage(String id) =>
       '$baseUrl/chat/messages/$id/delete';
+  static const String deleteAccount = '$baseUrl/user/delete';
 }

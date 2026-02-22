@@ -60,10 +60,20 @@ class AnonymousPost {
       authorPhoto: json['author_photo'],
       categoryLabel: json['category'] ?? 'Umum',
       content: json['content'] ?? '',
-      likesCount: json['likes_count'] ?? 0,
-      commentsCount: json['comments_count'] ?? 0,
-      isLiked: json['is_liked'] == true || json['is_liked'] == 1,
-      isMine: json['is_mine'] == true || json['is_mine'] == 1,
+      likesCount: json['likes_count'] is int
+          ? json['likes_count']
+          : int.tryParse(json['likes_count']?.toString() ?? '0') ?? 0,
+      commentsCount: json['comments_count'] is int
+          ? json['comments_count']
+          : int.tryParse(json['comments_count']?.toString() ?? '0') ?? 0,
+      isLiked:
+          json['is_liked'] == true ||
+          json['is_liked'] == 1 ||
+          json['is_liked']?.toString() == "1",
+      isMine:
+          json['is_mine'] == true ||
+          json['is_mine'] == 1 ||
+          json['is_mine']?.toString() == "1",
       timeAgo: json['time_ago'] ?? '',
       comments: (json['comments'] as List? ?? [])
           .map((c) => AnonymousComment.fromJson(c))

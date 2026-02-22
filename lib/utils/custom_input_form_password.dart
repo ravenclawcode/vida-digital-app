@@ -7,12 +7,14 @@ class CustomInputFormPassword extends StatefulWidget {
   final TextEditingController controller;
   final bool isConfirm;
   final TextEditingController? passwordController;
+  final String? hintText;
 
   const CustomInputFormPassword({
     super.key,
     required this.controller,
     this.isConfirm = false,
     this.passwordController,
+    this.hintText,
   });
 
   @override
@@ -36,7 +38,7 @@ class _CustomInputFormPasswordState extends State<CustomInputFormPassword> {
       decoration: InputDecoration(
         filled: true,
         fillColor: AppColors.backgroundList,
-        hintText: widget.isConfirm ? 'Konfirmasi Kata Sandi' : 'Kata Sandi',
+        hintText: widget.hintText ?? (widget.isConfirm ? 'Konfirmasi Kata Sandi' : 'Kata Sandi'),
         hintStyle: AppTextStyles.hintForm,
         suffixIcon: IconButton(
           focusColor: Colors.transparent,

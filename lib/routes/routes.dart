@@ -22,7 +22,11 @@ import 'package:mindfullshelter/screens/onboarding/get_started_screen.dart';
 import 'package:mindfullshelter/screens/onboarding/splash_screen.dart';
 import 'package:mindfullshelter/screens/home/home_screen.dart';
 import 'package:mindfullshelter/screens/onboarding/introduction_screen.dart';
+import 'package:mindfullshelter/screens/profile/change_password_screen.dart';
 import 'package:mindfullshelter/screens/profile/edit_profile_screen.dart';
+import 'package:mindfullshelter/screens/profile/help_support_screen.dart';
+import 'package:mindfullshelter/screens/profile/notification_screen.dart';
+import 'package:mindfullshelter/screens/profile/privacy_security_screen.dart';
 import 'package:mindfullshelter/screens/profile/profile_screen.dart';
 import 'package:mindfullshelter/screens/terms%20&%20conditions/terms_and_conditions_screen.dart';
 import 'package:mindfullshelter/screens/test%20phq-9/question_test_phq_screen.dart';
@@ -63,6 +67,10 @@ class Routes {
   static const String education = '/education';
   static const String detailVideo = '/detailvideo';
   static const String detailArticle = '/detailarticle';
+  static const String notification = '/notification';
+  static const String privacySecurity = '/privacy-security';
+  static const String helpSupport = '/help-support';
+  static const String changePassword = '/change-password';
 }
 
 Route<dynamic> generateRoute(RouteSettings settings) {
@@ -168,6 +176,14 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       return MaterialPageRoute(
         builder: (_) => DetailArticleScreen(articleId: articleId),
       );
+    case Routes.notification:
+      return MaterialPageRoute(builder: (_) => const NotificationScreen());
+    case Routes.privacySecurity:
+      return MaterialPageRoute(builder: (_) => const PrivacySecurityScreen());
+    case Routes.helpSupport:
+      return MaterialPageRoute(builder: (_) => const HelpSupportScreen());
+    case Routes.changePassword:
+      return MaterialPageRoute(builder: (_) => const ChangePasswordScreen());
     default:
       return MaterialPageRoute(
         builder: (_) => Scaffold(

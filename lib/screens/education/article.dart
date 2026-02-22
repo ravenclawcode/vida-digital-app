@@ -22,7 +22,9 @@ Widget buildArticleList(BuildContext context) {
   return Consumer<EducationProvider>(
     builder: (_, provider, __) {
       if (provider.isLoading) {
-        return const Center(child: CircularProgressIndicator());
+        return Center(
+          child: Text('Mohon tunggu...', style: AppTextStyles.textLoading),
+        );
       }
 
       final artikels = provider.articles;

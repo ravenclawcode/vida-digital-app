@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:mindfullshelter/services/notification_service.dart';
 import '../models/medication_model.dart';
@@ -8,6 +10,7 @@ class MedicationProvider with ChangeNotifier {
   final NotificationService _notificationService = NotificationService();
   List<MedicationEntry> _todayEntries = [];
   bool _isLoading = false;
+  Timer? _autoRefreshTimer;
 
   List<MedicationEntry> get todayEntries => _todayEntries;
   bool get isLoading => _isLoading;
@@ -113,5 +116,71 @@ class MedicationProvider with ChangeNotifier {
       _todayEntries.removeWhere((e) => e.medication.id == id);
       notifyListeners();
     } catch (_) {}
+  }
+
+  void startAutoExpiryCheck() {
+    _autoRefreshTimer?.cancel();
+    _autoRefreshTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
+      debugPrint("Checking medication status at: ${DateTime.now()}");
+      _checkMissedStatus();
+    });
+  }
+
+  void _checkMissedStatus() {
+    final now = DateTime.now();
+    bool hasChanges = false;
+
+    final List<MedicationEntry> toRemove = [];
+
+    for (var entry in _todayEntries) {
+      if (!entry.isTaken) {
+        final medTime = entry.medication.time;
+        final scheduledDateTime = DateTime(
+          now.year,
+          now.month,
+          now.day,
+          medTime.hour,
+          medTime.minute,
+        );
+
+        if (now.isAfter(scheduledDateTime)) {
+          toRemove.add(entry);
+          hasChanges = true;
+        }
+      }
+    }
+
+    if (hasChanges) {
+      for (var item in toRemove) {
+        _todayEntries.removeWhere((e) => e.id == item.id);
+      }
+
+      debugPrint("Obat kedaluwarsa ditemukan. Menghapus dari UI...");
+      notifyListeners();
+
+      _fetchMedicationsSilent();
+    }
+  }
+
+  Future<void> _fetchMedicationsSilent() async {
+    try {
+      final data = await _service.fetchTodayMedications();
+      _todayEntries = data.map((item) {
+        return MedicationEntry(
+          id: item['id'],
+          medication: Medication.fromJson(item),
+          isTaken: item['status'] == 'taken',
+        );
+      }).toList();
+      notifyListeners();
+    } catch (e) {
+      debugPrint("Silent fetch error: $e");
+    }
+  }
+
+  @override
+  void dispose() {
+    _autoRefreshTimer?.cancel();
+    super.dispose();
   }
 }

@@ -24,6 +24,7 @@ class _ChatMessageScreenState extends State<ChatMessageScreen>
   final ScrollController _scrollController = ScrollController();
   bool _hasText = false;
   bool isOnline = false;
+  bool _isInitializing = true;
   String? receiverId;
   String? receiverName;
   String? lastSeenDisplay;
@@ -61,26 +62,27 @@ class _ChatMessageScreenState extends State<ChatMessageScreen>
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
     if (args != null && receiverId == null) {
-      Future.microtask(() {
+      receiverId = args['id']?.toString();
+      receiverName = args['username'];
+      profilePhotoUrl = args['profile_photo_url'];
+      isOnline = args['is_online'] == true || args['is_online'] == 1;
+      lastSeenDisplay = args['last_seen_display'];
+
+      Future.microtask(() async {
+        setState(() => _isInitializing = true);
         _chatProvider.clearMessages();
-      });
 
-      setState(() {
-        receiverId = args['id']?.toString();
-        receiverName = args['username'];
-        profilePhotoUrl = args['profile_photo_url'];
-        isOnline = args['is_online'] == true || args['is_online'] == 1;
-        lastSeenDisplay = args['last_seen_display'];
-      });
-
-      if (receiverId != null) {
-        Future.microtask(() async {
+        if (receiverId != null) {
           await _chatProvider.updateStatus(true);
           await _chatProvider.loadMessages(receiverId!);
           _chatProvider.startPolling(receiverId!);
           _scrollToBottom();
-        });
-      }
+        }
+
+        if (mounted) {
+          setState(() => _isInitializing = false);
+        }
+      });
     }
   }
 
@@ -194,16 +196,15 @@ class _ChatMessageScreenState extends State<ChatMessageScreen>
     if (text.isEmpty || receiverId == null) return;
 
     _messageController.clear();
-
     _chatProvider.stopPolling();
 
     try {
       await _chatProvider.sendPrivateMessage(receiverId!, text);
       _scrollToBottom();
+    } catch (e) {
+      debugPrint("Gagal mengirim: $e");
     } finally {
-      Future.delayed(Duration(milliseconds: 500), () {
-        if (mounted) _chatProvider.startPolling(receiverId!);
-      });
+      if (mounted) _chatProvider.startPolling(receiverId!);
     }
   }
 
@@ -238,43 +239,53 @@ class _ChatMessageScreenState extends State<ChatMessageScreen>
     final bool isCounselor = authUser?.roleId == 2;
 
     return PopScope(
-      canPop: !isCounselor,
-      onPopInvokedWithResult: (didPop, result) {
-        if (didPop) return;
-
-        if (isCounselor) {
-          Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
-        }
-      },
-      child: Scaffold(
-        backgroundColor: AppColors.background,
-        resizeToAvoidBottomInset: true,
-        body: SafeArea(
-          child: Column(
-            children: [
-              SizedBox(height: 11),
-              _buildHeader(
-                context: context,
-                icon: icBackLeft2,
-                onTap: () {
-                  if (isCounselor) {
-                    Navigator.pushNamedAndRemoveUntil(
-                      context,
-                      '/',
-                      (route) => false,
-                    );
-                  } else {
-                    Navigator.pop(context);
-                  }
-                },
+      child: Consumer<PrivateChatProvider>(
+        builder: (context, privateChat, child) {
+          if (_isInitializing) {
+            return Scaffold(
+              backgroundColor: AppColors.background,
+              body: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text('Mohon tunggu...', style: AppTextStyles.textLoading),
+                  ],
+                ),
               ),
-              SizedBox(height: 4),
-              Divider(color: Color(0xFFE9E9E9), thickness: 0.5),
-              Expanded(child: _buildMessagesList()),
-              _buildMessageInput(),
-            ],
-          ),
-        ),
+            );
+          }
+
+          return Scaffold(
+            backgroundColor: AppColors.background,
+            resizeToAvoidBottomInset: true,
+            body: SafeArea(
+              child: Column(
+                children: [
+                  const SizedBox(height: 12),
+                  _buildHeader(
+                    context: context,
+                    icon: icBackLeft2,
+                    onTap: () {
+                      if (isCounselor) {
+                        Navigator.pushNamedAndRemoveUntil(
+                          context,
+                          '/',
+                          (route) => false,
+                        );
+                      } else {
+                        Navigator.pop(context);
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 4),
+                  const Divider(color: Color(0xFFE9E9E9), thickness: 0.5),
+                  Expanded(child: _buildMessagesList()),
+                  _buildMessageInput(),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -349,9 +360,17 @@ class _ChatMessageScreenState extends State<ChatMessageScreen>
                 highlightColor: Colors.transparent,
                 overlayColor: WidgetStateProperty.all(Colors.transparent),
                 onTap: canDelete ? _deleteChat : null,
-                child: Image.asset(
-                  canDelete ? icDeleteActive : icDeleteNoactive,
-                  height: 20,
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  transitionBuilder:
+                      (Widget child, Animation<double> animation) {
+                        return FadeTransition(opacity: animation, child: child);
+                      },
+                  child: Image.asset(
+                    canDelete ? icDeleteActive : icDeleteNoactive,
+                    key: ValueKey<bool>(canDelete),
+                    height: 20,
+                  ),
                 ),
               ),
             ],
@@ -367,26 +386,30 @@ class _ChatMessageScreenState extends State<ChatMessageScreen>
         final messages = privateChat.messages;
 
         if (privateChat.isLoading && messages.isEmpty) {
-          return const Center(child: CircularProgressIndicator());
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('Memuat pesan...', style: AppTextStyles.textLoading),
+              ],
+            ),
+          );
         }
 
         return RefreshIndicator(
           onRefresh: () async {
             if (receiverId != null) {
-              await privateChat.loadMessages(receiverId!);
-              _scrollToBottom();
+              await privateChat.loadMessages(receiverId!, isSilent: true);
             }
           },
           child: ListView.builder(
             controller: _scrollController,
             physics: const AlwaysScrollableScrollPhysics(),
-            cacheExtent: 1000,
             padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
             itemCount: messages.length,
             itemBuilder: (context, index) {
               final msg = messages[index];
               bool isMe = msg.senderId.toString() != receiverId.toString();
-
               return _buildChatBubble(msg, isMe, key: ValueKey(msg.id));
             },
           ),

@@ -38,7 +38,7 @@ class _ToolsScreenState extends State<ToolsScreen>
       body: SafeArea(
         child: Column(
           children: [
-            SizedBox(height: 11),
+            SizedBox(height: 12),
             _buildHeader(),
             SizedBox(height: 5),
             TabBar(

@@ -45,8 +45,11 @@ class _QuestionTestPhqScreenState extends State<QuestionTestPhqScreen> {
     return Scaffold(
       body: SafeArea(
         child: phqProvider.isLoading
-            ? const Center(
-                child: CircularProgressIndicator(color: AppColors.textPink),
+            ? Center(
+                child: Text(
+                  'Mohon tunggu...',
+                  style: AppTextStyles.textLoading,
+                ),
               )
             : Column(
                 children: [

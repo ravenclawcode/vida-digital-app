@@ -39,7 +39,7 @@ class _AudioMindfulnessScreenState extends State<AudioMindfulnessScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            SizedBox(height: 11),
+            SizedBox(height: 12),
             _buildHeader(
               context: context,
               icon: icBackLeft2,
@@ -124,7 +124,9 @@ class _AudioMindfulnessScreenState extends State<AudioMindfulnessScreen> {
     return Consumer<AudioProvider>(
       builder: (context, provider, _) {
         if (provider.isLoading) {
-          return const Center(child: CircularProgressIndicator());
+          return Center(
+            child: Text('Mohon tunggu...', style: AppTextStyles.textLoading),
+          );
         }
 
         if (provider.audios.isEmpty) {

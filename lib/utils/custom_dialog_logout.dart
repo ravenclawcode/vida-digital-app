@@ -15,14 +15,21 @@ class CustomDialogLogout extends StatefulWidget {
 
 class _CustomDialogLogoutState extends State<CustomDialogLogout> {
   void _logout() async {
-    await Provider.of<AuthProvider>(context, listen: false).logout();
+    final navigator = Navigator.of(context);
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
-    if (context.mounted) {
-      Navigator.pushNamedAndRemoveUntil(
-        context,
-        '/introduction',
-        (route) => false,
-      );
+    try {
+      await authProvider.logout();
+
+      if (navigator.canPop()) {
+        navigator.pop();
+      }
+
+      Future.microtask(() {
+        navigator.pushNamedAndRemoveUntil('/introduction', (route) => false);
+      });
+    } catch (e) {
+      debugPrint("Gagal Logout: $e");
     }
   }
 

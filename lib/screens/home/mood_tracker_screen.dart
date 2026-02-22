@@ -72,7 +72,7 @@ class _MoodTrackerScreenState extends State<MoodTrackerScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              SizedBox(height: 11),
+              SizedBox(height: 12),
               _buildHeader(
                 context: context,
                 icon: icBackLeft2,

@@ -29,6 +29,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   int? role;
   String _searchQuery = '';
   Timer? _refreshTimer;
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -37,6 +38,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     _checkSession();
     _startHomePolling();
     _setOnlineStatus(true);
+
+    Future.microtask(() {
+      context.read<MedicationProvider>().startAutoExpiryCheck();
+    });
   }
 
   @override
@@ -65,20 +70,31 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   void _checkSession() async {
-    int? sessionRole = await SessionManager().getRole();
-    setState(() {
-      role = sessionRole;
-    });
+    setState(() => _isLoading = true);
+    try {
+      int? sessionRole = await SessionManager().getRole();
+      await context.read<AuthProvider>().fetchUserProfile();
 
-    if (sessionRole == 1) {
-      Future.microtask(() {
-        context.read<MedicationProvider>().fetchMedications();
-        context.read<MoodProvider>().fetchWeeklyMood();
-      });
-    } else {
-      Future.microtask(() {
-        context.read<CounselorProvider>().fetchPatients();
-      });
+      if (sessionRole == 1) {
+        final medProvider = context.read<MedicationProvider>();
+        await Future.wait([
+          medProvider.fetchMedications(),
+          context.read<MoodProvider>().fetchWeeklyMood(),
+        ]);
+        medProvider.startAutoExpiryCheck();
+      } else {
+        await context.read<CounselorProvider>().fetchPatients();
+      }
+
+      if (mounted) {
+        setState(() {
+          role = sessionRole;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) setState(() => _isLoading = false);
+      debugPrint("Error loading home data: $e");
     }
   }
 
@@ -191,7 +207,18 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    if (role == null) return const Center(child: CircularProgressIndicator());
+    if (_isLoading) {
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Mohon tunggu...', style: AppTextStyles.textLoading),
+            ],
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       body: SafeArea(
@@ -210,8 +237,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                SizedBox(height: 12),
                 _buildHeader(context),
-                const SizedBox(height: 22),
+                const SizedBox(height: 19),
                 if (role == 1) ...[
                   _buildTesPHQ(context),
                   const SizedBox(height: 22),
@@ -431,12 +459,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       child: ListView.builder(
                         shrinkWrap: true,
                         physics: NeverScrollableScrollPhysics(),
-                        key: ValueKey(entries.map((e) => e.id).join()),
+                        key: ValueKey('med_list_${entries.length}'),
                         itemCount: entries.length,
                         itemBuilder: (context, index) {
                           final entry = entries[index];
 
                           return Padding(
+                            key: ValueKey(entry.id),
                             padding: EdgeInsets.only(bottom: 8),
                             child: AnimatedContainer(
                               duration: Duration(milliseconds: 300),
@@ -755,10 +784,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   Widget _buildListPatient() {
     return Consumer<CounselorProvider>(
       builder: (context, provider, _) {
-        if (provider.isLoading) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
         final List<Patient> filteredPatients = provider.patients.where((
           patient,
         ) {
@@ -777,27 +802,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 )
               : _buildCounselorPatientList(filteredPatients),
         );
-
-        // return Column(
-        //   crossAxisAlignment: CrossAxisAlignment.start,
-        //   children: [
-        //     Text(
-        //       'Daftar Pasien (${filteredPatients.length})',
-        //       style: AppTextStyles.headingMedication,
-        //     ),
-        //     const SizedBox(height: 16),
-        //     filteredPatients.isEmpty
-        //         ? Center(
-        //             child: Text(
-        //               _searchQuery.isEmpty
-        //                   ? 'Belum ada pasien terdaftar'
-        //                   : 'Pasien "$_searchQuery" tidak ditemukan',
-        //               style: AppTextStyles.noContent,
-        //             ),
-        //           )
-        //         : _buildCounselorPatientList(filteredPatients),
-        //   ],
-        // );
       },
     );
   }
@@ -830,7 +834,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Komunitas Anonim', style: AppTextStyles.headingChat),
+                    Text(
+                      'Komunitas Anonim',
+                      style: AppTextStyles.headingChat.copyWith(fontSize: 15),
+                    ),
                     const SizedBox(height: 4),
                     Text(
                       'Pantau dan awasi postingan pasien',

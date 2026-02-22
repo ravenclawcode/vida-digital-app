@@ -13,12 +13,22 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  bool _isInitializing = true;
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<PrivateChatProvider>().loadContacts();
-    });
+    _initData();
+  }
+
+  Future<void> _initData() async {
+    await context.read<PrivateChatProvider>().loadContacts();
+
+    if (mounted) {
+      setState(() {
+        _isInitializing = false;
+      });
+    }
   }
 
   Widget _buildProfileImage(String? photoPath, String username) {
@@ -37,68 +47,70 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: Column(
-          children: [
-            const SizedBox(height: 11),
-            _buildHeader(),
-            const SizedBox(height: 25),
-            _buildContentTop(),
-            const SizedBox(height: 30),
-            Expanded(
-              child: RefreshIndicator(
-                onRefresh: () async {
-                  await context.read<PrivateChatProvider>().loadContacts();
-                },
-                child: Consumer<PrivateChatProvider>(
-                  builder: (context, provider, child) {
-                    if (provider.contacts.isEmpty) {
-                      return const Center(
-                        child: Text('Belum ada percakapan tersedia'),
-                      );
-                    }
-
-                    final List<dynamic> sortedContacts = List.from(
-                      provider.contacts,
-                    );
-
-                    sortedContacts.sort((a, b) {
-                      String? timeAStr = a['last_message_at'];
-                      String? timeBStr = b['last_message_at'];
-
-                      if (timeAStr != null && timeBStr != null) {
-                        DateTime timeA = DateTime.parse(timeAStr);
-                        DateTime timeB = DateTime.parse(timeBStr);
-                        return timeB.compareTo(timeA);
-                      }
-
-                      if (timeAStr != null && timeBStr == null) return -1;
-                      if (timeAStr == null && timeBStr != null) return 1;
-
-                      String nameA =
-                          a['username']?.toString().toLowerCase() ?? '';
-                      String nameB =
-                          b['username']?.toString().toLowerCase() ?? '';
-                      return nameA.compareTo(nameB);
-                    });
-
-                    return ListView.builder(
-                      itemCount: sortedContacts.length,
-                      padding: const EdgeInsets.only(bottom: 20),
-                      itemBuilder: (context, index) {
-                        final user = sortedContacts[index];
-                        return _buildCounselorCard(user);
-                      },
-                    );
-                  },
-                ),
+    return Consumer<PrivateChatProvider>(
+      builder: (context, provider, child) {
+        if (_isInitializing) {
+          return Scaffold(
+            backgroundColor: AppColors.background,
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Mohon tunggu...', style: AppTextStyles.textLoading),
+                ],
               ),
             ),
-          ],
-        ),
-      ),
+          );
+        }
+
+        return Scaffold(
+          backgroundColor: AppColors.background,
+          body: SafeArea(
+            child: Column(
+              children: [
+                const SizedBox(height: 12),
+                _buildHeader(),
+                const SizedBox(height: 32),
+                _buildContentTop(),
+                const SizedBox(height: 30),
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: () async {
+                      await provider.loadContacts();
+                    },
+                    child: _buildContactList(provider),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildContactList(PrivateChatProvider provider) {
+    final List<dynamic> sortedContacts = List.from(provider.contacts);
+
+    sortedContacts.sort((a, b) {
+      String? timeAStr = a['last_message_at'];
+      String? timeBStr = b['last_message_at'];
+
+      if (timeAStr != null && timeBStr != null) {
+        return DateTime.parse(timeBStr).compareTo(DateTime.parse(timeAStr));
+      }
+      if (timeAStr != null && timeBStr == null) return -1;
+      if (timeAStr == null && timeBStr != null) return 1;
+      return (a['username'] ?? '').compareTo(b['username'] ?? '');
+    });
+
+    return ListView.builder(
+      itemCount: sortedContacts.length,
+      padding: const EdgeInsets.only(bottom: 20),
+      itemBuilder: (context, index) {
+        final user = sortedContacts[index];
+        return _buildCounselorCard(user);
+      },
     );
   }
 
@@ -133,7 +145,10 @@ class _ChatScreenState extends State<ChatScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Teman Vida', style: AppTextStyles.headingChat),
+                    Text(
+                      'Teman Vida',
+                      style: AppTextStyles.headingChat.copyWith(fontSize: 15),
+                    ),
                     const SizedBox(height: 4),
                     Text(
                       'Berbagi dengan aman dan privat bersama Teman VIDA',

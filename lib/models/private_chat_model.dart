@@ -29,7 +29,8 @@ class PrivateChat {
       message: json['message'] ?? '',
       isDeletedEveryone:
           json['is_deleted_everyone'] == 1 ||
-          json['is_deleted_everyone'] == true,
+          json['is_deleted_everyone'] == true ||
+          json['is_deleted_everyone'] == "1",
       deletedBySender:
           json['deleted_by_sender'] == 1 || json['deleted_by_sender'] == true,
       deletedByReceiver:
