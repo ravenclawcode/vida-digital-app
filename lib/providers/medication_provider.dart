@@ -118,6 +118,22 @@ class MedicationProvider with ChangeNotifier {
     } catch (_) {}
   }
 
+  Future<void> _fetchMedicationsSilent() async {
+    try {
+      final data = await _service.fetchTodayMedications();
+      _todayEntries = data.map((item) {
+        return MedicationEntry(
+          id: item['id'],
+          medication: Medication.fromJson(item),
+          isTaken: item['status'] == 'taken',
+        );
+      }).toList();
+      notifyListeners();
+    } catch (e) {
+      debugPrint("Silent fetch error: $e");
+    }
+  }
+
   void startAutoExpiryCheck() {
     _autoRefreshTimer?.cancel();
     _autoRefreshTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
@@ -159,22 +175,6 @@ class MedicationProvider with ChangeNotifier {
       notifyListeners();
 
       _fetchMedicationsSilent();
-    }
-  }
-
-  Future<void> _fetchMedicationsSilent() async {
-    try {
-      final data = await _service.fetchTodayMedications();
-      _todayEntries = data.map((item) {
-        return MedicationEntry(
-          id: item['id'],
-          medication: Medication.fromJson(item),
-          isTaken: item['status'] == 'taken',
-        );
-      }).toList();
-      notifyListeners();
-    } catch (e) {
-      debugPrint("Silent fetch error: $e");
     }
   }
 

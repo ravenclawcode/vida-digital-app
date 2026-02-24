@@ -35,7 +35,7 @@ class ApiConstants {
   static const String privateMessages = '$baseUrl/chat/messages';
   static const String sendPrivateMessage = '$baseUrl/chat/send';
   static const String updateStatus = '$baseUrl/user/status';
+  static const String deleteAccount = '$baseUrl/user/delete';
   static String deleteSingleMessage(String id) =>
       '$baseUrl/chat/messages/$id/delete';
-  static const String deleteAccount = '$baseUrl/user/delete';
 }

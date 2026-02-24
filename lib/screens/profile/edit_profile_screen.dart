@@ -65,36 +65,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.dispose();
   }
 
-  Future<void> _pickImage() async {
-    final XFile? pickedFile = await _picker.pickImage(
-      source: ImageSource.gallery,
-      imageQuality: 80,
-      maxWidth: 1024,
-    );
-
-    if (pickedFile != null) {
-      Provider.of<AuthProvider>(
-        context,
-        listen: false,
-      ).setImage(File(pickedFile.path));
-      setState(() {
-        selectedAvatarUrl = null;
-      });
-    }
-  }
-
-  Widget _buildDefaultAvatar(String username) {
-    String initial = username.isNotEmpty ? username[0].toUpperCase() : 'U';
-    return Container(
-      alignment: Alignment.center,
-      decoration: const BoxDecoration(color: Color(0xFFF5F5F5)),
-      child: Text(
-        initial,
-        style: AppTextStyles.profileChat.copyWith(fontSize: 35),
-      ),
-    );
-  }
-
   void _handleUpdate() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -123,6 +93,24 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   void _resetImageState() {
     Provider.of<AuthProvider>(context, listen: false).setImage(null);
+  }
+
+  Future<void> _pickImage() async {
+    final XFile? pickedFile = await _picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 80,
+      maxWidth: 1024,
+    );
+
+    if (pickedFile != null) {
+      Provider.of<AuthProvider>(
+        context,
+        listen: false,
+      ).setImage(File(pickedFile.path));
+      setState(() {
+        selectedAvatarUrl = null;
+      });
+    }
   }
 
   @override
@@ -217,6 +205,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildDefaultAvatar(String username) {
+    String initial = username.isNotEmpty ? username[0].toUpperCase() : 'U';
+    return Container(
+      alignment: Alignment.center,
+      decoration: const BoxDecoration(color: Color(0xFFF5F5F5)),
+      child: Text(
+        initial,
+        style: AppTextStyles.profileChat.copyWith(fontSize: 35),
       ),
     );
   }

@@ -15,6 +15,16 @@ class PrivateChatProvider with ChangeNotifier {
   List<PrivateChat> get messages => _messages;
   bool get isLoading => _isLoading;
 
+  Map<String, dynamic>? getContactStatus(String userId) {
+    try {
+      return contacts.firstWhere(
+        (c) => c['id'].toString() == userId.toString(),
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
   Future<void> loadContacts() async {
     _contacts = await _service.fetchContacts();
     notifyListeners();
@@ -116,16 +126,6 @@ class PrivateChatProvider with ChangeNotifier {
 
   void stopPolling() {
     _timer?.cancel();
-  }
-
-  Map<String, dynamic>? getContactStatus(String userId) {
-    try {
-      return contacts.firstWhere(
-        (c) => c['id'].toString() == userId.toString(),
-      );
-    } catch (_) {
-      return null;
-    }
   }
 
   void startGlobalContactsPolling() {

@@ -36,6 +36,29 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> fetchUserProfile() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+
+    if (token == null) return;
+
+    try {
+      final response = await http.get(
+        Uri.parse(ApiConstants.userProfile),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        _currentUser = User.fromJson(data['user']);
+        notifyListeners();
+      }
+    } catch (_) {}
+  }
+
   Future<bool> checkLoginStatus() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('auth_token');
@@ -250,29 +273,6 @@ class AuthProvider with ChangeNotifier {
     _isLoading = false;
     notifyListeners();
     return false;
-  }
-
-  Future<void> fetchUserProfile() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('auth_token');
-
-    if (token == null) return;
-
-    try {
-      final response = await http.get(
-        Uri.parse(ApiConstants.userProfile),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Accept': 'application/json',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        _currentUser = User.fromJson(data['user']);
-        notifyListeners();
-      }
-    } catch (_) {}
   }
 
   Future<bool> changePasswordProfile({

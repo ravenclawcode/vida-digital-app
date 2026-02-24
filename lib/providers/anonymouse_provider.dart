@@ -75,19 +75,19 @@ class AnonymousProvider extends ChangeNotifier {
     }
   }
 
-  List<AnonymousComment> getCommentsForPost(String postId) {
-    try {
-      return _posts.firstWhere((post) => post.id == postId).comments;
-    } catch (e) {
-      return [];
-    }
-  }
-
   Future<void> removePost(String postId) async {
     final success = await _service.deletePost(postId);
     if (success) {
       _posts.removeWhere((post) => post.id == postId);
       notifyListeners();
+    }
+  }
+
+  List<AnonymousComment> getCommentsForPost(String postId) {
+    try {
+      return _posts.firstWhere((post) => post.id == postId).comments;
+    } catch (e) {
+      return [];
     }
   }
 }

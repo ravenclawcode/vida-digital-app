@@ -30,12 +30,6 @@ class CounselorProvider with ChangeNotifier {
     }
   }
 
-  void clearSelectedPatient() {
-    if (_selectedPatient == null) return;
-    _selectedPatient = null;
-    notifyListeners();
-  }
-
   Future<void> fetchPatientDetail(String id, {bool isSilent = false}) async {
     if (!isSilent) {
       _isLoading = true;
@@ -64,6 +58,12 @@ class CounselorProvider with ChangeNotifier {
       debugPrint("Error Submit PHQ: $e");
       return false;
     }
+  }
+
+  void clearSelectedPatient() {
+    if (_selectedPatient == null) return;
+    _selectedPatient = null;
+    notifyListeners();
   }
 
   void updateSelectedPatientStatus(bool isOnline, String lastSeen) {

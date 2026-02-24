@@ -33,6 +33,20 @@ class _AudioMindfulnessScreenState extends State<AudioMindfulnessScreen> {
     context.read<AudioProvider>().getAudios(category: category);
   }
 
+  void _showAudioPlayer(
+    AudioMindfulness audio,
+    List<AudioMindfulness> allAudios,
+    int index,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) =>
+          AudioPlayerSheet(audio: audio, playlist: allAudios, index: index),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -258,20 +272,6 @@ class _AudioMindfulnessScreenState extends State<AudioMindfulnessScreen> {
           ),
         ),
       ),
-    );
-  }
-
-  void _showAudioPlayer(
-    AudioMindfulness audio,
-    List<AudioMindfulness> allAudios,
-    int index,
-  ) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) =>
-          AudioPlayerSheet(audio: audio, playlist: allAudios, index: index),
     );
   }
 }

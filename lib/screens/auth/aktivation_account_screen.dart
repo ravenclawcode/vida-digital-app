@@ -29,6 +29,12 @@ class _ActivationAccountScreenState extends State<ActivationAccountScreen> {
     _tokenController.addListener(() => setState(() {}));
   }
 
+  @override
+  void dispose() {
+    _tokenController.dispose();
+    super.dispose();
+  }
+
   void _handleActivation() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -54,12 +60,6 @@ class _ActivationAccountScreenState extends State<ActivationAccountScreen> {
         ),
       );
     }
-  }
-
-  @override
-  void dispose() {
-    _tokenController.dispose();
-    super.dispose();
   }
 
   @override

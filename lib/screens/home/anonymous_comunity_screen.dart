@@ -44,6 +44,15 @@ class _AnonymousComunityScreenState extends State<AnonymousComunityScreen> {
     });
   }
 
+  @override
+  void dispose() {
+    searchController.dispose();
+    _commentController.dispose();
+    overlayEntry?.remove();
+    overlayEntry = null;
+    super.dispose();
+  }
+
   void _loadRole() async {
     final sessionRole = await SessionManager().getRole();
     setState(() {
@@ -70,121 +79,6 @@ class _AnonymousComunityScreenState extends State<AnonymousComunityScreen> {
         });
       }
     });
-  }
-
-  bool _isForbidden(String text) {
-    final cleanText = text.replaceAll(RegExp(r'[\s\-\.]'), '');
-    final phoneRegex = RegExp(r'(?:\+62|62|0)8[1-9][0-9]{6,10}');
-
-    final forbiddenWords = ['wa', 'whatsapp', 'nomer', 'kontak', 'hubungi'];
-
-    if (phoneRegex.hasMatch(cleanText)) return true;
-
-    for (var word in forbiddenWords) {
-      if (text.toLowerCase().contains(word)) return true;
-    }
-    return false;
-  }
-
-  Widget _buildPostHeader(AnonymousPost post) {
-    final String displayName = (role != 1 || post.isMine)
-        ? post.authorName
-        : 'Anonim';
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildAvatar(displayName, post.authorPhoto, post.isMine || role != 1),
-        SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(displayName, style: AppTextStyles.namePost),
-              Text(post.timeAgo, style: AppTextStyles.datePost),
-            ],
-          ),
-        ),
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-          decoration: BoxDecoration(
-            color: AppColors.accentLight,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Text(post.categoryLabel, style: AppTextStyles.categoryPost),
-        ),
-        if (role != 1) SizedBox(width: 14) else SizedBox(width: 8),
-        if (role != 1)
-          InkWell(
-            focusColor: Colors.transparent,
-            hoverColor: Colors.transparent,
-            highlightColor: Colors.transparent,
-            overlayColor: WidgetStateProperty.all(Colors.transparent),
-            onTap: () => _deleteChat(post),
-            child: Image.asset(icDelete1, height: 18),
-          )
-        else
-          Builder(
-            builder: (context) {
-              return InkWell(
-                focusColor: Colors.transparent,
-                hoverColor: Colors.transparent,
-                highlightColor: Colors.transparent,
-                overlayColor: WidgetStateProperty.all(Colors.transparent),
-                onTap: () {
-                  final renderBox = context.findRenderObject() as RenderBox;
-                  final position = renderBox.localToGlobal(Offset.zero);
-                  _showPostMenuAtPosition(position, post);
-                },
-                child: Icon(Icons.more_vert, size: 20),
-              );
-            },
-          ),
-      ],
-    );
-  }
-
-  Widget _buildAvatar(
-    String name,
-    String? photoUrl,
-    bool showRealPhoto, {
-    double size = 34,
-  }) {
-    if (showRealPhoto && photoUrl != null && photoUrl.isNotEmpty) {
-      return Container(
-        width: size,
-        height: size,
-        decoration: const BoxDecoration(shape: BoxShape.circle),
-        child: ClipOval(
-          child: photoUrl.contains('assets/')
-              ? Image.asset(photoUrl, fit: BoxFit.cover)
-              : Image.network(
-                  photoUrl,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) =>
-                      _buildInitialAvatar(name, size),
-                ),
-        ),
-      );
-    }
-    return _buildInitialAvatar(showRealPhoto ? name : 'Anonim', size);
-  }
-
-  Widget _buildInitialAvatar(String name, double size) {
-    String initial = name.isNotEmpty ? name[0].toUpperCase() : 'A';
-    return Container(
-      width: size,
-      height: size,
-      decoration: const BoxDecoration(
-        color: Color(0xFFF5F5F5),
-        shape: BoxShape.circle,
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        initial,
-        style: AppTextStyles.profileChat.copyWith(fontSize: size * 0.45),
-      ),
-    );
   }
 
   void _showPostMenuAtPosition(Offset position, AnonymousPost post) {
@@ -300,13 +194,18 @@ class _AnonymousComunityScreenState extends State<AnonymousComunityScreen> {
     Overlay.of(context).insert(overlayEntry!);
   }
 
-  @override
-  void dispose() {
-    searchController.dispose();
-    _commentController.dispose();
-    overlayEntry?.remove();
-    overlayEntry = null;
-    super.dispose();
+  bool _isForbidden(String text) {
+    final cleanText = text.replaceAll(RegExp(r'[\s\-\.]'), '');
+    final phoneRegex = RegExp(r'(?:\+62|62|0)8[1-9][0-9]{6,10}');
+
+    final forbiddenWords = ['wa', 'whatsapp', 'nomer', 'kontak', 'hubungi'];
+
+    if (phoneRegex.hasMatch(cleanText)) return true;
+
+    for (var word in forbiddenWords) {
+      if (text.toLowerCase().contains(word)) return true;
+    }
+    return false;
   }
 
   @override
@@ -401,6 +300,107 @@ class _AnonymousComunityScreenState extends State<AnonymousComunityScreen> {
           SizedBox(width: 25),
           Text('Komunitas Anonim', style: AppTextStyles.heading3Bold),
         ],
+      ),
+    );
+  }
+
+  Widget _buildPostHeader(AnonymousPost post) {
+    final String displayName = (role != 1 || post.isMine)
+        ? post.authorName
+        : 'Anonim';
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildAvatar(displayName, post.authorPhoto, post.isMine || role != 1),
+        SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(displayName, style: AppTextStyles.namePost),
+              Text(post.timeAgo, style: AppTextStyles.datePost),
+            ],
+          ),
+        ),
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+          decoration: BoxDecoration(
+            color: AppColors.accentLight,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Text(post.categoryLabel, style: AppTextStyles.categoryPost),
+        ),
+        if (role != 1) SizedBox(width: 14) else SizedBox(width: 8),
+        if (role != 1)
+          InkWell(
+            focusColor: Colors.transparent,
+            hoverColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            overlayColor: WidgetStateProperty.all(Colors.transparent),
+            onTap: () => _deleteChat(post),
+            child: Image.asset(icDelete1, height: 18),
+          )
+        else
+          Builder(
+            builder: (context) {
+              return InkWell(
+                focusColor: Colors.transparent,
+                hoverColor: Colors.transparent,
+                highlightColor: Colors.transparent,
+                overlayColor: WidgetStateProperty.all(Colors.transparent),
+                onTap: () {
+                  final renderBox = context.findRenderObject() as RenderBox;
+                  final position = renderBox.localToGlobal(Offset.zero);
+                  _showPostMenuAtPosition(position, post);
+                },
+                child: Icon(Icons.more_vert, size: 20),
+              );
+            },
+          ),
+      ],
+    );
+  }
+
+  Widget _buildAvatar(
+    String name,
+    String? photoUrl,
+    bool showRealPhoto, {
+    double size = 34,
+  }) {
+    if (showRealPhoto && photoUrl != null && photoUrl.isNotEmpty) {
+      return Container(
+        width: size,
+        height: size,
+        decoration: const BoxDecoration(shape: BoxShape.circle),
+        child: ClipOval(
+          child: photoUrl.contains('assets/')
+              ? Image.asset(photoUrl, fit: BoxFit.cover)
+              : Image.network(
+                  photoUrl,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) =>
+                      _buildInitialAvatar(name, size),
+                ),
+        ),
+      );
+    }
+    return _buildInitialAvatar(showRealPhoto ? name : 'Anonim', size);
+  }
+
+  Widget _buildInitialAvatar(String name, double size) {
+    String initial = name.isNotEmpty ? name[0].toUpperCase() : 'A';
+    return Container(
+      width: size,
+      height: size,
+      decoration: const BoxDecoration(
+        color: Color(0xFFF5F5F5),
+        shape: BoxShape.circle,
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        initial,
+        style: AppTextStyles.profileChat.copyWith(fontSize: size * 0.45),
       ),
     );
   }

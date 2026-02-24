@@ -99,4 +99,3 @@ const icGmail = 'assets/icons/ic_gmail.png';
 const icInstagram = 'assets/icons/ic_instagram.png';
 const icTop = 'assets/icons/ic_top.png';
 const icBottom = 'assets/icons/ic_bottom.png';
-  

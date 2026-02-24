@@ -19,6 +19,15 @@ class MoodTrackerScreen extends StatefulWidget {
 class _MoodTrackerScreenState extends State<MoodTrackerScreen> {
   Mood? selectedMood;
 
+  static final List<Mood> moods = [
+    Mood(id: '6', emoji: Image.asset(icHappy), label: 'Senang'),
+    Mood(id: '5', emoji: Image.asset(icCalm), label: 'Tenang'),
+    Mood(id: '4', emoji: Image.asset(icNormal), label: 'Biasa'),
+    Mood(id: '3', emoji: Image.asset(icTired), label: 'Lelah'),
+    Mood(id: '2', emoji: Image.asset(icSad), label: 'Sedih'),
+    Mood(id: '1', emoji: Image.asset(icAnxious), label: 'Cemas'),
+  ];
+
   void _handleDeleteMood(String id) async {
     try {
       await context.read<MoodProvider>().deleteMood(id);
@@ -55,15 +64,6 @@ class _MoodTrackerScreenState extends State<MoodTrackerScreen> {
       }
     }
   }
-
-  static final List<Mood> moods = [
-    Mood(id: '6', emoji: Image.asset(icHappy), label: 'Senang'),
-    Mood(id: '5', emoji: Image.asset(icCalm), label: 'Tenang'),
-    Mood(id: '4', emoji: Image.asset(icNormal), label: 'Biasa'),
-    Mood(id: '3', emoji: Image.asset(icTired), label: 'Lelah'),
-    Mood(id: '2', emoji: Image.asset(icSad), label: 'Sedih'),
-    Mood(id: '1', emoji: Image.asset(icAnxious), label: 'Cemas'),
-  ];
 
   @override
   Widget build(BuildContext context) {

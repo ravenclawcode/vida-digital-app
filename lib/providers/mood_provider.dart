@@ -20,6 +20,16 @@ class MoodProvider with ChangeNotifier {
     Mood(id: '1', emoji: Image.asset(icAnxious), label: 'Cemas'),
   ];
 
+  MoodEntry? getMoodForDay(int dayIndex) {
+    final targetWeekday = dayIndex + 1;
+
+    try {
+      return _weeklyLogs.firstWhere((log) => log.date.weekday == targetWeekday);
+    } catch (_) {
+      return null;
+    }
+  }
+
   Future<void> fetchWeeklyMood() async {
     _isLoading = true;
     notifyListeners();
@@ -79,16 +89,6 @@ class MoodProvider with ChangeNotifier {
     } catch (e) {
       debugPrint("Error deleting mood: $e");
       return false;
-    }
-  }
-
-  MoodEntry? getMoodForDay(int dayIndex) {
-    final targetWeekday = dayIndex + 1;
-
-    try {
-      return _weeklyLogs.firstWhere((log) => log.date.weekday == targetWeekday);
-    } catch (_) {
-      return null;
     }
   }
 }

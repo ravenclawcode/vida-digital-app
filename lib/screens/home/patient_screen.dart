@@ -187,41 +187,6 @@ class _PatientScreenState extends State<PatientScreen> {
     }
   }
 
-  Color _getMoodColor(double score) {
-    if (score >= 4) return const Color(0xFF5ABF8F);
-    if (score >= 3) return const Color(0xFFF2AB44);
-    return const Color(0xFFEA4335);
-  }
-
-  String _formatDateOnly(String date) {
-    if (date == '-') return '-';
-    List<String> parts = date.split(' ');
-    if (parts.length >= 2) {
-      return "${parts[0]} ${parts[1]}";
-    }
-    return date;
-  }
-
-  Widget _buildAnimatedContent({required bool show, required Widget child}) {
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 400),
-      reverseDuration: const Duration(milliseconds: 300),
-      switchInCurve: Curves.easeOut,
-      switchOutCurve: Curves.easeIn,
-      transitionBuilder: (Widget child, Animation<double> animation) {
-        return FadeTransition(
-          opacity: animation,
-          child: SizeTransition(
-            sizeFactor: animation,
-            axisAlignment: -1.0,
-            child: child,
-          ),
-        );
-      },
-      child: show ? child : const SizedBox.shrink(),
-    );
-  }
-
   Map<String, List<MedicationLog>> _groupLogsByDay(List<MedicationLog> logs) {
     Map<String, List<MedicationLog>> grouped = {};
     final dayOrder = [
@@ -246,6 +211,15 @@ class _PatientScreenState extends State<PatientScreen> {
       ..sort((a, b) => dayOrder.indexOf(a).compareTo(dayOrder.indexOf(b)));
 
     return {for (var key in sortedKeys) key: grouped[key]!};
+  }
+
+  String _formatDateOnly(String date) {
+    if (date == '-') return '-';
+    List<String> parts = date.split(' ');
+    if (parts.length >= 2) {
+      return "${parts[0]} ${parts[1]}";
+    }
+    return date;
   }
 
   String _getEmojiForScore(double score) {
@@ -277,43 +251,10 @@ class _PatientScreenState extends State<PatientScreen> {
     return name[0].toUpperCase();
   }
 
-  Widget _buildDefaultAvatar(String username) {
-    return Container(
-      width: 40,
-      height: 40,
-      decoration: const BoxDecoration(
-        color: Color(0xFFF5F5F5),
-        shape: BoxShape.circle,
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        _getInitials(username),
-        style: AppTextStyles.profileChat.copyWith(fontSize: 18),
-      ),
-    );
-  }
-
-  Widget _buildPatientProfileImage(String? photoPath, String username) {
-    if (photoPath != null && photoPath.isNotEmpty) {
-      if (photoPath.startsWith('assets/')) {
-        return Image.asset(
-          photoPath,
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) =>
-              _buildDefaultAvatar(username),
-        );
-      }
-
-      if (photoPath.startsWith('http')) {
-        return Image.network(
-          photoPath,
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) =>
-              _buildDefaultAvatar(username),
-        );
-      }
-    }
-    return _buildDefaultAvatar(username);
+  Color _getMoodColor(double score) {
+    if (score >= 4) return const Color(0xFF5ABF8F);
+    if (score >= 3) return const Color(0xFFF2AB44);
+    return const Color(0xFFEA4335);
   }
 
   @override
@@ -491,6 +432,65 @@ class _PatientScreenState extends State<PatientScreen> {
         );
       },
     );
+  }
+
+  Widget _buildAnimatedContent({required bool show, required Widget child}) {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 400),
+      reverseDuration: const Duration(milliseconds: 300),
+      switchInCurve: Curves.easeOut,
+      switchOutCurve: Curves.easeIn,
+      transitionBuilder: (Widget child, Animation<double> animation) {
+        return FadeTransition(
+          opacity: animation,
+          child: SizeTransition(
+            sizeFactor: animation,
+            axisAlignment: -1.0,
+            child: child,
+          ),
+        );
+      },
+      child: show ? child : const SizedBox.shrink(),
+    );
+  }
+
+  Widget _buildDefaultAvatar(String username) {
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: const BoxDecoration(
+        color: Color(0xFFF5F5F5),
+        shape: BoxShape.circle,
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        _getInitials(username),
+        style: AppTextStyles.profileChat.copyWith(fontSize: 18),
+      ),
+    );
+  }
+
+  Widget _buildPatientProfileImage(String? photoPath, String username) {
+    if (photoPath != null && photoPath.isNotEmpty) {
+      if (photoPath.startsWith('assets/')) {
+        return Image.asset(
+          photoPath,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) =>
+              _buildDefaultAvatar(username),
+        );
+      }
+
+      if (photoPath.startsWith('http')) {
+        return Image.network(
+          photoPath,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) =>
+              _buildDefaultAvatar(username),
+        );
+      }
+    }
+    return _buildDefaultAvatar(username);
   }
 
   Widget _buildMedicalCard(BuildContext context, Patient patient) {

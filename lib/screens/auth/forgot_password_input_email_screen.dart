@@ -28,6 +28,12 @@ class _ForgotPasswordInputEmailScreenState
     emailController.addListener(() => setState(() {}));
   }
 
+  @override
+  void dispose() {
+    emailController.dispose();
+    super.dispose();
+  }
+
   _handleSendEmail() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -50,12 +56,6 @@ class _ForgotPasswordInputEmailScreenState
         ),
       );
     }
-  }
-
-  @override
-  void dispose() {
-    emailController.dispose();
-    super.dispose();
   }
 
   @override

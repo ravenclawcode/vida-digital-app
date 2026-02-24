@@ -33,6 +33,13 @@ class _ForgotPasswordInputNewPasswordScreenState
     confirmPasswordController.addListener(() => setState(() {}));
   }
 
+  @override
+  void dispose() {
+    passwordController.dispose();
+    confirmPasswordController.dispose();
+    super.dispose();
+  }
+
   Future<void> _handleUpdatePassword() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -56,13 +63,6 @@ class _ForgotPasswordInputNewPasswordScreenState
         ),
       );
     }
-  }
-
-  @override
-  void dispose() {
-    passwordController.dispose();
-    confirmPasswordController.dispose();
-    super.dispose();
   }
 
   @override

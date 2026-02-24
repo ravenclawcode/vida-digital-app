@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mindfullshelter/utils/app_colors.dart';
 
 class EducationContent {
   final String id;
@@ -50,7 +51,7 @@ class EducationContent {
     if (thumbnail != null && thumbnail!.isNotEmpty) {
       return Image.network(thumbnail!, fit: BoxFit.cover);
     }
-    return Container(color: Colors.grey);
+    return Container(color: AppColors.textLight);
   }
 
   String get durationFormatted => duration;

@@ -16,6 +16,8 @@ class AudioPlayerService {
 
   Future<void> stop() => _player.stop();
 
+  Future<void> dispose() => _player.dispose();
+
   Future<void> seek(Duration position) => _player.seek(position);
 
   Stream<PlayerState> get playerStateStream => _player.playerStateStream;
@@ -25,6 +27,4 @@ class AudioPlayerService {
   Stream<Duration> get positionStream => _player.positionStream;
 
   Duration? get duration => _player.duration;
-
-  Future<void> dispose() => _player.dispose();
 }

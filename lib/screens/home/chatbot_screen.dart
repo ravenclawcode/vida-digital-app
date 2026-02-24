@@ -35,6 +35,13 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
     });
   }
 
+  @override
+  void dispose() {
+    _messageController.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   void _scrollToBottom() {
     if (_scrollController.hasClients) {
       _scrollController.animateTo(
@@ -67,13 +74,6 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
       barrierDismissible: true,
       builder: (_) => const CustomDialogDeleteChatbot(),
     );
-  }
-
-  @override
-  void dispose() {
-    _messageController.dispose();
-    _scrollController.dispose();
-    super.dispose();
   }
 
   @override

@@ -26,9 +26,10 @@ class PhqProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void removeCodeLocal() {
-    _currentCode = null;
-    notifyListeners();
+  Future<void> burnCode(String code) async {
+    try {
+      await _service.useCode(code);
+    } catch (_) {}
   }
 
   Future<bool> validatePatientCode(String code) async {
@@ -48,9 +49,8 @@ class PhqProvider with ChangeNotifier {
     }
   }
 
-  Future<void> burnCode(String code) async {
-    try {
-      await _service.useCode(code);
-    } catch (_) {}
+  void removeCodeLocal() {
+    _currentCode = null;
+    notifyListeners();
   }
 }

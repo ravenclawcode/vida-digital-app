@@ -18,19 +18,6 @@ class PhqQuestionProvider with ChangeNotifier {
   Map<int, int> get answers => _answers;
   bool get isLoading => _isLoading;
 
-  Future<void> fetchQuestions() async {
-    _isLoading = true;
-    notifyListeners();
-
-    try {
-      _questions = await _phqQuestionService.fetchQuestions();
-    } catch (_) {
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
-  }
-
   Future<bool> submitResult(String tokenCode) async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -61,6 +48,19 @@ class PhqQuestionProvider with ChangeNotifier {
     } catch (e) {
       debugPrint("Submit Error: $e");
       return false;
+    }
+  }
+
+  Future<void> fetchQuestions() async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      _questions = await _phqQuestionService.fetchQuestions();
+    } catch (_) {
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
   }
 

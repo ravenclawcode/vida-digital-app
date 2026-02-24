@@ -22,46 +22,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildProfileImage(AuthProvider auth) {
-    final user = auth.currentUser;
-    final String? photoUrl = user?.profilePhotoUrl;
-    final String username = user?.username ?? 'User';
-
-    if (auth.imageFile != null) {
-      return Image.file(auth.imageFile!, fit: BoxFit.cover);
-    }
-
-    if (photoUrl != null && photoUrl.isNotEmpty) {
-      if (photoUrl.startsWith('http')) {
-        return Image.network(
-          photoUrl,
-          fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => _buildDefaultAvatar(username),
-        );
-      }
-      return Image.asset(photoUrl, fit: BoxFit.cover);
-    }
-
-    return _buildDefaultAvatar(username);
-  }
-
-  Widget _buildDefaultAvatar(String username, {double size = 88}) {
-    String initial = username.isNotEmpty ? username[0].toUpperCase() : 'U';
-    return Container(
-      width: size,
-      height: size,
-      decoration: const BoxDecoration(
-        color: Color(0xFFF5F5F5),
-        shape: BoxShape.circle,
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        initial,
-        style: AppTextStyles.profileChat.copyWith(fontSize: size * 0.4),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -159,6 +119,46 @@ class _ProfileScreenState extends State<ProfileScreen> {
           SizedBox(height: 18),
           Text('VIDA Digital v1.0.0', style: AppTextStyles.versionApp),
         ],
+      ),
+    );
+  }
+
+  Widget _buildProfileImage(AuthProvider auth) {
+    final user = auth.currentUser;
+    final String? photoUrl = user?.profilePhotoUrl;
+    final String username = user?.username ?? 'User';
+
+    if (auth.imageFile != null) {
+      return Image.file(auth.imageFile!, fit: BoxFit.cover);
+    }
+
+    if (photoUrl != null && photoUrl.isNotEmpty) {
+      if (photoUrl.startsWith('http')) {
+        return Image.network(
+          photoUrl,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => _buildDefaultAvatar(username),
+        );
+      }
+      return Image.asset(photoUrl, fit: BoxFit.cover);
+    }
+
+    return _buildDefaultAvatar(username);
+  }
+
+  Widget _buildDefaultAvatar(String username, {double size = 88}) {
+    String initial = username.isNotEmpty ? username[0].toUpperCase() : 'U';
+    return Container(
+      width: size,
+      height: size,
+      decoration: const BoxDecoration(
+        color: Color(0xFFF5F5F5),
+        shape: BoxShape.circle,
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        initial,
+        style: AppTextStyles.profileChat.copyWith(fontSize: size * 0.4),
       ),
     );
   }

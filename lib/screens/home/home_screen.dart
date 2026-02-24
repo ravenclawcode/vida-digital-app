@@ -108,7 +108,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     }
 
     if (photoUrl != null && photoUrl.isNotEmpty) {
-      // Tambahkan pengecekan ini untuk membaca asset dari DB
       if (photoUrl.startsWith('assets/')) {
         return Image.asset(photoUrl, fit: BoxFit.cover);
       }
@@ -128,15 +127,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       width: 42,
       height: 42,
       decoration: const BoxDecoration(
-        color: Color(0xFFF5F5F5), // Warna abu-abu yang sama dengan ChatScreen
+        color: Color(0xFFF5F5F5),
         shape: BoxShape.circle,
       ),
       alignment: Alignment.center,
       child: Text(
         initial,
-        style: AppTextStyles.profileChat.copyWith(
-          fontSize: 18,
-        ), // Gunakan style dari chat
+        style: AppTextStyles.profileChat.copyWith(fontSize: 18),
       ),
     );
   }

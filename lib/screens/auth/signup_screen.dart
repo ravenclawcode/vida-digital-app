@@ -39,6 +39,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
         isAgreed;
   }
 
+  @override
+  void dispose() {
+    emailController.dispose();
+    usernameController.dispose();
+    passwordController.dispose();
+    confirmPasswordController.dispose();
+    super.dispose();
+  }
+
   void _handleSignUp(String? tokenCode) async {
     if (!isAgreed) {
       setState(() => showCheckboxError = true);
@@ -90,15 +99,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
         ),
       );
     }
-  }
-
-  @override
-  void dispose() {
-    emailController.dispose();
-    usernameController.dispose();
-    passwordController.dispose();
-    confirmPasswordController.dispose();
-    super.dispose();
   }
 
   @override

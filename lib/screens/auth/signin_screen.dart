@@ -35,6 +35,13 @@ class _SignInScreenState extends State<SignInScreen> {
     passwordController.addListener(() => setState(() {}));
   }
 
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
   void _handleSignIn() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -54,13 +61,6 @@ class _SignInScreenState extends State<SignInScreen> {
         const SnackBar(content: Text('Email atau password salah')),
       );
     }
-  }
-
-  @override
-  void dispose() {
-    emailController.dispose();
-    passwordController.dispose();
-    super.dispose();
   }
 
   @override

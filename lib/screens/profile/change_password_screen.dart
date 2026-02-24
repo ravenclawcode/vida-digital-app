@@ -32,6 +32,14 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     confirmPasswordController.addListener(() => setState(() {}));
   }
 
+  @override
+  void dispose() {
+    currentPasswordController.dispose();
+    passwordController.dispose();
+    confirmPasswordController.dispose();
+    super.dispose();
+  }
+
   Future<void> _handleUpdatePassword() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -56,14 +64,6 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         ),
       );
     }
-  }
-
-  @override
-  void dispose() {
-    currentPasswordController.dispose();
-    passwordController.dispose();
-    confirmPasswordController.dispose();
-    super.dispose();
   }
 
   @override

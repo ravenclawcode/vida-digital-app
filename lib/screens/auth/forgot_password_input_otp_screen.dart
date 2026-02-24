@@ -28,7 +28,6 @@ class _ForgorPasswordInputOtpScreenState
   Timer? _timer;
   int _start = 60;
   bool _isTimerActive = true;
-
   bool get isFormFilled => otpController.text.trim().isNotEmpty;
 
   @override

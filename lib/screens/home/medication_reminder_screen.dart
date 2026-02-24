@@ -196,51 +196,51 @@ class _MedicationReminderScreenState extends State<MedicationReminderScreen> {
       ),
     );
   }
-}
 
-Widget _buildHeader(BuildContext context) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 25),
-    child: Row(
-      children: [
-        InkWell(
-          focusColor: Colors.transparent,
-          hoverColor: Colors.transparent,
-          highlightColor: Colors.transparent,
-          overlayColor: WidgetStateProperty.all(Colors.transparent),
-          onTap: () => Navigator.pop(context),
-          child: Image.asset(icBackLeft2, width: 10),
-        ),
-        const SizedBox(width: 25),
-        Text('Kelola Obat', style: AppTextStyles.heading3Bold),
-      ],
-    ),
-  );
-}
+  Widget _buildHeader(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 25),
+      child: Row(
+        children: [
+          InkWell(
+            focusColor: Colors.transparent,
+            hoverColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            overlayColor: WidgetStateProperty.all(Colors.transparent),
+            onTap: () => Navigator.pop(context),
+            child: Image.asset(icBackLeft2, width: 10),
+          ),
+          const SizedBox(width: 25),
+          Text('Kelola Obat', style: AppTextStyles.heading3Bold),
+        ],
+      ),
+    );
+  }
 
-Widget _buildTips() {
-  return Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 25),
-    child: Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFF57D1C9)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(17, 12, 17, 17),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Tips', style: AppTextStyles.titleGuidline),
-            const SizedBox(height: 5),
-            Text(
-              '• Atur waktu sesuai jadwal minum obat Anda\n• Obat akan ditampilkan di beranda untuk pengingat\n• Tandai obat yang sudah diminum di beranda.',
-              style: AppTextStyles.descGuidline.copyWith(height: 1.7),
-            ),
-          ],
+  Widget _buildTips() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 25),
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: const Color(0xFF57D1C9)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(17, 12, 17, 17),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Tips', style: AppTextStyles.titleGuidline),
+              const SizedBox(height: 5),
+              Text(
+                '• Atur waktu sesuai jadwal minum obat Anda\n• Obat akan ditampilkan di beranda untuk pengingat\n• Tandai obat yang sudah diminum di beranda.',
+                style: AppTextStyles.descGuidline.copyWith(height: 1.7),
+              ),
+            ],
+          ),
         ),
       ),
-    ),
-  );
+    );
+  }
 }
