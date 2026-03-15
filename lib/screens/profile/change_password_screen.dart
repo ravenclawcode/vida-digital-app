@@ -75,9 +75,11 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               _buildHeader(context),
-              const SizedBox(height: 10),
+              SizedBox(height: 15),
+              _buildWelcomeCard(),
+              SizedBox(height: 10),
               SizedBox(height: 20),
               _buildActionForm(),
             ],
@@ -101,6 +103,29 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         SizedBox(width: 25),
         Text('Ubah Kata Sandi', style: AppTextStyles.heading3Bold),
       ],
+    );
+  }
+
+  Widget _buildWelcomeCard() {
+    return Container(
+      padding: EdgeInsets.all(15),
+      decoration: BoxDecoration(
+        color: Color(0xFFF1FFFE),
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: Color(0xFF57D1C9)),
+      ),
+      child: Row(
+        children: [
+          Text('💡', style: TextStyle(fontSize: 32)),
+          SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              'Pastikan kata sandi baru Anda kuat dan mudah diingat.',
+              style: AppTextStyles.bodyLargeChatbot,
+            ),
+          ),
+        ],
+      ),
     );
   }
 

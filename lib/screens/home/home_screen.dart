@@ -679,31 +679,27 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   Widget _buildFeatureGrid(BuildContext context) {
     final features = [
       {
-        'icon': icAudio,
+        'icon': icAudioMenu,
         'title': 'Audio Mindfulness',
         'subtitle': 'Musik & Relaksasi',
-        'color': Color(0xFFDCFFFB),
         'route': '/audiomindfulness',
       },
       {
-        'icon': icComunity,
+        'icon': icCommunityMenu,
         'title': 'Komunitas Anonim',
         'subtitle': 'Chatbot 24/7',
-        'color': Color(0xFFFFF7D2),
         'route': '/anonymouscomunity',
       },
       {
-        'icon': icChatbot,
+        'icon': icChatbotMenu,
         'title': 'Teman Hati',
         'subtitle': 'Berbagi Cerita',
-        'color': Color(0xFFDEF5FF),
         'route': '/chatbot',
       },
       {
-        'icon': icEducation,
+        'icon': icEducationMenu,
         'title': 'Edukasi',
         'subtitle': 'Info HIV/AIDS',
-        'color': Color(0xFFFFE5F0),
         'route': '/education',
       },
     ];
@@ -715,7 +711,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         crossAxisCount: 2,
         crossAxisSpacing: 14,
         mainAxisSpacing: 14,
-        childAspectRatio: 1.3,
+        childAspectRatio: 1.4,
       ),
       itemCount: features.length,
       itemBuilder: (context, index) {
@@ -741,19 +737,18 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               ],
             ),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10),
-                  height: 40,
-                  width: 40,
-                  decoration: BoxDecoration(
-                    color: feature['color'] as Color,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Image(image: AssetImage(feature['icon'] as String)),
-                ),
+                // Container(
+                //   padding: EdgeInsets.symmetric(horizontal: 10),
+                //   height: 40,
+                //   width: 40,
+                //   decoration: BoxDecoration(
+                //     color: feature['color'] as Color,
+                //     borderRadius: BorderRadius.circular(10),
+                //   ),
+                //   child: Image(image: AssetImage(feature['icon'] as String)),
+                // ),
                 SizedBox(height: 12),
                 Text(
                   feature['title'] as String,
@@ -769,6 +764,15 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   textAlign: TextAlign.center,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
+                ),
+                Expanded(
+                  child: Align(
+                    alignment: AlignmentGeometry.bottomRight,
+                    child: Image(
+                      image: AssetImage(feature['icon'] as String),
+                      height: 60,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -844,7 +848,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 ),
               ),
               const SizedBox(width: 4),
-              Image.asset(icMedicalAnonymous, height: 53),
+              Image.asset(icMedicalAnonymousCommunity, height: 58),
             ],
           ),
         ),
