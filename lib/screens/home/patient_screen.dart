@@ -85,40 +85,33 @@ class _PatientScreenState extends State<PatientScreen> {
   }
 
   Map<String, dynamic> _getPhqConfig(int score) {
-    if (score <= 4) {
+    if (score >= 20) {
       return {
-        'category': 'Minimal',
-        'bgColor': const Color(0xFFEFFDF4),
-        'bgRoundColor': const Color(0xFFC8FFDB),
-        'labelColor': const Color(0xFF00A63E),
+        'category': 'Berat',
+        'bgColor': const Color(0xFFFEF3F2),
+        'bgRoundColor': const Color(0xFFFFD0D2),
+        'labelColor': const Color(0xFFE7000B),
       };
-    } else if (score <= 9) {
+    } else if (score >= 15) {
       return {
-        'category': 'Ringan',
-        'bgColor': const Color(0xFFEFF6FF),
-        'bgRoundColor': const Color(0xFFD5E8FF),
-        'labelColor': const Color(0xFF165DFB),
+        'category': 'Sedang Berat',
+        'bgColor': const Color(0xFFFEFCE8),
+        'bgRoundColor': const Color(0xFFFFE7C3),
+        'labelColor': const Color(0xFFD18700),
       };
-    } else if (score <= 14) {
+    } else if (score >= 10) {
       return {
         'category': 'Sedang',
         'bgColor': const Color(0xFFFEFCE8),
         'bgRoundColor': const Color(0xFFFFE7C3),
         'labelColor': const Color(0xFFD18700),
       };
-    } else if (score <= 19) {
-      return {
-        'category': 'Cukup Berat',
-        'bgColor': const Color(0xFFFFF7ED),
-        'bgRoundColor': const Color(0xFFFFDDCF),
-        'labelColor': const Color(0xFFF54900),
-      };
     } else {
       return {
-        'category': 'Berat',
-        'bgColor': const Color(0xFFFEF3F2),
-        'bgRoundColor': const Color(0xFFFFD0D2),
-        'labelColor': const Color(0xFFE7000B),
+        'category': 'Ringan',
+        'bgColor': const Color(0xFFEFFDF4),
+        'bgRoundColor': const Color(0xFFC8FFDB),
+        'labelColor': const Color(0xFF00A63E),
       };
     }
   }

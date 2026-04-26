@@ -1,4 +1,4 @@
-package com.ravenclawcode.vida
+package com.ravenclawcodeid.vida
 
 import io.flutter.embedding.android.FlutterActivity
 import com.ryanheise.audioservice.AudioServiceActivity
