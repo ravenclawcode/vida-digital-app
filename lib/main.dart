@@ -30,7 +30,7 @@ void main() async {
   audioHandler = await AudioService.init(
     builder: () => MyAudioHandler(),
     config: const AudioServiceConfig(
-      androidNotificationChannelId: 'com.ravenclawcode.vida',
+      androidNotificationChannelId: 'com.ravenclawcodeid.vida',
       androidNotificationChannelName: 'Vida Mindfulness Audio',
       androidStopForegroundOnPause: true,
       androidNotificationIcon: 'mipmap/ic_launcher',

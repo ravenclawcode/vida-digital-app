@@ -54,7 +54,7 @@
         </receiver>
 
         <activity
-            android:name="com.ravenclawcode.vida.MainActivity"
+            android:name="com.ravenclawcodeid.vida.MainActivity"
             android:showWhenLocked="true"
             android:turnScreenOn="true"
             android:exported="true"
