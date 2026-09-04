@@ -52,6 +52,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     super.dispose();
   }
 
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && mounted) {
+      context.read<MedicationProvider>().refreshIfNewDay();
+    }
+  }
+
   void _setOnlineStatus(bool isOnline) {
     AuthService().updateOnlineStatus(isOnline);
   }
@@ -739,16 +746,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Container(
-                //   padding: EdgeInsets.symmetric(horizontal: 10),
-                //   height: 40,
-                //   width: 40,
-                //   decoration: BoxDecoration(
-                //     color: feature['color'] as Color,
-                //     borderRadius: BorderRadius.circular(10),
-                //   ),
-                //   child: Image(image: AssetImage(feature['icon'] as String)),
-                // ),
                 SizedBox(height: 12),
                 Text(
                   feature['title'] as String,

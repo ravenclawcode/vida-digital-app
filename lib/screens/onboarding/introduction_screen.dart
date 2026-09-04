@@ -19,20 +19,6 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
   @override
   void initState() {
     super.initState();
-
-    // Timer.periodic(Duration(seconds: 3), (timer) {
-    //   if (_controller.hasClients) {
-    //     int nextPage = _controller.page!.round() + 1;
-    //     if (nextPage == 5) {
-    //       nextPage = 0;
-    //     }
-    //     _controller.animateToPage(
-    //       nextPage,
-    //       duration: Duration(milliseconds: 500),
-    //       curve: Curves.easeInOut,
-    //     );
-    //   }
-    // });
   }
 
   @override
@@ -46,8 +32,6 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
             _buildHeaderWelcome(),
             SizedBox(height: 10),
             Expanded(child: Image.asset(illustration9)),
-            // _buildCarousel(),
-            // SizedBox(height: 3),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 25),
               child: CustomButton11(
@@ -122,54 +106,4 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
       ],
     );
   }
-
-  //   Widget _buildCarousel() {
-  //     return Column(
-  //       mainAxisAlignment: MainAxisAlignment.end,
-  //       children: [
-  //         SizedBox(
-  //           height: 270,
-  //           child: PageView(
-  //             controller: _controller,
-  //             children: [
-  //               CarouselContent(image: illustration8),
-  //               CarouselContent(image: illustration1),
-  //               CarouselContent(image: illustration2),
-  //               CarouselContent(image: illustration3),
-  //               CarouselContent(image: illustration4),
-  //               CarouselContent(image: illustration5),
-  //             ],
-  //           ),
-  //         ),
-  //         SizedBox(height: 35),
-  //         SmoothPageIndicator(
-  //           controller: _controller,
-  //           count: 6,
-  //           effect: ExpandingDotsEffect(
-  //             dotHeight: 8,
-  //             dotWidth: 8,
-  //             activeDotColor: AppColors.primary,
-  //             dotColor: AppColors.accent,
-  //             expansionFactor: 3,
-  //           ),
-  //         ),
-  //         SizedBox(height: 60),
-  //       ],
-  //     );
-  //   }
-  // }
-
-  // class CarouselContent extends StatelessWidget {
-  //   final String image;
-
-  //   const CarouselContent({super.key, required this.image});
-
-  //   @override
-  //   Widget build(BuildContext context) {
-  //     return Padding(
-  //       padding: EdgeInsets.symmetric(horizontal: 25),
-  //       child: Image.asset(image, height: 230),
-  //     );
-  //   }
-  // }
 }

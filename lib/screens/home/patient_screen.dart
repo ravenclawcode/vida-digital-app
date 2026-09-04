@@ -32,8 +32,9 @@ class _PatientScreenState extends State<PatientScreen> {
       if (mounted) {
         context.read<PrivateChatProvider>().loadContacts();
         final patientId = ModalRoute.of(context)?.settings.arguments as String?;
+        if (patientId == null) return;
         context.read<CounselorProvider>().fetchPatientDetail(
-          patientId!,
+          patientId,
           isSilent: true,
         );
       }

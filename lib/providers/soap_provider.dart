@@ -66,7 +66,7 @@ class SoapProvider with ChangeNotifier {
           'plan': p,
         }),
       );
-      return response.statusCode == 201;
+      return response.statusCode == 201 || response.statusCode == 200;
     } catch (e) {
       return false;
     } finally {

@@ -77,9 +77,9 @@ Future<void> _requestNotificationPermissions() async {
     await Permission.notification.request();
   }
 
-  if (await Permission.scheduleExactAlarm.isDenied) {
-    await Permission.scheduleExactAlarm.request();
-  }
+  try {
+    await NotificationService().requestAlarmPermission();
+  } catch (_) {}
 }
 
 class VidaApp extends StatelessWidget {

@@ -37,7 +37,7 @@ class Patient {
       name: json['name']?.toString() ?? 'Pasien',
       profilePhotoUrl: json['profile_photo_url'],
       status: json['status']?.toString() ?? 'Perlu Perhatian',
-      progress: (json['progress'] ?? 0.0).toDouble(),
+      progress: _parseDouble(json['progress']),
       unread: int.tryParse(json['unread']?.toString() ?? '0') ?? 0,
       isOnline: json['is_online'] == true || json['is_online'] == 1,
       lastSeenDisplay: json['last_seen_display'] ?? 'Offline',
@@ -49,7 +49,10 @@ class Patient {
       weeklyMoods: json['weekly_moods'] != null
           ? List<int>.from(
               (json['weekly_moods'] as List).map(
-                (m) => int.parse(m.toString()),
+                (m) =>
+                    int.tryParse(m.toString()) ??
+                    double.tryParse(m.toString())?.toInt() ??
+                    0,
               ),
             )
           : null,
@@ -64,6 +67,12 @@ class Patient {
                 .toList()
           : null,
     );
+  }
+
+  static double _parseDouble(dynamic value) {
+    if (value == null) return 0.0;
+    if (value is num) return value.toDouble();
+    return double.tryParse(value.toString()) ?? 0.0;
   }
 
   Patient copyWith({
